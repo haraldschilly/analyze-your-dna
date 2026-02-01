@@ -2,7 +2,7 @@
 name = "analyze-dna"
 version = "0.1.0"
 description = "Genetic health analysis pipeline for 23andMe data"
-readme = "CLAUDE.md"
+readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
 authors = [{ name = "Genetic Health Analysis" }]
