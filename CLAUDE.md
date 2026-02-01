@@ -1,94 +1,151 @@
-# Genetic Health Analysis Workspace
+# Genetic Health Analysis Pipeline
 
-This workspace contains a comprehensive genetic health analysis pipeline that processes 23andMe raw data to generate detailed health reports.
+A comprehensive genetic health analysis pipeline that processes 23andMe raw data to generate detailed health reports using Claude Code.
 
-## Quick Start (UV)
+## Attribution
+
+This project is derived from work by **Nick Saraev**, originally demonstrated in:
+
+**"I gave an AI my DNA and let it analyze my entire genome"**
+YouTube: https://youtu.be/O1ICQworLVc
+
+The original concept uses Claude Code to analyze 23andMe genetic data against ClinVar and PharmGKB databases to generate personalized health reports.
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+1. **Get your 23andMe raw data:**
+   - Log into 23andMe → Settings → Download Raw Data
+   - Save as `data/genome.txt`
+
+2. **Download ClinVar database** (~289MB, required for disease analysis):
+   ```bash
+   # Using gdown (recommended)
+   pip install gdown
+   gdown 1ER1lNS9jcWV0oaUo0_DOa23QRHaUKclt -O data/clinvar_alleles.tsv
+
+   # Or using uv
+   uv run pip install gdown
+   uv run gdown 1ER1lNS9jcWV0oaUo0_DOa23QRHaUKclt -O data/clinvar_alleles.tsv
+   ```
+
+### Running with UV (Recommended)
 
 ```bash
-# Install dependencies and run (recommended)
+# Basic run (pure Python, no extra dependencies)
+uv run python scripts/run_full_analysis.py
+
+# With fast mode (5-10x speedup using polars)
+uv sync --extra fast
 uv run python scripts/run_full_analysis.py
 
 # With custom genome file
 uv run python scripts/run_full_analysis.py /path/to/genome.txt
 
-# With subject name
-uv run python scripts/run_full_analysis.py --name "John Doe"
+# With subject name in reports
+uv run python scripts/run_full_analysis.py --name "Your Name"
 
-# Install with fast mode for 5-10x speedup on large files
+# Full example
 uv sync --extra fast
-uv run python scripts/run_full_analysis.py
+uv run python scripts/run_full_analysis.py data/genome.txt --name "John Doe"
 ```
 
-## Quick Start (Traditional Python)
+### Running with Traditional Python
 
 ```bash
-# Run full analysis with default genome file (data/genome.txt)
+# Ensure Python 3.10+
 python scripts/run_full_analysis.py
 
-# Run with a custom genome file
+# With custom genome file
 python scripts/run_full_analysis.py /path/to/genome.txt
 
-# Run with subject name included in reports
+# With subject name
 python scripts/run_full_analysis.py --name "John Doe"
-python scripts/run_full_analysis.py /path/to/genome.txt --name "Jane Doe"
+
+# Optional: Install polars for faster processing
+pip install polars
+python scripts/run_full_analysis.py
 ```
 
-## Output
+---
+
+## Output Reports
 
 The pipeline generates three reports in the `reports/` directory:
 
-1. **EXHAUSTIVE_GENETIC_REPORT.md** - Lifestyle/health genetics analysis
-   - Drug metabolism (CYP enzymes, warfarin sensitivity)
-   - Methylation (MTHFR, COMT, MTRR)
-   - Nutrition (vitamin D, omega-3, lactose)
-   - Fitness (muscle fiber type, exercise response)
-   - Cardiovascular (blood pressure genes, clotting)
-   - Sleep/circadian rhythm
-   - PharmGKB drug-gene interactions
+### 1. EXHAUSTIVE_GENETIC_REPORT.md
+Lifestyle and health genetics analysis:
+- Drug metabolism (CYP enzymes, warfarin sensitivity)
+- Methylation (MTHFR, COMT, MTRR)
+- Nutrition (vitamin D, omega-3, lactose)
+- Fitness (muscle fiber type, exercise response)
+- Cardiovascular (blood pressure genes, clotting)
+- Sleep/circadian rhythm
+- PharmGKB drug-gene interactions
 
-2. **EXHAUSTIVE_DISEASE_RISK_REPORT.md** - Clinical variant analysis
-   - Pathogenic variants (affected status)
-   - Carrier status for recessive conditions
-   - Risk factors
-   - Drug response variants
-   - Protective variants
+### 2. EXHAUSTIVE_DISEASE_RISK_REPORT.md
+Clinical variant analysis from ClinVar:
+- Pathogenic variants (affected status)
+- Carrier status for recessive conditions
+- Risk factors
+- Drug response variants
+- Protective variants
 
-3. **ACTIONABLE_HEALTH_PROTOCOL_V3.md** - Comprehensive protocol
-   - Critical disease findings summary (pathogenic, carrier status)
-   - Daily protocol (morning/midday/evening stacks)
-   - Dietary framework with specific targets
-   - Exercise protocol with weekly structure
-   - Blood pressure management
-   - Risk factor monitoring by condition
-   - Comprehensive drug interactions (PharmGKB + ClinVar)
-   - Testing & monitoring schedule
-   - 90-day implementation checklist
-   - Quick reference cards
+### 3. ACTIONABLE_HEALTH_PROTOCOL_V3.md
+Comprehensive personalized protocol:
+- Critical disease findings summary
+- Supplement recommendations
+- Dietary framework
+- Exercise protocol
+- Blood pressure management
+- Drug-gene interactions
+- Testing & monitoring schedule
 
-## Directory Structure
+---
+
+## Project Structure
 
 ```
-Genetic Health/
-├── CLAUDE.md              # This file
+analyze-dna/
+├── CLAUDE.md                  # This file
+├── pyproject.toml             # UV/pip package configuration
+├── .python-version            # Python version (3.12)
+├── uv.lock                    # Locked dependencies
 ├── data/
-│   ├── genome.txt         # 23andMe raw data file
-│   ├── clinvar_alleles.tsv        # ClinVar database (~341K variants)
-│   ├── clinical_annotations.tsv   # PharmGKB annotations
-│   └── clinical_ann_alleles.tsv   # PharmGKB allele data
+│   ├── genome.txt             # Your 23andMe raw data (add this)
+│   ├── clinvar_alleles.tsv    # ClinVar database (download separately)
+│   ├── clinical_annotations.tsv   # PharmGKB annotations (included)
+│   ├── clinical_ann_alleles.tsv   # PharmGKB allele data (included)
+│   └── clinical_ann_*.tsv     # Additional PharmGKB data (included)
 ├── scripts/
-│   ├── run_full_analysis.py       # MAIN ENTRY POINT - runs everything
-│   ├── comprehensive_snp_database.py  # Curated SNP database
-│   ├── full_health_analysis.py    # Lifestyle/health analysis
+│   ├── __init__.py            # Package init
+│   ├── run_full_analysis.py   # MAIN ENTRY POINT
+│   ├── fast_loader.py         # Optimized data loading (polars)
+│   ├── comprehensive_snp_database.py  # ~200 curated SNPs
 │   ├── generate_exhaustive_report.py  # Report generator
-│   ├── disease_risk_analyzer.py   # ClinVar disease analysis
-│   └── analyze_genome.py          # Basic genome utilities
-└── reports/
-    ├── EXHAUSTIVE_GENETIC_REPORT.md
-    ├── EXHAUSTIVE_DISEASE_RISK_REPORT.md
-    ├── ACTIONABLE_HEALTH_PROTOCOL_V3.md   # Current comprehensive protocol
-    ├── ACTIONABLE_HEALTH_PROTOCOL_V2.md   # Previous version (preserved)
-    └── comprehensive_results.json          # Intermediate data
+│   ├── disease_risk_analyzer.py       # ClinVar analysis
+│   ├── full_health_analysis.py        # Lifestyle analysis
+│   └── analyze_genome.py              # Utilities
+└── reports/                   # Generated reports (output)
 ```
+
+---
+
+## Performance
+
+The pipeline supports two modes:
+
+| Mode | ClinVar Processing | Install |
+|------|-------------------|---------|
+| Standard | ~15-25 seconds | No extra deps |
+| Fast (polars) | ~2-4 seconds | `uv sync --extra fast` |
+
+The fast loader uses [polars](https://pola.rs/) for native Rust-based TSV parsing and pre-filters ClinVar to only genome positions before iteration.
+
+---
 
 ## Data Requirements
 
@@ -104,75 +161,32 @@ rs123   1           12345     AG
 - Both rsIDs and position-based matching are used
 
 ### Required Data Files
-The analysis requires these files in `data/`:
 
-1. **genome.txt** - Your 23andMe raw data download
-2. **clinvar_alleles.tsv** - ClinVar variant database (~289MB, not included in repo)
-   - Download with: `pip install gdown && gdown 1ER1lNS9jcWV0oaUo0_DOa23QRHaUKclt -O data/clinvar_alleles.tsv`
-   - Or from: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/
-3. **clinical_annotations.tsv** - PharmGKB annotations (included)
-4. **clinical_ann_alleles.tsv** - PharmGKB allele data (included)
-   - Updates from: https://www.pharmgkb.org/downloads
+| File | Size | Included | Source |
+|------|------|----------|--------|
+| genome.txt | ~25MB | No | Your 23andMe download |
+| clinvar_alleles.tsv | ~289MB | No | [Download](#quick-start) |
+| clinical_annotations.tsv | ~850KB | Yes | PharmGKB |
+| clinical_ann_alleles.tsv | ~5.5MB | Yes | PharmGKB |
 
-## Running Analysis for Family Members
+---
 
-To run analysis for different people:
+## Running for Multiple People
 
 ```bash
-# Copy their genome file to data/ with a unique name
+# Copy genome file with unique name
 cp ~/Downloads/genome_mom.txt data/genome_mom.txt
 
 # Run analysis
-python scripts/run_full_analysis.py data/genome_mom.txt --name "Mom"
+uv run python scripts/run_full_analysis.py data/genome_mom.txt --name "Mom"
 
 # Rename outputs to preserve them
 mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
 mv reports/EXHAUSTIVE_DISEASE_RISK_REPORT.md reports/EXHAUSTIVE_DISEASE_RISK_REPORT_MOM.md
-mv reports/ACTIONABLE_HEALTH_PROTOCOL.md reports/ACTIONABLE_HEALTH_PROTOCOL_MOM.md
+mv reports/ACTIONABLE_HEALTH_PROTOCOL_V3.md reports/ACTIONABLE_HEALTH_PROTOCOL_MOM.md
 ```
 
-## Script Details
-
-### run_full_analysis.py
-**Main entry point** - orchestrates the entire pipeline.
-
-```python
-from scripts.run_full_analysis import run_full_analysis
-results = run_full_analysis(genome_path, subject_name)
-```
-
-### comprehensive_snp_database.py
-Contains curated SNP interpretations for ~200 health-relevant variants organized by category:
-- Drug Metabolism
-- Methylation
-- Neurotransmitters
-- Caffeine Response
-- Cardiovascular
-- Nutrition
-- Fitness
-- Sleep/Circadian
-- And more...
-
-Each SNP entry includes:
-- Gene name
-- Category
-- Genotype interpretations
-- Status descriptions
-- Impact magnitude (0-6 scale)
-
-### disease_risk_analyzer.py
-Scans genome against ClinVar database. Important implementation detail:
-
-**Only true SNPs are analyzed** - indels (insertions/deletions) are filtered out because 23andMe data cannot reliably represent them. This prevents false positives.
-
-```python
-# Critical filter to avoid false positives
-if len(ref_allele) != 1 or len(alt_allele) != 1:
-    continue  # Skip indels
-```
-
-### generate_exhaustive_report.py
-Contains clinical context database with detailed interpretations, mechanisms, and recommendations for each gene/status combination.
+---
 
 ## Interpretation Guide
 
@@ -186,52 +200,49 @@ Contains clinical context database with detailed interpretations, mechanisms, an
 ### ClinVar Confidence (Gold Stars)
 - **4 stars**: Practice guideline / Expert panel
 - **3 stars**: Multiple submitters, no conflicts
-- **2 stars**: Multiple submitters with conflicts, or single with criteria
+- **2 stars**: Multiple submitters with conflicts
 - **1 star**: Single submitter
 - **0 stars**: No assertion criteria
 
-### Zygosity Interpretation
+### Zygosity
 - **Homozygous**: Both copies of variant - higher effect
 - **Heterozygous + Recessive**: Carrier only - reproductive implications
 - **Heterozygous + Dominant**: One copy sufficient - may be affected
 
-## Limitations
+---
 
-1. **Not a clinical diagnosis** - For informational purposes only
-2. **Population differences** - Associations may vary by ancestry
-3. **Incomplete penetrance** - Not everyone with variant develops condition
-4. **Evolving science** - Classifications change as research progresses
-5. **Indels not analyzed** - Only single nucleotide variants from 23andMe
-
-## Updating Data
+## Updating Data Sources
 
 ### ClinVar (recommended: quarterly)
 ```bash
-# Download latest ClinVar
 wget https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz
-# Process and convert to required format (see clinvar processing scripts)
+# Process and convert to required format
 ```
 
 ### PharmGKB (recommended: quarterly)
-Download from https://www.pharmgkb.org/downloads after creating free account.
+Download from https://www.pharmgkb.org/downloads (free account required).
+
+---
 
 ## Troubleshooting
 
 ### "Genome file not found"
-Ensure genome.txt exists in `data/` or provide full path as argument.
+Ensure `genome.txt` exists in `data/` or provide full path as argument.
 
 ### "ClinVar file not found"
-Disease risk analysis will be skipped. Download clinvar_alleles.tsv if needed.
+Disease risk analysis will be skipped. Download `clinvar_alleles.tsv` - see Quick Start.
 
 ### "PharmGKB files not found"
-Drug-gene interactions will be skipped. Download from PharmGKB if needed.
+Drug-gene interactions will be skipped. The files should be included in the repo.
 
 ### False positives in disease report
-The indel filter should prevent this. If you see suspicious findings (especially for BRCA or other well-known genes), verify the variant is a true SNP.
+The indel filter should prevent this. Only true SNPs (single nucleotide changes) are analyzed because 23andMe cannot reliably represent insertions/deletions.
+
+---
 
 ## Adding Custom SNPs
 
-To add new SNPs to the lifestyle/health analysis, edit `comprehensive_snp_database.py`:
+Edit `scripts/comprehensive_snp_database.py`:
 
 ```python
 "rs12345": {
@@ -246,6 +257,20 @@ To add new SNPs to the lifestyle/health analysis, edit `comprehensive_snp_databa
 }
 ```
 
-## Contact
+---
 
-This analysis pipeline was developed for personal use. Not for clinical or diagnostic purposes.
+## Limitations
+
+1. **Not a clinical diagnosis** - For informational purposes only
+2. **Population differences** - Associations may vary by ancestry
+3. **Incomplete penetrance** - Not everyone with variant develops condition
+4. **Evolving science** - Classifications change as research progresses
+5. **Indels not analyzed** - Only single nucleotide variants from 23andMe
+
+---
+
+## License
+
+This analysis pipeline is for personal/educational use. Not for clinical or diagnostic purposes.
+
+**Original concept by Nick Saraev** - https://youtu.be/O1ICQworLVc
