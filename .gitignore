@@ -1,0 +1,9 @@
+# Large data files (exceeds GitHub 100MB limit)
+data/clinvar_alleles.tsv
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
