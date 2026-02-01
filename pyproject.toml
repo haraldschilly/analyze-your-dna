@@ -1,0 +1,60 @@
+[project]
+name = "analyze-dna"
+version = "0.1.0"
+description = "Genetic health analysis pipeline for 23andMe data"
+readme = "CLAUDE.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{ name = "Genetic Health Analysis" }]
+keywords = ["genetics", "23andme", "health", "genomics", "clinvar", "pharmgkb"]
+
+# Core has no dependencies - pure Python stdlib
+dependencies = []
+
+[project.optional-dependencies]
+# For faster CSV/TSV parsing and data processing
+fast = [
+    "polars>=1.0.0",
+]
+# For potential numeric optimizations
+perf = [
+    "numpy>=1.24.0",
+]
+# Development dependencies
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+]
+# All optional dependencies
+all = [
+    "analyze-dna[fast,perf,dev]",
+]
+
+[project.scripts]
+analyze-dna = "scripts.run_full_analysis:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["scripts"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = ["E501"]  # Line length handled separately
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = false  # Gradual typing
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

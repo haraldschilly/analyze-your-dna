@@ -2,11 +2,27 @@
 
 This workspace contains a comprehensive genetic health analysis pipeline that processes 23andMe raw data to generate detailed health reports.
 
-## Quick Start
+## Quick Start (UV)
+
+```bash
+# Install dependencies and run (recommended)
+uv run python scripts/run_full_analysis.py
+
+# With custom genome file
+uv run python scripts/run_full_analysis.py /path/to/genome.txt
+
+# With subject name
+uv run python scripts/run_full_analysis.py --name "John Doe"
+
+# Install with fast mode for 5-10x speedup on large files
+uv sync --extra fast
+uv run python scripts/run_full_analysis.py
+```
+
+## Quick Start (Traditional Python)
 
 ```bash
 # Run full analysis with default genome file (data/genome.txt)
-cd "/Users/nicksaraev/Genetic Health"
 python scripts/run_full_analysis.py
 
 # Run with a custom genome file
