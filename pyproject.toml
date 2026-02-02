@@ -57,3 +57,8 @@ disallow_untyped_defs = false  # Gradual typing
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+
+[dependency-groups]
+dev = [
+    "pylint>=4.0.4",
+]
