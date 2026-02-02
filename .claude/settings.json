@@ -13,5 +13,18 @@
       "Bash(uv run python3:*)",
       "Bash(uv sync:*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cat << 'EOF'\nHi! Welcome to analyze-your-dna – your AI assistant for genetic health analysis.\n\nI help with:\n• Analyzing 23andMe data against ClinVar & PharmGKB\n• Generating personalized health reports\n• Discussing SNPs, risks, and drug interactions\n• Adding custom SNPs or fixing issues\n\nWhat can I help you with today?\nEOF"
+          }
+        ]
+      }
+    ]
   }
 }
