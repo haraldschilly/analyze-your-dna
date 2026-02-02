@@ -207,10 +207,15 @@ def generate_report(findings, stats, genome_by_rsid):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # Count totals
+    total_pathogenic = len(findings['pathogenic'])
+    total_likely_path = len(findings['likely_pathogenic'])
     total_risk = len(findings['risk_factor'])
     total_drug = len(findings['drug_response'])
     total_protective = len(findings['protective'])
     total_other = len(findings['other_significant'])
+
+    print(f"  Found {total_pathogenic} pathogenic and {total_likely_path} likely pathogenic variants")
+    print(f"  Found {total_risk} risk factors and {total_drug} drug response variants")
 
     # Separate affected vs carrier for pathogenic
     affected_findings = []

@@ -1032,7 +1032,11 @@ def run_full_analysis(genome_path: Path = None, subject_name: str = None):
     print(f"     - {len(health_results['pharmgkb_findings'])} drug-gene interactions")
 
     if disease_findings:
+        total_disease = (len(disease_findings['pathogenic']) +
+                        len(disease_findings['likely_pathogenic']) +
+                        len(disease_findings['risk_factor']))
         print(f"\n  2. EXHAUSTIVE_DISEASE_RISK_REPORT.md")
+        print(f"     - {total_disease} total clinical findings")
         print(f"     - {len(disease_findings['pathogenic'])} pathogenic variants")
         print(f"     - {len(disease_findings['likely_pathogenic'])} likely pathogenic")
         print(f"     - {len(disease_findings['risk_factor'])} risk factors")
