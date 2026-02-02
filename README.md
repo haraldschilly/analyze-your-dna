@@ -26,7 +26,8 @@ This tool is designed to be used with an AI agent. It allows you to "chat" with 
 **Recommended Agents:**
 *   [**Claude Code**](https://claude.ai/code) - The primary agent this project was designed for.
 *   [**Gemini CLI**](https://ai.google.dev/gemini-api/docs/cli) - Excellent analysis capabilities.
-*   [**ChatGPT (OpenAI)**](https://chat.openai.com/) - Can be used if you paste the code/data context.
+*   [**OpenCode CLI**)(https://opencode.ai/) - can make use of a variety of models.
+*   [**Codex (OpenAI)**](https://openai.com/codex/) - Agent optimized for coding.
 
 ### Interactive Session Example
 
