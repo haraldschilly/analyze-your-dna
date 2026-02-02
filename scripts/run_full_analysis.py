@@ -14,10 +14,7 @@ Usage:
 """
 
 import sys
-import os
-import shutil
 import json
-import csv
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
@@ -28,7 +25,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from comprehensive_snp_database import COMPREHENSIVE_SNPS
 from fast_loader import load_genome_fast, load_clinvar_fast, get_loader_info
-from utils import ensure_clinvar
+from utils import ensure_clinvar, load_pharmgkb as load_pharmgkb_utils
 
 # Directory configuration
 BASE_DIR = SCRIPT_DIR.parent
@@ -81,43 +78,9 @@ def load_pharmgkb() -> dict:
         return {}
 
     print_step("Loading PharmGKB data")
-
-    pharmgkb = {}
-    annotations = {}
-
-    with open(annotations_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            variant = row.get('Variant/Haplotypes', '')
-            if variant.startswith('rs'):
-                annotations[ann_id] = {
-                    'rsid': variant,
-                    'gene': row.get('Gene', ''),
-                    'drugs': row.get('Drug(s)', ''),
-                    'phenotype': row.get('Phenotype(s)', ''),
-                    'level': row.get('Level of Evidence', ''),
-                    'category': row.get('Phenotype Category', ''),
-                }
-
-    with open(alleles_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            if ann_id in annotations:
-                rsid = annotations[ann_id]['rsid']
-                genotype = row.get('Genotype/Allele', '')
-                if rsid not in pharmgkb:
-                    pharmgkb[rsid] = {
-                        'gene': annotations[ann_id]['gene'],
-                        'drugs': annotations[ann_id]['drugs'],
-                        'phenotype': annotations[ann_id]['phenotype'],
-                        'level': annotations[ann_id]['level'],
-                        'category': annotations[ann_id]['category'],
-                        'genotypes': {}
-                    }
-                pharmgkb[rsid]['genotypes'][genotype] = row.get('Annotation Text', '')
-
+    
+    pharmgkb = load_pharmgkb_utils(annotations_path, alleles_path)
+    
     print(f"    Loaded {len(pharmgkb):,} drug-gene interactions")
     return pharmgkb
 
@@ -255,11 +218,15 @@ def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject
 
     # Import the generator logic
     from generate_exhaustive_report import (
-        generate_executive_summary, generate_priority_findings,
-        generate_pathway_analysis, generate_full_findings,
-        generate_pharmgkb_report, generate_action_summary, generate_disclaimer,
-        CLINICAL_CONTEXT, PATHWAYS
+        generate_executive_summary,
+        generate_priority_findings,
+        generate_pathway_analysis,
+        generate_full_findings,
+        generate_pharmgkb_report,
+        generate_action_summary,
+        generate_disclaimer,
     )
+
 
     # Build the data structure expected by generator
     data = {
@@ -1065,9 +1032,6 @@ def run_full_analysis(genome_path: Path = None, subject_name: str = None):
     print(f"     - {len(health_results['pharmgkb_findings'])} drug-gene interactions")
 
     if disease_findings:
-        total_disease = (len(disease_findings['pathogenic']) +
-                        len(disease_findings['likely_pathogenic']) +
-                        len(disease_findings['risk_factor']))
         print(f"\n  2. EXHAUSTIVE_DISEASE_RISK_REPORT.md")
         print(f"     - {len(disease_findings['pathogenic'])} pathogenic variants")
         print(f"     - {len(disease_findings['likely_pathogenic'])} likely pathogenic")

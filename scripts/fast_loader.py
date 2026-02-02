@@ -14,7 +14,7 @@ Usage:
 
 import csv
 from pathlib import Path
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Optional
 
 # Try to import polars for fast parsing
 try:

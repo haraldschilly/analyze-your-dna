@@ -7,32 +7,15 @@ Cross-references personal genome against ClinVar, PharmGKB, and curated high-imp
 import csv
 import json
 from pathlib import Path
-from dataclasses import dataclass, field
-from typing import Optional
 from collections import defaultdict
 
-from utils import ensure_clinvar
+from utils import load_genome, load_pharmgkb, ensure_clinvar
 
-# Paths
 DATA_DIR = Path(__file__).parent.parent / "data"
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
 
-@dataclass
-class SNPInfo:
-    rsid: str
-    chromosome: str
-    position: str
-    genotype: str
-    category: str = ""
-    significance: str = ""
-    description: str = ""
-    recommendation: str = ""
-    source: str = ""
-    magnitude: int = 0
-
 # =============================================================================
-# CURATED HIGH-IMPACT SNPS DATABASE
-# These are the most actionable, well-researched SNPs with clear implications
+# CURATED SNP DATABASE (Most Important/Actionable Variants)
 # =============================================================================
 
 CURATED_SNPS = {
@@ -433,25 +416,6 @@ CURATED_SNPS = {
 }
 
 
-def load_genome(genome_path: Path) -> dict:
-    """Load 23andMe genome file into a dictionary."""
-    genome = {}
-    with open(genome_path, 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                continue
-            parts = line.strip().split('\t')
-            if len(parts) >= 4:
-                rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
-                if genotype != '--':  # Skip no-calls
-                    genome[rsid] = {
-                        'chromosome': chrom,
-                        'position': pos,
-                        'genotype': genotype
-                    }
-    return genome
-
-
 def load_clinvar(clinvar_path: Path) -> dict:
     """Load ClinVar pathogenic variants."""
     clinvar = {}
@@ -471,49 +435,6 @@ def load_clinvar(clinvar_path: Path) -> dict:
                     'gold_stars': row.get('gold_stars', '0'),
                 }
     return clinvar
-
-
-def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
-    """Load PharmGKB drug-gene annotations."""
-    pharmgkb = {}
-
-    # Load main annotations
-    annotations = {}
-    with open(annotations_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            variant = row.get('Variant/Haplotypes', '')
-            if variant.startswith('rs'):
-                annotations[ann_id] = {
-                    'rsid': variant,
-                    'gene': row.get('Gene', ''),
-                    'drugs': row.get('Drug(s)', ''),
-                    'phenotype': row.get('Phenotype(s)', ''),
-                    'level': row.get('Level of Evidence', ''),
-                    'category': row.get('Phenotype Category', ''),
-                }
-
-    # Load allele-specific info
-    with open(alleles_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            if ann_id in annotations:
-                rsid = annotations[ann_id]['rsid']
-                genotype = row.get('Genotype/Allele', '')
-                if rsid not in pharmgkb:
-                    pharmgkb[rsid] = {
-                        'gene': annotations[ann_id]['gene'],
-                        'drugs': annotations[ann_id]['drugs'],
-                        'phenotype': annotations[ann_id]['phenotype'],
-                        'level': annotations[ann_id]['level'],
-                        'category': annotations[ann_id]['category'],
-                        'genotypes': {}
-                    }
-                pharmgkb[rsid]['genotypes'][genotype] = row.get('Annotation Text', '')
-
-    return pharmgkb
 
 
 def analyze_genome(genome: dict, clinvar: dict, pharmgkb: dict) -> dict:

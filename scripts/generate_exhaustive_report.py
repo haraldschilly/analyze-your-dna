@@ -8,7 +8,6 @@ with full descriptions, clinical context, and actionable recommendations.
 
 import json
 from datetime import datetime
-from collections import defaultdict
 from pathlib import Path
 
 # Clinical context database - provides deeper interpretation for each gene/status combination

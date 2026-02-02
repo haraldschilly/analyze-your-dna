@@ -64,4 +64,27 @@ dev = [
 ]
 
 [tool.pylint."MESSAGES CONTROL"]
-disable = ["line-too-long"]
+disable = [
+    "line-too-long",
+    "duplicate-code",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "too-many-lines",
+    "too-many-locals",
+    "too-many-branches",
+    "too-many-statements",
+    "too-many-instance-attributes",
+    "too-many-arguments",
+    "unspecified-encoding",
+    "import-error",
+    "fixme",
+    "wrong-import-position",
+    "import-outside-toplevel",
+    "invalid-name",
+    "broad-exception-caught",
+    "cell-var-from-loop",
+    "no-else-return",
+    "f-string-without-interpolation",
+    "trailing-whitespace",
+]

@@ -4,76 +4,16 @@ Comprehensive Genetic Health Optimization Analysis
 Generates a complete lifestyle/health optimization report based on genetic data.
 """
 
-import csv
 import json
 from pathlib import Path
 from collections import defaultdict
 from datetime import datetime
 
 from comprehensive_snp_database import COMPREHENSIVE_SNPS
+from utils import load_genome, load_pharmgkb
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
-
-
-def load_genome(genome_path: Path) -> dict:
-    """Load 23andMe genome file into a dictionary."""
-    genome = {}
-    with open(genome_path, 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                continue
-            parts = line.strip().split('\t')
-            if len(parts) >= 4:
-                rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
-                if genotype != '--':
-                    genome[rsid] = {
-                        'chromosome': chrom,
-                        'position': pos,
-                        'genotype': genotype
-                    }
-    return genome
-
-
-def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
-    """Load PharmGKB drug-gene annotations."""
-    pharmgkb = {}
-    annotations = {}
-
-    with open(annotations_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            variant = row.get('Variant/Haplotypes', '')
-            if variant.startswith('rs'):
-                annotations[ann_id] = {
-                    'rsid': variant,
-                    'gene': row.get('Gene', ''),
-                    'drugs': row.get('Drug(s)', ''),
-                    'phenotype': row.get('Phenotype(s)', ''),
-                    'level': row.get('Level of Evidence', ''),
-                    'category': row.get('Phenotype Category', ''),
-                }
-
-    with open(alleles_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            if ann_id in annotations:
-                rsid = annotations[ann_id]['rsid']
-                genotype = row.get('Genotype/Allele', '')
-                if rsid not in pharmgkb:
-                    pharmgkb[rsid] = {
-                        'gene': annotations[ann_id]['gene'],
-                        'drugs': annotations[ann_id]['drugs'],
-                        'phenotype': annotations[ann_id]['phenotype'],
-                        'level': annotations[ann_id]['level'],
-                        'category': annotations[ann_id]['category'],
-                        'genotypes': {}
-                    }
-                pharmgkb[rsid]['genotypes'][genotype] = row.get('Annotation Text', '')
-
-    return pharmgkb
 
 
 def analyze_genome(genome: dict, pharmgkb: dict) -> dict:
@@ -441,7 +381,8 @@ def write_category_interpretation(f, category: str, findings: list):
         f.write("### Cardiovascular Interpretation\n\n")
 
         # APOE interpretation
-        apoe_429 = findings_dict.get('APOE') if 'APOE' in findings_dict else None
+        _apoe_429 = "rs429358"
+        _apoe_7412 = "rs7412"
 
         # Check for blood pressure genes
         bp_genes = ['AGTR1', 'AGT', 'ACE', 'GNB3']

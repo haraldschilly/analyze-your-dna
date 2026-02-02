@@ -13,7 +13,6 @@ Generates EXHAUSTIVE_DISEASE_RISK_REPORT.md
 
 import csv
 import os
-from collections import defaultdict
 from datetime import datetime
 
 from utils import ensure_clinvar
@@ -208,8 +207,6 @@ def generate_report(findings, stats, genome_by_rsid):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # Count totals
-    total_pathogenic = len(findings['pathogenic'])
-    total_likely_path = len(findings['likely_pathogenic'])
     total_risk = len(findings['risk_factor'])
     total_drug = len(findings['drug_response'])
     total_protective = len(findings['protective'])
@@ -525,7 +522,7 @@ This report is for **informational and educational purposes only**. It is NOT a 
     return report
 
 
-def get_carrier_phenotype_notes(gene, condition):
+def get_carrier_phenotype_notes(gene, _condition):
     """Return carrier-specific phenotype notes for known conditions."""
 
     carrier_effects = {
