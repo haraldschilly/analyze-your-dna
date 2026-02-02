@@ -19,7 +19,70 @@ The original concept uses Claude Code to analyze 23andMe genetic data against Cl
 
 ---
 
-## Quick Start
+## AI Assistant Mode (Recommended)
+
+This tool is designed to be used with an AI agent. It allows you to "chat" with your genome, ask follow-up questions, and get explanations in plain English.
+
+**Recommended Agents:**
+*   [**Claude Code**](https://claude.ai/code) - The primary agent this project was designed for.
+*   [**Gemini CLI**](https://ai.google.dev/gemini-api/docs/cli) - Excellent analysis capabilities.
+*   [**ChatGPT (OpenAI)**](https://chat.openai.com/) - Can be used if you paste the code/data context.
+
+### Interactive Session Example
+
+Here is how you can use this tool with an AI agent in your terminal:
+
+```text
+> Please analyze my DNA file using the full analysis script.
+
+I will run the full genetic analysis pipeline on your 'genome.txt' file.
+
+$ uv run python scripts/run_full_analysis.py data/genome.txt
+
+======================================================================
+FULL GENETIC HEALTH ANALYSIS
+======================================================================
+
+>>> Loading genome from data/genome.txt
+    Using optimized Polars loader (v1.2.0)
+    Loaded 638,124 SNPs
+
+>>> Loading PharmGKB data
+    Loaded 8,142 drug-gene interactions
+
+>>> Running lifestyle/health analysis
+    Found 45 lifestyle/health findings
+    Found 12 drug-gene interactions
+
+>>> Loading ClinVar and analyzing disease risk
+    Using optimized Polars loader (v1.2.0)
+    ClinVar entries scanned: 341,293
+    Pathogenic variants: 2
+    Likely pathogenic: 1
+    Risk factors: 28
+
+>>> Generating reports...
+    Written to: reports/EXHAUSTIVE_GENETIC_REPORT.md
+    Written to: reports/EXHAUSTIVE_DISEASE_RISK_REPORT.md
+    Written to: reports/ACTIONABLE_HEALTH_PROTOCOL_V3.md
+
+======================================================================
+ANALYSIS COMPLETE
+======================================================================
+
+I have generated three comprehensive reports for you.
+1. Your genetic health overview found 45 notable lifestyle variants.
+2. The disease risk scan identified 2 pathogenic variants (see 'EXHAUSTIVE_DISEASE_RISK_REPORT.md').
+3. I've created a personalized 'ACTIONABLE_HEALTH_PROTOCOL_V3.md' with supplement and diet recommendations.
+
+Would you like me to summarize the high-impact findings for you?
+```
+
+---
+
+## Expert Mode (Manual Execution)
+
+If you prefer to run the scripts yourself without an AI agent:
 
 ### Prerequisites
 
