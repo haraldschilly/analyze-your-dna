@@ -52,17 +52,6 @@ uv run python scripts/run_full_analysis.py
 uv run python scripts/run_full_analysis.py data/genome.txt --name "Your Name"
 ```
 
-### Running with Traditional Python
-
-```bash
-# Ensure Python 3.10+
-python scripts/run_full_analysis.py
-
-# Optional: Install polars for faster processing
-pip install polars
-python scripts/run_full_analysis.py --name "Your Name"
-```
-
 ---
 
 ## What It Analyzes
