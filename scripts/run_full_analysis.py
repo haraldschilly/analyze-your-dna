@@ -208,11 +208,13 @@ def classify_zygosity(finding):
     return 'UNKNOWN', 'Zygosity unclear'
 
 
+from typing import Optional, Tuple, Dict, List, Any
+
 # =============================================================================
 # REPORT GENERATION
 # =============================================================================
 
-def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject_name: str = None):
+def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject_name: Optional[str] = None):
     """Generate the exhaustive lifestyle/health genetic report."""
     print_step(f"Generating exhaustive genetic report")
 
@@ -261,7 +263,7 @@ def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject
 
 
 def generate_disease_risk_report(findings: dict, stats: dict, genome_count: int,
-                                  output_path: Path, subject_name: str = None):
+                                  output_path: Path, subject_name: Optional[str] = None):
     """Generate the exhaustive disease risk report."""
     print_step("Generating disease risk report")
 
@@ -412,9 +414,9 @@ This report is for **informational purposes only**. It is NOT a clinical diagnos
 
 
 def generate_actionable_protocol(health_results: dict, disease_findings: dict,
-                                  output_path: Path, subject_name: str = None):
-    """Generate comprehensive actionable health protocol combining ALL sources."""
-    print_step("Generating actionable health protocol (comprehensive)")
+                                 output_path: Path, subject_name: Optional[str] = None):
+    """Generate the actionable health protocol (Action Plan)."""
+    print_step("Generating actionable health protocol")
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     subject_line = f"\n**Subject:** {subject_name}" if subject_name else ""
@@ -970,7 +972,7 @@ It is NOT a clinical diagnosis or medical advice.
 # MAIN PIPELINE
 # =============================================================================
 
-def run_full_analysis(genome_path: Path = None, subject_name: str = None):
+def run_full_analysis(genome_path: Optional[Path] = None, subject_name: Optional[str] = None):
     """Run the complete genetic analysis pipeline."""
 
     print_header("FULL GENETIC HEALTH ANALYSIS")

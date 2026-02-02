@@ -2,33 +2,51 @@
 """
 Fast data loading utilities using polars when available.
 
-Falls back to standard library csv for pure-Python operation.
+Falls back to standard library csv for pure-Python operation or if forced via LOAD_DATA_MODE="standard".
 
 Performance comparison (typical 23andMe genome ~600K SNPs, ClinVar ~341K variants):
 - Standard csv: ~15-25 seconds
 - Polars: ~2-4 seconds
 
 Usage:
-    from fast_loader import load_genome_fast, load_clinvar_fast, USING_POLARS
+    from fast_loader import load_genome_fast, load_clinvar_fast, get_loader_info
 """
 
 import csv
+import os
 from pathlib import Path
-from typing import Tuple, Dict, Optional
+from typing import Tuple, Dict, Optional, TYPE_CHECKING, Callable
 
 # Try to import polars for fast parsing
 try:
     import polars as pl
-    USING_POLARS = True
+    POLARS_AVAILABLE = True
 except ImportError:
-    USING_POLARS = False
-    pl = None
+    POLARS_AVAILABLE = False
+    pl = None  # type: ignore
+
+if TYPE_CHECKING:
+    import polars as pl  # Make type checker happy
+
+# Determine loading mode
+# Default to "auto" (use polars if available), or force "standard" or "polars"
+LOAD_MODE = os.environ.get("LOAD_DATA_MODE", "auto").lower()
+
+USING_POLARS = POLARS_AVAILABLE and LOAD_MODE != "standard"
+
+
+def get_loader_info() -> str:
+    """Return info about the current loader."""
+    if USING_POLARS:
+        version = getattr(pl, "__version__", "unknown")
+        return f"Using optimized Polars loader (v{version})"
+    mode_msg = "(forced)" if LOAD_MODE == "standard" else "(polars not installed)"
+    return f"Using standard Python CSV loader {mode_msg}"
 
 
 def load_genome_fast(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
     """
     Load 23andMe genome file into dictionaries.
-
     Uses polars for ~5-10x speedup when available.
 
     Returns:
@@ -36,12 +54,12 @@ def load_genome_fast(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict
     """
     if USING_POLARS:
         return _load_genome_polars(genome_path)
-    else:
-        return _load_genome_stdlib(genome_path)
+    return _load_genome_stdlib(genome_path)
 
 
 def _load_genome_polars(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
     """Load genome using polars (fast path)."""
+    assert pl is not None
     # Read TSV, skip comment lines
     df = pl.read_csv(
         genome_path,
@@ -49,7 +67,7 @@ def _load_genome_polars(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, D
         has_header=False,
         comment_prefix='#',
         new_columns=['rsid', 'chromosome', 'position', 'genotype'],
-        dtypes={
+        schema_overrides={
             'rsid': pl.Utf8,
             'chromosome': pl.Utf8,
             'position': pl.Utf8,
@@ -86,63 +104,58 @@ def _load_genome_polars(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, D
 
 
 def _load_genome_stdlib(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
-    """Load genome using standard library (fallback)."""
+    """Load genome using standard library csv (slow path)."""
     genome_by_rsid = {}
     genome_by_position = {}
 
-    with open(genome_path, 'r') as f:
+    with open(genome_path, 'r', encoding='utf-8') as f:
+        # Skip comments manually
         for line in f:
             if line.startswith('#'):
                 continue
+            
             parts = line.strip().split('\t')
             if len(parts) >= 4:
                 rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
-                if genotype != '--':
-                    genome_by_rsid[rsid] = {
-                        'chromosome': chrom,
-                        'position': pos,
-                        'genotype': genotype,
-                    }
-                    pos_key = f"{chrom}:{pos}"
-                    genome_by_position[pos_key] = {
-                        'rsid': rsid,
-                        'genotype': genotype,
-                    }
+                
+                if genotype == '--':
+                    continue
+
+                genome_by_rsid[rsid] = {
+                    'chromosome': chrom,
+                    'position': pos,
+                    'genotype': genotype
+                }
+
+                pos_key = f"{chrom}:{pos}"
+                genome_by_position[pos_key] = {
+                    'rsid': rsid,
+                    'genotype': genotype
+                }
 
     return genome_by_rsid, genome_by_position
 
 
 def load_clinvar_fast(
-    clinvar_path: Path,
-    genome_by_position: Dict[str, Dict],
-    progress_callback: Optional[callable] = None,
+    clinvar_path: Path, 
+    genome_by_position: Dict[str, Dict]
 ) -> Tuple[Dict[str, list], Dict[str, int]]:
     """
-    Load ClinVar and analyze for disease variants.
-
-    Uses polars for ~10x speedup when available.
-    Only processes variants that match positions in the genome.
-
-    Args:
-        clinvar_path: Path to clinvar_alleles.tsv
-        genome_by_position: Dict of position -> genome data
-        progress_callback: Optional callback(current, total) for progress
-
-    Returns:
-        Tuple of (findings dict, stats dict)
+    Load and scan ClinVar database against user genome.
+    Uses polars for speedup when available.
     """
     if USING_POLARS:
-        return _load_clinvar_polars(clinvar_path, genome_by_position, progress_callback)
-    else:
-        return _load_clinvar_stdlib(clinvar_path, genome_by_position, progress_callback)
+        return _load_clinvar_polars(clinvar_path, genome_by_position)
+    return _load_clinvar_stdlib(clinvar_path, genome_by_position)
 
 
 def _load_clinvar_polars(
     clinvar_path: Path,
     genome_by_position: Dict[str, Dict],
-    progress_callback: Optional[callable] = None,
+    progress_callback: Optional[Callable] = None,
 ) -> Tuple[Dict[str, list], Dict[str, int]]:
     """Load ClinVar using polars (fast path)."""
+    assert pl is not None
 
     # Get set of positions we care about for fast filtering
     genome_positions = set(genome_by_position.keys())
@@ -183,7 +196,7 @@ def _load_clinvar_polars(
     # Process filtered rows
     for i, row in enumerate(df_filtered.iter_rows(named=True)):
         if progress_callback and i % 1000 == 0:
-            progress_callback(i, len(df_filtered))
+            progress_callback(i, len(df_filtered))  # type: ignore
 
         pos_key = row['pos_key']
         user_data = genome_by_position[pos_key]
@@ -241,17 +254,17 @@ def _load_clinvar_polars(
             findings['protective'].append(finding)
         elif 'association' in clinical_sig or 'affects' in clinical_sig:
             findings['other_significant'].append(finding)
+        else:
+            findings['other_significant'].append(finding)
 
     return findings, stats
 
 
 def _load_clinvar_stdlib(
-    clinvar_path: Path,
-    genome_by_position: Dict[str, Dict],
-    progress_callback: Optional[callable] = None,
+    clinvar_path: Path, 
+    genome_by_position: Dict[str, Dict]
 ) -> Tuple[Dict[str, list], Dict[str, int]]:
-    """Load ClinVar using standard library (fallback)."""
-
+    """Load and scan ClinVar using standard library csv (slow path)."""
     findings = {
         'pathogenic': [],
         'likely_pathogenic': [],
@@ -265,22 +278,20 @@ def _load_clinvar_stdlib(
         'total_clinvar': 0,
         'matched': 0,
         'pathogenic_matched': 0,
-        'likely_pathogenic_matched': 0,
+        'likely_pathogenic_matched': 0
     }
 
     with open(clinvar_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f, delimiter='\t')
-
+        
         for row in reader:
             stats['total_clinvar'] += 1
-
-            if progress_callback and stats['total_clinvar'] % 50000 == 0:
-                progress_callback(stats['total_clinvar'], 341000)  # Approximate total
-
+            
             chrom = row['chrom']
             pos = row['pos']
             pos_key = f"{chrom}:{pos}"
 
+            # Check if user has this position
             if pos_key not in genome_by_position:
                 continue
 
@@ -292,39 +303,39 @@ def _load_clinvar_stdlib(
             alt_allele = row['alt']
             clinical_sig = row['clinical_significance'].lower()
 
-            # Only process true SNPs
-            if len(ref_allele) != 1 or len(alt_allele) != 1:
-                continue
-
+            # For true SNPs, check if user has the variant allele
             has_variant = alt_allele in user_genotype
             is_homozygous = user_genotype == alt_allele + alt_allele
             is_heterozygous = has_variant and not is_homozygous
+
+            # Also verify user doesn't just have reference allele
             has_ref_only = user_genotype == ref_allele + ref_allele
 
-            if has_ref_only or not has_variant:
+            if not has_variant and not is_homozygous and not is_heterozygous:
+                # User has position but not the variant (e.g. they are Ref/Ref)
+                # Unless we care about ref alleles (rare in ClinVar but possible)
                 continue
 
+            # Build finding record
             finding = {
                 'chromosome': chrom,
                 'position': pos,
                 'rsid': user_data['rsid'],
-                'gene': row['symbol'],
+                'gene': row.get('symbol', ''),
                 'ref': ref_allele,
                 'alt': alt_allele,
                 'user_genotype': user_genotype,
                 'is_homozygous': is_homozygous,
                 'is_heterozygous': is_heterozygous,
                 'clinical_significance': row['clinical_significance'],
-                'review_status': row['review_status'],
-                'gold_stars': int(row['gold_stars']) if row['gold_stars'] else 0,
-                'traits': row['all_traits'],
-                'inheritance': row.get('inheritance_modes', ''),
-                'hgvs_p': row.get('hgvs_p', ''),
-                'hgvs_c': row.get('hgvs_c', ''),
-                'molecular_consequence': row.get('molecular_consequence', ''),
-                'xrefs': row.get('xrefs', ''),
+                'review_status': row.get('review_status', ''),
+                'gold_stars': int(row['gold_stars']) if row.get('gold_stars') and row['gold_stars'].isdigit() else 0,
+                'phenotype': row.get('phenotype', ''),
+                'inheritance': row.get('origin', ''),
+                'all_traits': row.get('all_traits', '')
             }
 
+            # Classify by clinical significance
             if 'pathogenic' in clinical_sig and 'likely' not in clinical_sig and 'conflict' not in clinical_sig:
                 findings['pathogenic'].append(finding)
                 stats['pathogenic_matched'] += 1
@@ -339,13 +350,7 @@ def _load_clinvar_stdlib(
                 findings['protective'].append(finding)
             elif 'association' in clinical_sig or 'affects' in clinical_sig:
                 findings['other_significant'].append(finding)
+            else:
+                findings['other_significant'].append(finding)
 
     return findings, stats
-
-
-def get_loader_info() -> str:
-    """Return info about which loader is being used."""
-    if USING_POLARS:
-        return f"Using polars {pl.__version__} (fast mode)"
-    else:
-        return "Using standard library csv (install polars for 5-10x speedup)"
