@@ -58,7 +58,7 @@ python scripts/run_full_analysis.py --name "Your Name"
 
 Beyond the full ClinVar database scan (341,000+ clinically annotated variants), the pipeline includes two hand-curated SNP databases covering the most actionable, well-researched genetic variants.
 
-### Comprehensive Health SNPs (79 variants)
+### Comprehensive Health SNPs (88 variants)
 
 Used by the main pipeline (`run_full_analysis.py`) for the detailed health report.
 
@@ -71,15 +71,19 @@ Used by the main pipeline (`run_full_analysis.py`) for the detailed health repor
 | Methylation | 6 | 5 | CBS, MTHFR, MTR, MTRR, PEMT |
 | Neurotransmitters | 6 | 5 | ANKK1/DRD2, BDNF, COMT, OPRM1, SLC6A4 |
 | Detoxification | 5 | 3 | GSTP1, NAT2, SOD2 |
-| Skin | 4 | 2 | IRF4, MC1R |
 | Sleep/Circadian | 4 | 4 | ARNTL, CLOCK, MTNR1B, PER2 |
-| Autoimmune | 3 | 3 | HLA-DQA1, PTPN22, STAT4 |
+| Skin | 4 | 2 | IRF4, MC1R |
+| Mental Health | 4 | 4 | CACNA1C, FKBP5, HTR2A, MIR137 |
 | Caffeine Response | 3 | 2 | ADA, ADORA2A |
+| Autoimmune | 3 | 3 | HLA-DQA1, PTPN22, STAT4 |
 | Longevity | 3 | 3 | CETP, FOXO3, TP53 |
 | Inflammation | 2 | 2 | IL6, TNF |
 | Iron Metabolism | 2 | 1 | HFE |
 | Alcohol | 2 | 2 | ADH1B, ALDH2 |
+| Hormone Regulation | 2 | 2 | CYP19A1, FSHR |
+| Bone Health | 2 | 2 | ESR1, LRP5 |
 | Respiratory | 1 | 1 | SERPINA1 |
+| Cancer Predisposition | 1 | 1 | CHEK2 |
 
 ### Curated High-Impact SNPs (34 variants)
 
