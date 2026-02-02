@@ -307,11 +307,10 @@ def _load_clinvar_stdlib(
             has_variant = alt_allele in user_genotype
             is_homozygous = user_genotype == alt_allele + alt_allele
             is_heterozygous = has_variant and not is_homozygous
+            has_ref_only = user_genotype == ref_allele + ref_allele
 
-            # Also verify user doesn't just have reference allele
-            if not has_variant and not is_homozygous and not is_heterozygous:
+            if has_ref_only or not has_variant:
                 # User has position but not the variant (e.g. they are Ref/Ref)
-                # Unless we care about ref alleles (rare in ClinVar but possible)
                 continue
 
             # Build finding record
