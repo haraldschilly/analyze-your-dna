@@ -846,12 +846,12 @@ COMPREHENSIVE_SNPS = {
 
     "rs17879961": {
         "gene": "CHEK2", "category": "Cancer Predisposition",
-        "note": "Moderate-penetrance variant (I157T) - not as strong as BRCA but well-replicated",
+        "note": "Moderate-penetrance variant (I157T) - forward strand ref=A, alt=G (CHEK2 on minus strand: c.470T>C)",
         "variants": {
-            "GG": {"status": "normal", "desc": "No CHEK2 I157T variant - standard cancer risk", "magnitude": 0},
-            "GA": {"status": "carrier", "desc": "CHEK2 I157T carrier - ~1.5x breast cancer risk, modestly increased colorectal cancer risk", "magnitude": 3},
+            "AA": {"status": "normal", "desc": "No CHEK2 I157T variant - standard cancer risk", "magnitude": 0},
             "AG": {"status": "carrier", "desc": "CHEK2 I157T carrier - ~1.5x breast cancer risk, modestly increased colorectal cancer risk", "magnitude": 3},
-            "AA": {"status": "homozygous", "desc": "CHEK2 I157T homozygous - elevated breast and colorectal cancer risk, discuss screening with doctor", "magnitude": 4},
+            "GA": {"status": "carrier", "desc": "CHEK2 I157T carrier - ~1.5x breast cancer risk, modestly increased colorectal cancer risk", "magnitude": 3},
+            "GG": {"status": "homozygous", "desc": "CHEK2 I157T homozygous - elevated breast and colorectal cancer risk, discuss screening with doctor", "magnitude": 4},
         }
     },
 
