@@ -794,4 +794,114 @@ COMPREHENSIVE_SNPS = {
             "TT": {"status": "fast", "desc": "Fast alcohol metabolism - protective against alcoholism", "magnitude": 1},
         }
     },
+
+    # =========================================================================
+    # SECTION 15: MENTAL HEALTH
+    # =========================================================================
+
+    "rs6313": {
+        "gene": "HTR2A", "category": "Mental Health",
+        "note": "T102C polymorphism - studied since 1990s for psychiatric PGx",
+        "variants": {
+            "CC": {"status": "high_expression", "desc": "Higher HTR2A expression - better clozapine/antipsychotic response", "magnitude": 0},
+            "CT": {"status": "intermediate", "desc": "Intermediate HTR2A expression - moderate psychiatric medication response", "magnitude": 1},
+            "TC": {"status": "intermediate", "desc": "Intermediate HTR2A expression - moderate psychiatric medication response", "magnitude": 1},
+            "TT": {"status": "low_expression", "desc": "Lower HTR2A expression - associated with depression/OCD risk, may affect antipsychotic response", "magnitude": 2},
+        }
+    },
+    "rs1006737": {
+        "gene": "CACNA1C", "category": "Mental Health",
+        "note": "Top GWAS hit for bipolar disorder since 2008, replicated across ancestries",
+        "variants": {
+            "GG": {"status": "normal", "desc": "Normal calcium channel function - standard mood regulation", "magnitude": 0},
+            "GA": {"status": "carrier", "desc": "CACNA1C risk allele carrier - slightly elevated bipolar/schizophrenia risk (OR ~1.15)", "magnitude": 2},
+            "AG": {"status": "carrier", "desc": "CACNA1C risk allele carrier - slightly elevated bipolar/schizophrenia risk (OR ~1.15)", "magnitude": 2},
+            "AA": {"status": "elevated_risk", "desc": "CACNA1C A/A - elevated risk for bipolar disorder and schizophrenia, affects neuronal excitability", "magnitude": 3},
+        }
+    },
+    "rs1625579": {
+        "gene": "MIR137", "category": "Mental Health",
+        "note": "Strongest schizophrenia GWAS locus (PGC, p<1e-19), regulates synaptic development",
+        "variants": {
+            "GG": {"status": "normal", "desc": "Normal MIR137 regulation - standard synaptic development", "magnitude": 0},
+            "GT": {"status": "carrier", "desc": "MIR137 risk allele carrier - modestly increased schizophrenia risk", "magnitude": 2},
+            "TG": {"status": "carrier", "desc": "MIR137 risk allele carrier - modestly increased schizophrenia risk", "magnitude": 2},
+            "TT": {"status": "elevated_risk", "desc": "MIR137 T/T - elevated schizophrenia risk, affects synaptic maturation and brain connectivity", "magnitude": 3},
+        }
+    },
+    "rs1360780": {
+        "gene": "FKBP5", "category": "Mental Health",
+        "note": "Gene x environment interaction - risk depends on trauma/stress exposure history",
+        "variants": {
+            "CC": {"status": "normal", "desc": "Normal HPA axis regulation - standard cortisol stress response", "magnitude": 0},
+            "CT": {"status": "carrier", "desc": "FKBP5 T carrier - altered stress response, modest PTSD/depression risk with trauma exposure", "magnitude": 1},
+            "TC": {"status": "carrier", "desc": "FKBP5 T carrier - altered stress response, modest PTSD/depression risk with trauma exposure", "magnitude": 1},
+            "TT": {"status": "sensitized", "desc": "FKBP5 T/T - sensitized HPA axis, increased PTSD/depression risk especially with childhood trauma, may affect glucocorticoid sensitivity", "magnitude": 2},
+        }
+    },
+
+    # =========================================================================
+    # SECTION 16: CANCER PREDISPOSITION
+    # =========================================================================
+
+    "rs17879961": {
+        "gene": "CHEK2", "category": "Cancer Predisposition",
+        "note": "Moderate-penetrance variant (I157T) - forward strand ref=A, alt=G (CHEK2 on minus strand: c.470T>C)",
+        "variants": {
+            "AA": {"status": "normal", "desc": "No CHEK2 I157T variant - standard cancer risk", "magnitude": 0},
+            "AG": {"status": "carrier", "desc": "CHEK2 I157T carrier - ~1.5x breast cancer risk, modestly increased colorectal cancer risk", "magnitude": 3},
+            "GA": {"status": "carrier", "desc": "CHEK2 I157T carrier - ~1.5x breast cancer risk, modestly increased colorectal cancer risk", "magnitude": 3},
+            "GG": {"status": "homozygous", "desc": "CHEK2 I157T homozygous - elevated breast and colorectal cancer risk, discuss screening with doctor", "magnitude": 4},
+        }
+    },
+
+    # =========================================================================
+    # SECTION 17: HORMONE REGULATION
+    # =========================================================================
+
+    "rs700518": {
+        "gene": "CYP19A1", "category": "Hormone Regulation",
+        "note": "Aromatase gene - affects estrogen biosynthesis from androgens",
+        "variants": {
+            "GG": {"status": "normal", "desc": "Normal aromatase activity - standard estrogen biosynthesis", "magnitude": 0},
+            "GA": {"status": "intermediate", "desc": "CYP19A1 variant heterozygous - slightly altered estrogen levels", "magnitude": 1},
+            "AG": {"status": "intermediate", "desc": "CYP19A1 variant heterozygous - slightly altered estrogen levels", "magnitude": 1},
+            "AA": {"status": "altered", "desc": "CYP19A1 A/A - altered aromatase activity, may affect estrogen levels and hormone balance", "magnitude": 2},
+        }
+    },
+    "rs6166": {
+        "gene": "FSHR", "category": "Hormone Regulation",
+        "note": "Asn680Ser - affects FSH receptor sensitivity, relevant for fertility and PCOS",
+        "variants": {
+            "AA": {"status": "normal", "desc": "FSHR Asn680 - normal FSH receptor sensitivity", "magnitude": 0},
+            "AG": {"status": "intermediate", "desc": "FSHR Asn680Ser heterozygous - intermediate FSH sensitivity, may affect ovarian response", "magnitude": 1},
+            "GA": {"status": "intermediate", "desc": "FSHR Asn680Ser heterozygous - intermediate FSH sensitivity, may affect ovarian response", "magnitude": 1},
+            "GG": {"status": "reduced_sensitivity", "desc": "FSHR Ser680 - reduced FSH receptor sensitivity, may need higher FSH for ovarian stimulation, PCOS association", "magnitude": 2},
+        }
+    },
+
+    # =========================================================================
+    # SECTION 18: BONE HEALTH
+    # =========================================================================
+
+    "rs3736228": {
+        "gene": "LRP5", "category": "Bone Health",
+        "note": "Ala1330Val in WNT signaling pathway - strong GWAS hit for bone mineral density",
+        "variants": {
+            "CC": {"status": "normal", "desc": "Normal LRP5 function - standard bone mineral density", "magnitude": 0},
+            "CT": {"status": "reduced", "desc": "LRP5 Ala1330Val heterozygous - modestly reduced bone mineral density", "magnitude": 2},
+            "TC": {"status": "reduced", "desc": "LRP5 Ala1330Val heterozygous - modestly reduced bone mineral density", "magnitude": 2},
+            "TT": {"status": "low_bmd", "desc": "LRP5 Val/Val - lower bone mineral density, increased osteoporosis risk, consider vitamin D and weight-bearing exercise", "magnitude": 3},
+        }
+    },
+    "rs2234693": {
+        "gene": "ESR1", "category": "Bone Health",
+        "note": "PvuII polymorphism in estrogen receptor alpha - meta-analyses support BMD association",
+        "variants": {
+            "CC": {"status": "normal", "desc": "Normal estrogen receptor function - standard bone metabolism", "magnitude": 0},
+            "CT": {"status": "intermediate", "desc": "ESR1 PvuII heterozygous - intermediate bone mineral density effect", "magnitude": 1},
+            "TC": {"status": "intermediate", "desc": "ESR1 PvuII heterozygous - intermediate bone mineral density effect", "magnitude": 1},
+            "TT": {"status": "reduced_bmd", "desc": "ESR1 PvuII T/T - tendency toward lower bone mineral density, especially postmenopausal", "magnitude": 2},
+        }
+    },
 }
