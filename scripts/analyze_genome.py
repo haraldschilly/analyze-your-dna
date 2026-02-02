@@ -6,11 +6,12 @@ Cross-references personal genome against ClinVar, PharmGKB, and curated high-imp
 
 import csv
 import json
-import gzip
 from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Optional
 from collections import defaultdict
+
+from utils import ensure_clinvar
 
 # Paths
 DATA_DIR = Path(__file__).parent.parent / "data"
@@ -797,7 +798,7 @@ def main():
     print(f"Loaded {len(genome):,} SNPs")
 
     # Load ClinVar
-    clinvar_path = DATA_DIR / "clinvar_alleles.tsv"
+    clinvar_path = Path(ensure_clinvar(DATA_DIR))
     print(f"\nLoading ClinVar data from {clinvar_path}...")
     clinvar = load_clinvar(clinvar_path)
     print(f"Loaded {len(clinvar):,} pathogenic variants")

@@ -16,6 +16,8 @@ import os
 from collections import defaultdict
 from datetime import datetime
 
+from utils import ensure_clinvar
+
 # Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(SCRIPT_DIR)
@@ -59,6 +61,7 @@ def load_genome():
 
 def load_clinvar(genome_by_position):
     """Load ClinVar and find variants present in user's genome."""
+    ensure_clinvar(DATA_DIR)
     print("Loading ClinVar database and matching variants...")
 
     findings = {

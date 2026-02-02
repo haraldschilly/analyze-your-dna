@@ -18,13 +18,11 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 
 ## Running the Pipeline
 
-```bash
-# With UV (recommended)
-uv sync --extra fast
-uv run python scripts/run_full_analysis.py data/genome.txt --name "Subject"
+Always use `uv run python3` to run scripts — never use the system-wide `python3` directly.
 
-# Traditional Python
-python scripts/run_full_analysis.py data/genome.txt --name "Subject"
+```bash
+uv sync --extra fast
+uv run python3 scripts/run_full_analysis.py data/genome.txt --name "Subject"
 ```
 
 ## Data Flow
@@ -78,7 +76,7 @@ Edit `scripts/comprehensive_snp_database.py`:
 ## Required Data Files
 
 - `data/genome.txt` - 23andMe raw data (user provides)
-- `data/clinvar_alleles.tsv` - ClinVar database (~289MB, download separately)
+- `data/clinvar_alleles.tsv` - ClinVar database (~289MB, auto-decompressed from .tsv.gz)
 - `data/clinical_annotations.tsv` - PharmGKB (included)
 - `data/clinical_ann_alleles.tsv` - PharmGKB (included)
 

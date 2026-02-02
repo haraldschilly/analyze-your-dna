@@ -27,6 +27,7 @@ SCRIPT_DIR = Path(__file__).parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from comprehensive_snp_database import COMPREHENSIVE_SNPS
+from utils import ensure_clinvar
 
 # Directory configuration
 BASE_DIR = SCRIPT_DIR.parent
@@ -221,7 +222,7 @@ def analyze_lifestyle_health(genome_by_rsid: dict, pharmgkb: dict) -> dict:
 
 def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
     """Load ClinVar and analyze for disease variants."""
-    clinvar_path = DATA_DIR / "clinvar_alleles.tsv"
+    clinvar_path = Path(ensure_clinvar(DATA_DIR))
 
     if not clinvar_path.exists():
         print("    ClinVar file not found, skipping disease risk analysis")
