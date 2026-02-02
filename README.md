@@ -24,9 +24,9 @@ The original concept uses Claude Code to analyze 23andMe genetic data against Cl
 This tool is designed to be used with an AI agent. It allows you to "chat" with your genome, ask follow-up questions, and get explanations in plain English.
 
 **Recommended Agents:**
-*   [**Claude Code**](https://claude.ai/code) - The primary agent this project was designed for.
-*   [**Gemini CLI**](https://ai.google.dev/gemini-api/docs/cli) - Excellent analysis capabilities.
-*   [**OpenCode CLI**)(https://opencode.ai/) - can make use of a variety of models.
+*   [**Claude Code (Anthropic)**](https://claude.ai/code) - The primary agent this project was designed for.
+*   [**Gemini (Google)**](https://ai.google.dev/gemini-api/docs/cli) - Excellent analysis capabilities.
+*   [**OpenCode (open source)**](https://opencode.ai/) - can make use of a variety of models.
 *   [**Codex (OpenAI)**](https://openai.com/codex/) - Agent optimized for coding.
 
 ### Interactive Session Example
