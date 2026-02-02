@@ -23,17 +23,22 @@ The original concept uses Claude Code to analyze 23andMe genetic data against Cl
 
 ### Prerequisites
 
-1. **Get your 23andMe raw data:**
+1. **Install `uv` (Fastest Python Manager):**
+   ```bash
+   # On macOS and Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # On Windows
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. **Get your 23andMe raw data:**
    - Log into 23andMe → Settings → Download Raw Data
    - Save as `data/genome.txt`
 
-2. **Download ClinVar database** (~289MB, required for disease analysis):
-   ```bash
-   pip install gdown
-   gdown 1ER1lNS9jcWV0oaUo0_DOa23QRHaUKclt -O data/clinvar_alleles.tsv
-   ```
-
 ### Running with UV (Recommended)
+
+The ClinVar database (`data/clinvar_alleles.tsv.gz`) will be automatically decompressed on first run.
 
 ```bash
 # Basic run (pure Python, no extra dependencies)
@@ -139,7 +144,7 @@ analyze-dna/
 ├── pyproject.toml             # UV/pip package configuration
 ├── data/
 │   ├── genome.txt             # Your 23andMe raw data (add this)
-│   ├── clinvar_alleles.tsv    # ClinVar database (download separately)
+│   ├── clinvar_alleles.tsv.gz # ClinVar database (auto-extracted on run)
 │   └── clinical_*.tsv         # PharmGKB data (included)
 ├── scripts/
 │   ├── run_full_analysis.py   # Main entry point
@@ -176,7 +181,7 @@ mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
 | File | Size | Included | Source |
 |------|------|----------|--------|
 | genome.txt | ~25MB | No | Your 23andMe download |
-| clinvar_alleles.tsv | ~289MB | No | [Download command above](#prerequisites) |
+| clinvar_alleles.tsv.gz | ~60MB (zipped) | **Yes** | Included (auto-extracted to 289MB) |
 | clinical_annotations.tsv | ~850KB | Yes | PharmGKB |
 | clinical_ann_alleles.tsv | ~5.5MB | Yes | PharmGKB |
 
