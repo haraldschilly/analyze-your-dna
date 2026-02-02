@@ -62,6 +62,7 @@ python_files = ["test_*.py"]
 dev = [
     "pylint>=4.0.4",
     "pyright>=1.1.0",
+    "pytest>=9.0.2",
 ]
 
 [tool.pylint."MESSAGES CONTROL"]
