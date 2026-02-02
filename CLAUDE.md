@@ -21,7 +21,7 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 Always use `uv run python3` to run scripts — never use the system-wide `python3` directly.
 
 ```bash
-uv sync --extra fast
+uv sync
 uv run python3 scripts/run_full_analysis.py data/genome.txt --name "Subject"
 ```
 
@@ -82,6 +82,6 @@ Edit `scripts/comprehensive_snp_database.py`:
 
 ## Performance Notes
 
-- Fast loader uses polars when available (`uv sync --extra fast`)
+- Fast loader uses polars (installed by default)
 - Standard mode: ~15-25 sec for ClinVar
 - Fast mode: ~2-4 sec for ClinVar

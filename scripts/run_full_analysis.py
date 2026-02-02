@@ -27,6 +27,7 @@ SCRIPT_DIR = Path(__file__).parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
 from comprehensive_snp_database import COMPREHENSIVE_SNPS
+from fast_loader import load_genome_fast, load_clinvar_fast, get_loader_info
 from utils import ensure_clinvar
 
 # Directory configuration
@@ -53,30 +54,14 @@ def print_step(text):
 # =============================================================================
 
 def load_genome(genome_path: Path) -> tuple:
-    """Load 23andMe genome file into dictionaries."""
+    """Load 23andMe genome file into dictionaries.
+
+    Uses fast_loader (polars) when available for 5-10x speedup.
+    """
     print_step(f"Loading genome from {genome_path}")
+    print(f"    {get_loader_info()}")
 
-    genome_by_rsid = {}
-    genome_by_position = {}
-
-    with open(genome_path, 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                continue
-            parts = line.strip().split('\t')
-            if len(parts) >= 4:
-                rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
-                if genotype != '--':
-                    genome_by_rsid[rsid] = {
-                        'chromosome': chrom,
-                        'position': pos,
-                        'genotype': genotype
-                    }
-                    pos_key = f"{chrom}:{pos}"
-                    genome_by_position[pos_key] = {
-                        'rsid': rsid,
-                        'genotype': genotype
-                    }
+    genome_by_rsid, genome_by_position = load_genome_fast(genome_path)
 
     print(f"    Loaded {len(genome_by_rsid):,} SNPs")
     return genome_by_rsid, genome_by_position
@@ -221,7 +206,10 @@ def analyze_lifestyle_health(genome_by_rsid: dict, pharmgkb: dict) -> dict:
 # =============================================================================
 
 def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
-    """Load ClinVar and analyze for disease variants."""
+    """Load ClinVar and analyze for disease variants.
+
+    Uses fast_loader (polars) when available for 5-10x speedup.
+    """
     clinvar_path = Path(ensure_clinvar(DATA_DIR))
 
     if not clinvar_path.exists():
@@ -229,91 +217,9 @@ def load_clinvar_and_analyze(genome_by_position: dict) -> tuple:
         return None, None
 
     print_step("Loading ClinVar and analyzing disease risk")
+    print(f"    {get_loader_info()}")
 
-    findings = {
-        'pathogenic': [],
-        'likely_pathogenic': [],
-        'risk_factor': [],
-        'drug_response': [],
-        'protective': [],
-        'other_significant': []
-    }
-
-    stats = {
-        'total_clinvar': 0,
-        'matched': 0,
-        'pathogenic_matched': 0,
-        'likely_pathogenic_matched': 0
-    }
-
-    with open(clinvar_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-
-        for row in reader:
-            stats['total_clinvar'] += 1
-
-            chrom = row['chrom']
-            pos = row['pos']
-            pos_key = f"{chrom}:{pos}"
-
-            if pos_key not in genome_by_position:
-                continue
-
-            stats['matched'] += 1
-
-            user_data = genome_by_position[pos_key]
-            user_genotype = user_data['genotype']
-            ref_allele = row['ref']
-            alt_allele = row['alt']
-            clinical_sig = row['clinical_significance'].lower()
-
-            # Only process true SNPs
-            if len(ref_allele) != 1 or len(alt_allele) != 1:
-                continue
-
-            has_variant = alt_allele in user_genotype
-            is_homozygous = user_genotype == alt_allele + alt_allele
-            is_heterozygous = has_variant and not is_homozygous
-            has_ref_only = user_genotype == ref_allele + ref_allele
-
-            if has_ref_only or not has_variant:
-                continue
-
-            finding = {
-                'chromosome': chrom,
-                'position': pos,
-                'rsid': user_data['rsid'],
-                'gene': row['symbol'],
-                'ref': ref_allele,
-                'alt': alt_allele,
-                'user_genotype': user_genotype,
-                'is_homozygous': is_homozygous,
-                'is_heterozygous': is_heterozygous,
-                'clinical_significance': row['clinical_significance'],
-                'review_status': row['review_status'],
-                'gold_stars': int(row['gold_stars']) if row['gold_stars'] else 0,
-                'traits': row['all_traits'],
-                'inheritance': row.get('inheritance_modes', ''),
-                'hgvs_p': row.get('hgvs_p', ''),
-                'hgvs_c': row.get('hgvs_c', ''),
-                'molecular_consequence': row.get('molecular_consequence', ''),
-                'xrefs': row.get('xrefs', '')
-            }
-
-            if 'pathogenic' in clinical_sig and 'likely' not in clinical_sig and 'conflict' not in clinical_sig:
-                findings['pathogenic'].append(finding)
-                stats['pathogenic_matched'] += 1
-            elif 'likely pathogenic' in clinical_sig or 'likely_pathogenic' in clinical_sig:
-                findings['likely_pathogenic'].append(finding)
-                stats['likely_pathogenic_matched'] += 1
-            elif 'risk factor' in clinical_sig or 'risk_factor' in clinical_sig:
-                findings['risk_factor'].append(finding)
-            elif 'drug response' in clinical_sig or 'drug_response' in clinical_sig:
-                findings['drug_response'].append(finding)
-            elif 'protective' in clinical_sig:
-                findings['protective'].append(finding)
-            elif 'association' in clinical_sig or 'affects' in clinical_sig:
-                findings['other_significant'].append(finding)
+    findings, stats = load_clinvar_fast(clinvar_path, genome_by_position)
 
     print(f"    ClinVar entries scanned: {stats['total_clinvar']:,}")
     print(f"    Pathogenic variants: {stats['pathogenic_matched']}")

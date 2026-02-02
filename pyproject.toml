@@ -8,14 +8,13 @@ license = "MIT"
 authors = [{ name = "Genetic Health Analysis" }]
 keywords = ["genetics", "23andme", "health", "genomics", "clinvar", "pharmgkb"]
 
-# Core has no dependencies - pure Python stdlib
-dependencies = []
-
-[project.optional-dependencies]
-# For faster CSV/TSV parsing and data processing
-fast = [
+dependencies = [
     "polars>=1.0.0",
 ]
+
+[project.optional-dependencies]
+# Kept for backwards compatibility (polars is now a core dependency)
+fast = []
 # For potential numeric optimizations
 perf = [
     "numpy>=1.24.0",

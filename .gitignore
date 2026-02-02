@@ -1,5 +1,8 @@
 .claude/settings.local.json
 
+# file too large for github. it will be created automatically by ungzipping the *.gz file
+data/clinvar_alleles.tsv
+
 # Python
 __pycache__/
 *.pyc

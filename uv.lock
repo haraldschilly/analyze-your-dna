@@ -10,13 +10,15 @@ resolution-markers = [
 name = "analyze-dna"
 version = "0.1.0"
 source = { editable = "." }
+dependencies = [
+    { name = "polars" },
+]
 
 [package.optional-dependencies]
 all = [
     { name = "mypy" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "polars" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -24,9 +26,6 @@ dev = [
     { name = "mypy" },
     { name = "pytest" },
     { name = "ruff" },
-]
-fast = [
-    { name = "polars" },
 ]
 perf = [
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -38,7 +37,7 @@ requires-dist = [
     { name = "analyze-dna", extras = ["fast", "perf", "dev"], marker = "extra == 'all'" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=1.10.0" },
     { name = "numpy", marker = "extra == 'perf'", specifier = ">=1.24.0" },
-    { name = "polars", marker = "extra == 'fast'", specifier = ">=1.0.0" },
+    { name = "polars", specifier = ">=1.0.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4.0" },
 ]
