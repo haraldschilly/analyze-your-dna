@@ -113,11 +113,11 @@ def _load_genome_stdlib(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, D
         for line in f:
             if line.startswith('#'):
                 continue
-            
+
             parts = line.strip().split('\t')
             if len(parts) >= 4:
                 rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
-                
+
                 if genotype == '--':
                     continue
 
@@ -137,7 +137,7 @@ def _load_genome_stdlib(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, D
 
 
 def load_clinvar_fast(
-    clinvar_path: Path, 
+    clinvar_path: Path,
     genome_by_position: Dict[str, Dict]
 ) -> Tuple[Dict[str, list], Dict[str, int]]:
     """
@@ -261,7 +261,7 @@ def _load_clinvar_polars(
 
 
 def _load_clinvar_stdlib(
-    clinvar_path: Path, 
+    clinvar_path: Path,
     genome_by_position: Dict[str, Dict]
 ) -> Tuple[Dict[str, list], Dict[str, int]]:
     """Load and scan ClinVar using standard library csv (slow path)."""
@@ -283,10 +283,10 @@ def _load_clinvar_stdlib(
 
     with open(clinvar_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f, delimiter='\t')
-        
+
         for row in reader:
             stats['total_clinvar'] += 1
-            
+
             chrom = row['chrom']
             pos = row['pos']
             pos_key = f"{chrom}:{pos}"
@@ -309,8 +309,6 @@ def _load_clinvar_stdlib(
             is_heterozygous = has_variant and not is_homozygous
 
             # Also verify user doesn't just have reference allele
-            has_ref_only = user_genotype == ref_allele + ref_allele
-
             if not has_variant and not is_homozygous and not is_heterozygous:
                 # User has position but not the variant (e.g. they are Ref/Ref)
                 # Unless we care about ref alleles (rare in ClinVar but possible)

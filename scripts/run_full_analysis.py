@@ -18,6 +18,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
+from typing import Optional
 
 # Add scripts directory to path for imports
 SCRIPT_DIR = Path(__file__).parent
@@ -207,8 +208,6 @@ def classify_zygosity(finding):
             return 'HETEROZYGOUS', 'Heterozygous (inheritance unclear)'
     return 'UNKNOWN', 'Zygosity unclear'
 
-
-from typing import Optional, Tuple, Dict, List, Any
 
 # =============================================================================
 # REPORT GENERATION
