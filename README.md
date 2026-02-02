@@ -1,6 +1,12 @@
 # Genetic Health Analysis Pipeline
 
+<img src=".github/icon.webp" align="right" width="120" />
+
 A comprehensive genetic health analysis pipeline that processes 23andMe raw data to generate detailed health reports using Claude Code.
+
+<br clear="all" />
+
+![Pipeline Architecture](.github/pipeline-graphics.webp)
 
 ## Attribution
 
