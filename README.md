@@ -240,8 +240,19 @@ mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
 
 ### Updating Data (Quarterly Recommended)
 
-- **ClinVar**: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/
-- **PharmGKB**: https://www.pharmgkb.org/downloads (free account)
+**ClinVar** (automatic):
+```bash
+uv run python scripts/update_clinvar.py
+```
+
+This downloads the latest `variant_summary.txt.gz` from NCBI and converts it to the required format. The script:
+- Filters for GRCh37 assembly (23andMe coordinates)
+- Computes gold_stars from ReviewStatus
+- Creates both `.tsv` and `.tsv.gz` files
+
+**PharmGKB** (manual): https://www.pharmgkb.org/downloads (free account required)
+- Download "Clinical Annotations" files
+- Replace `data/clinical_annotations.tsv` and `data/clinical_ann_alleles.tsv`
 
 ---
 
