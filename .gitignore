@@ -1,5 +1,4 @@
-# Large data files (exceeds GitHub 100MB limit)
-data/clinvar_alleles.tsv
+.claude/settings.local.json
 
 # Python
 __pycache__/
