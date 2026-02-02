@@ -78,9 +78,9 @@ def load_pharmgkb() -> dict:
         return {}
 
     print_step("Loading PharmGKB data")
-    
+
     pharmgkb = load_pharmgkb_utils(annotations_path, alleles_path)
-    
+
     print(f"    Loaded {len(pharmgkb):,} drug-gene interactions")
     return pharmgkb
 
