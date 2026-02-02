@@ -799,6 +799,9 @@ COMPREHENSIVE_SNPS = {
     # SECTION 15: MENTAL HEALTH
     # =========================================================================
 
+    # rs6313 (HTR2A): Key papers
+    # - Arranz et al. (2000) The Lancet - Pharmacogenetic prediction of clozapine response
+    # - Wang et al. (2023) Frontiers in Pharmacology - Meta-analysis confirming HTR2A association with antipsychotic efficacy
     "rs6313": {
         "gene": "HTR2A", "category": "Mental Health",
         "note": "T102C polymorphism - studied since 1990s for psychiatric PGx",
@@ -809,6 +812,9 @@ COMPREHENSIVE_SNPS = {
             "TT": {"status": "low_expression", "desc": "Lower HTR2A expression - associated with depression/OCD risk, may affect antipsychotic response", "magnitude": 2},
         }
     },
+    # rs1006737 (CACNA1C): Key papers
+    # - Ferreira et al. (2008) Nature Genetics - Collaborative genome-wide association analysis supports a role for ANK3 and CACNA1C in bipolar disorder
+    # - Cross-Disorder Group of the Psychiatric Genomics Consortium (2013) The Lancet - Identification of risk loci with shared effects on five major psychiatric disorders
     "rs1006737": {
         "gene": "CACNA1C", "category": "Mental Health",
         "note": "Top GWAS hit for bipolar disorder since 2008, replicated across ancestries",
@@ -819,6 +825,9 @@ COMPREHENSIVE_SNPS = {
             "AA": {"status": "elevated_risk", "desc": "CACNA1C A/A - elevated risk for bipolar disorder and schizophrenia, affects neuronal excitability", "magnitude": 3},
         }
     },
+    # rs1625579 (MIR137): Key papers
+    # - Ripke et al. (2011) Nature Genetics - Genome-wide association study identifies five new schizophrenia loci (PGC Study)
+    # - Guella et al. (2013) Schizophrenia Bulletin - Analysis of MIR137 expression and its target genes in schizophrenia
     "rs1625579": {
         "gene": "MIR137", "category": "Mental Health",
         "note": "Strongest schizophrenia GWAS locus (PGC, p<1e-19), regulates synaptic development",
@@ -829,6 +838,9 @@ COMPREHENSIVE_SNPS = {
             "TT": {"status": "elevated_risk", "desc": "MIR137 T/T - elevated schizophrenia risk, affects synaptic maturation and brain connectivity", "magnitude": 3},
         }
     },
+    # rs1360780 (FKBP5): Key papers
+    # - Binder et al. (2008) JAMA - Association of FKBP5 polymorphisms and childhood abuse with risk of posttraumatic stress disorder symptoms in adults
+    # - Xie et al. (2010) Neuropsychopharmacology - Interaction of FKBP5 with childhood adversity on depression
     "rs1360780": {
         "gene": "FKBP5", "category": "Mental Health",
         "note": "Gene x environment interaction - risk depends on trauma/stress exposure history",
@@ -844,6 +856,9 @@ COMPREHENSIVE_SNPS = {
     # SECTION 16: CANCER PREDISPOSITION
     # =========================================================================
 
+    # rs17879961 (CHEK2): Key papers
+    # - Meijers-Heijboer et al. (2002) Nature Genetics - Low-penetrance susceptibility to breast cancer due to CHEK2*1100delC (foundational CHEK2 paper)
+    # - Cybulski et al. (2004) American Journal of Human Genetics - CHEK2 is a multiorgan cancer susceptibility gene (establishes I157T risk)
     "rs17879961": {
         "gene": "CHEK2", "category": "Cancer Predisposition",
         "note": "Moderate-penetrance variant (I157T) - forward strand ref=A, alt=G (CHEK2 on minus strand: c.470T>C)",
@@ -859,6 +874,9 @@ COMPREHENSIVE_SNPS = {
     # SECTION 17: HORMONE REGULATION
     # =========================================================================
 
+    # rs700518 (CYP19A1): Key papers
+    # - Kaczmarek et al. (2022) Int J Mol Sci - Association of CYP19A1 Polymorphisms with bone metabolism and hormone levels
+    # - Ma et al. (2010) Cancer Epidemiol Biomarkers Prev - CYP19A1 polymorphisms and breast cancer risk
     "rs700518": {
         "gene": "CYP19A1", "category": "Hormone Regulation",
         "note": "Aromatase gene - affects estrogen biosynthesis from androgens",
@@ -869,6 +887,9 @@ COMPREHENSIVE_SNPS = {
             "AA": {"status": "altered", "desc": "CYP19A1 A/A - altered aromatase activity, may affect estrogen levels and hormone balance", "magnitude": 2},
         }
     },
+    # rs6166 (FSHR): Key papers
+    # - Perez Mayorga et al. (2000) J Clin Endocrinol Metab - Ovarian response to FSH stimulation depends on the FSH receptor genotype
+    # - Simoni et al. (2002) Endocrine Reviews - The follicle-stimulating hormone receptor: biochemistry, molecular biology, physiology, and pathophysiology
     "rs6166": {
         "gene": "FSHR", "category": "Hormone Regulation",
         "note": "Asn680Ser - affects FSH receptor sensitivity, relevant for fertility and PCOS",
@@ -884,6 +905,9 @@ COMPREHENSIVE_SNPS = {
     # SECTION 18: BONE HEALTH
     # =========================================================================
 
+    # rs3736228 (LRP5): Key papers
+    # - Estrada et al. (2012) Nature Genetics - Genome-wide meta-analysis identifies 56 bone mineral density loci and reveals 14 loci associated with risk of fracture
+    # - Richards et al. (2008) The Lancet - Bone mineral density, osteoporosis, and osteoporotic fractures: a genome-wide association study
     "rs3736228": {
         "gene": "LRP5", "category": "Bone Health",
         "note": "Ala1330Val in WNT signaling pathway - strong GWAS hit for bone mineral density",
@@ -894,6 +918,9 @@ COMPREHENSIVE_SNPS = {
             "TT": {"status": "low_bmd", "desc": "LRP5 Val/Val - lower bone mineral density, increased osteoporosis risk, consider vitamin D and weight-bearing exercise", "magnitude": 3},
         }
     },
+    # rs2234693 (ESR1): Key papers
+    # - Ioannidis et al. (2004) J Bone Miner Res - Differential genetic effects of ESR1 gene polymorphisms on osteoporosis outcomes
+    # - Ioannidis et al. (2002) Hum Mol Genet - Meta-analysis of estrogen receptor alpha gene polymorphisms and bone mineral density
     "rs2234693": {
         "gene": "ESR1", "category": "Bone Health",
         "note": "PvuII polymorphism in estrogen receptor alpha - meta-analyses support BMD association",
