@@ -210,10 +210,10 @@ analyze-dna/
 
 ## Performance
 
-| Mode | ClinVar Processing | Install |
-|------|-------------------|---------|
-| Standard | ~15-25 seconds | No extra deps |
-| Fast (polars) | ~2-4 seconds | `uv sync --extra fast` |
+| Mode | ClinVar Processing | Notes |
+|------|-------------------|-------|
+| Default (polars) | ~2-4 seconds | Polars installed by default |
+| CSV fallback | ~15-25 seconds | Used when polars unavailable |
 
 ---
 
