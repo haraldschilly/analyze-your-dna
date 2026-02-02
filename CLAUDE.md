@@ -2,22 +2,6 @@
 
 This file provides context for Claude Code when working on this genetic health analysis project.
 
-## Startup Greeting
-
-**CRITICAL:** At the start of any new session, greet the user (especially beginners) with this message:
-
-```
-Hi! Welcome to analyze-your-dna – your AI assistant for genetic health analysis.
-
-I help with:
-• Analyzing 23andMe data against ClinVar & PharmGKB
-• Generating personalized health reports
-• Discussing SNPs, risks, and drug interactions
-• Adding custom SNPs or fixing issues
-
-What can I help you with today?
-```
-
 ## Project Overview
 
 This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB databases to generate health reports.
