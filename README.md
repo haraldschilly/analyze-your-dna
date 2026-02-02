@@ -19,21 +19,89 @@ The original concept uses Claude Code to analyze 23andMe genetic data against Cl
 
 ---
 
-## Quick Start
+## AI Assistant Mode (Recommended)
+
+This tool is designed to be used with an AI agent. It allows you to "chat" with your genome, ask follow-up questions, and get explanations in plain English.
+
+**Recommended Agents:**
+*   [**Claude Code**](https://claude.ai/code) - The primary agent this project was designed for.
+*   [**Gemini CLI**](https://ai.google.dev/gemini-api/docs/cli) - Excellent analysis capabilities.
+*   [**ChatGPT (OpenAI)**](https://chat.openai.com/) - Can be used if you paste the code/data context.
+
+### Interactive Session Example
+
+Here is how you can use this tool with an AI agent in your terminal:
+
+```text
+> Please analyze my DNA file using the full analysis script.
+
+I will run the full genetic analysis pipeline on your 'genome.txt' file.
+
+$ uv run python scripts/run_full_analysis.py data/genome.txt
+
+======================================================================
+FULL GENETIC HEALTH ANALYSIS
+======================================================================
+
+>>> Loading genome from data/genome.txt
+    Using optimized Polars loader (v1.2.0)
+    Loaded 638,124 SNPs
+
+>>> Loading PharmGKB data
+    Loaded 8,142 drug-gene interactions
+
+>>> Running lifestyle/health analysis
+    Found 45 lifestyle/health findings
+    Found 12 drug-gene interactions
+
+>>> Loading ClinVar and analyzing disease risk
+    Using optimized Polars loader (v1.2.0)
+    ClinVar entries scanned: 341,293
+    Pathogenic variants: 2
+    Likely pathogenic: 1
+    Risk factors: 28
+
+>>> Generating reports...
+    Written to: reports/EXHAUSTIVE_GENETIC_REPORT.md
+    Written to: reports/EXHAUSTIVE_DISEASE_RISK_REPORT.md
+    Written to: reports/ACTIONABLE_HEALTH_PROTOCOL_V3.md
+
+======================================================================
+ANALYSIS COMPLETE
+======================================================================
+
+I have generated three comprehensive reports for you.
+1. Your genetic health overview found 45 notable lifestyle variants.
+2. The disease risk scan identified 2 pathogenic variants (see 'EXHAUSTIVE_DISEASE_RISK_REPORT.md').
+3. I've created a personalized 'ACTIONABLE_HEALTH_PROTOCOL_V3.md' with supplement and diet recommendations.
+
+Would you like me to summarize the high-impact findings for you?
+```
+
+---
+
+## Expert Mode (Manual Execution)
+
+If you prefer to run the scripts yourself without an AI agent:
 
 ### Prerequisites
 
-1. **Get your 23andMe raw data:**
+1. **Install `uv` (Fastest Python Manager):**
+   ```bash
+   # On macOS and Linux
+   curl -LsSf https://astral.sh/uv/install.sh | sh
+
+   # On Windows
+   powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
+   ```
+
+2. **Get your 23andMe raw data:**
    - Log into 23andMe → Settings → Download Raw Data
    - Save as `data/genome.txt`
 
-2. **Download ClinVar database** (~289MB, required for disease analysis):
-   ```bash
-   pip install gdown
-   gdown 1ER1lNS9jcWV0oaUo0_DOa23QRHaUKclt -O data/clinvar_alleles.tsv
-   ```
-
 ### Running with UV (Recommended)
+
+The ClinVar database (`data/clinvar_alleles.tsv.gz`) will be automatically decompressed on first run.
 
 ```bash
 # Basic run (pure Python, no extra dependencies)
@@ -45,17 +113,6 @@ uv run python scripts/run_full_analysis.py
 
 # With custom genome file and subject name
 uv run python scripts/run_full_analysis.py data/genome.txt --name "Your Name"
-```
-
-### Running with Traditional Python
-
-```bash
-# Ensure Python 3.10+
-python scripts/run_full_analysis.py
-
-# Optional: Install polars for faster processing
-pip install polars
-python scripts/run_full_analysis.py --name "Your Name"
 ```
 
 ---
@@ -139,7 +196,7 @@ analyze-dna/
 ├── pyproject.toml             # UV/pip package configuration
 ├── data/
 │   ├── genome.txt             # Your 23andMe raw data (add this)
-│   ├── clinvar_alleles.tsv    # ClinVar database (download separately)
+│   ├── clinvar_alleles.tsv.gz # ClinVar database (auto-extracted on run)
 │   └── clinical_*.tsv         # PharmGKB data (included)
 ├── scripts/
 │   ├── run_full_analysis.py   # Main entry point
@@ -176,7 +233,7 @@ mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
 | File | Size | Included | Source |
 |------|------|----------|--------|
 | genome.txt | ~25MB | No | Your 23andMe download |
-| clinvar_alleles.tsv | ~289MB | No | [Download command above](#prerequisites) |
+| clinvar_alleles.tsv.gz | ~60MB (zipped) | **Yes** | Included (auto-extracted to 289MB) |
 | clinical_annotations.tsv | ~850KB | Yes | PharmGKB |
 | clinical_ann_alleles.tsv | ~5.5MB | Yes | PharmGKB |
 

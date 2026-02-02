@@ -23,3 +23,7 @@ jobs:
 
       - name: Run pylint
         run: uv run pylint scripts/
+
+      - name: pytest
+        run: uv run pytest tests
+

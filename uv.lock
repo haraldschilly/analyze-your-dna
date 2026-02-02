@@ -39,6 +39,7 @@ perf = [
 dev = [
     { name = "pylint" },
     { name = "pyright" },
+    { name = "pytest" },
 ]
 
 [package.metadata]
@@ -56,6 +57,7 @@ provides-extras = ["fast", "perf", "dev", "all"]
 dev = [
     { name = "pylint", specifier = ">=4.0.4" },
     { name = "pyright", specifier = ">=1.1.0" },
+    { name = "pytest", specifier = ">=9.0.2" },
 ]
 
 [[package]]
