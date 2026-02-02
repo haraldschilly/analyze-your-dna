@@ -80,6 +80,12 @@ Edit `scripts/comprehensive_snp_database.py`:
 - `data/clinical_annotations.tsv` - PharmGKB (included)
 - `data/clinical_ann_alleles.tsv` - PharmGKB (included)
 
+## Skills
+
+Reusable procedures for maintenance tasks are documented in `.claude/skills/`:
+
+- **`update-readme-snp-tables`** — Regenerate the SNP coverage tables in README.md after changes to `comprehensive_snp_database.py` or `analyze_genome.py`. See `.claude/skills/update-readme-snp-tables.md` for the counting script and update procedure.
+
 ## Performance Notes
 
 - Fast loader uses polars (installed by default)
