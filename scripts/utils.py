@@ -1,9 +1,71 @@
 """Shared utilities for the genetic analysis pipeline."""
 
+import csv
 import gzip
 import os
 import shutil
 from collections import defaultdict
+from pathlib import Path
+
+
+def load_genome(genome_path: Path) -> dict:
+    """Load 23andMe genome file into a dictionary."""
+    genome = {}
+    with open(genome_path, 'r') as f:
+        for line in f:
+            if line.startswith('#'):
+                continue
+            parts = line.strip().split('\t')
+            if len(parts) >= 4:
+                rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
+                if genotype != '--':
+                    genome[rsid] = {
+                        'chromosome': chrom,
+                        'position': pos,
+                        'genotype': genotype
+                    }
+    return genome
+
+
+def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
+    """Load PharmGKB drug-gene annotations."""
+    pharmgkb = {}
+    annotations = {}
+
+    with open(annotations_path, 'r') as f:
+        reader = csv.DictReader(f, delimiter='\t')
+        for row in reader:
+            ann_id = row.get('Clinical Annotation ID', '')
+            variant = row.get('Variant/Haplotypes', '')
+            if variant.startswith('rs'):
+                annotations[ann_id] = {
+                    'rsid': variant,
+                    'gene': row.get('Gene', ''),
+                    'drugs': row.get('Drug(s)', ''),
+                    'phenotype': row.get('Phenotype(s)', ''),
+                    'level': row.get('Level of Evidence', ''),
+                    'category': row.get('Phenotype Category', ''),
+                }
+
+    with open(alleles_path, 'r') as f:
+        reader = csv.DictReader(f, delimiter='\t')
+        for row in reader:
+            ann_id = row.get('Clinical Annotation ID', '')
+            if ann_id in annotations:
+                rsid = annotations[ann_id]['rsid']
+                genotype = row.get('Genotype/Allele', '')
+                if rsid not in pharmgkb:
+                    pharmgkb[rsid] = {
+                        'gene': annotations[ann_id]['gene'],
+                        'drugs': annotations[ann_id]['drugs'],
+                        'phenotype': annotations[ann_id]['phenotype'],
+                        'level': annotations[ann_id]['level'],
+                        'category': annotations[ann_id]['category'],
+                        'genotypes': {}
+                    }
+                pharmgkb[rsid]['genotypes'][genotype] = row.get('Annotation Text', '')
+
+    return pharmgkb
 
 
 def ensure_clinvar(data_dir):

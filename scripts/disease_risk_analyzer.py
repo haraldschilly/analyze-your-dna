@@ -13,7 +13,6 @@ Generates EXHAUSTIVE_DISEASE_RISK_REPORT.md
 
 import csv
 import os
-from collections import defaultdict
 from datetime import datetime
 
 from utils import ensure_clinvar
@@ -214,6 +213,9 @@ def generate_report(findings, stats, genome_by_rsid):
     total_drug = len(findings['drug_response'])
     total_protective = len(findings['protective'])
     total_other = len(findings['other_significant'])
+
+    print(f"  Found {total_pathogenic} pathogenic and {total_likely_path} likely pathogenic variants")
+    print(f"  Found {total_risk} risk factors and {total_drug} drug response variants")
 
     # Separate affected vs carrier for pathogenic
     affected_findings = []
@@ -525,7 +527,7 @@ This report is for **informational and educational purposes only**. It is NOT a 
     return report
 
 
-def get_carrier_phenotype_notes(gene, condition):
+def get_carrier_phenotype_notes(gene, _condition):
     """Return carrier-specific phenotype notes for known conditions."""
 
     carrier_effects = {

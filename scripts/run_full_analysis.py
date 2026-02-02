@@ -14,13 +14,11 @@ Usage:
 """
 
 import sys
-import os
-import shutil
 import json
-import csv
 from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
+from typing import Optional
 
 # Add scripts directory to path for imports
 SCRIPT_DIR = Path(__file__).parent
@@ -28,7 +26,7 @@ sys.path.insert(0, str(SCRIPT_DIR))
 
 from comprehensive_snp_database import COMPREHENSIVE_SNPS
 from fast_loader import load_genome_fast, load_clinvar_fast, get_loader_info
-from utils import ensure_clinvar
+from utils import ensure_clinvar, load_pharmgkb as load_pharmgkb_utils
 
 # Directory configuration
 BASE_DIR = SCRIPT_DIR.parent
@@ -82,41 +80,7 @@ def load_pharmgkb() -> dict:
 
     print_step("Loading PharmGKB data")
 
-    pharmgkb = {}
-    annotations = {}
-
-    with open(annotations_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            variant = row.get('Variant/Haplotypes', '')
-            if variant.startswith('rs'):
-                annotations[ann_id] = {
-                    'rsid': variant,
-                    'gene': row.get('Gene', ''),
-                    'drugs': row.get('Drug(s)', ''),
-                    'phenotype': row.get('Phenotype(s)', ''),
-                    'level': row.get('Level of Evidence', ''),
-                    'category': row.get('Phenotype Category', ''),
-                }
-
-    with open(alleles_path, 'r') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            ann_id = row.get('Clinical Annotation ID', '')
-            if ann_id in annotations:
-                rsid = annotations[ann_id]['rsid']
-                genotype = row.get('Genotype/Allele', '')
-                if rsid not in pharmgkb:
-                    pharmgkb[rsid] = {
-                        'gene': annotations[ann_id]['gene'],
-                        'drugs': annotations[ann_id]['drugs'],
-                        'phenotype': annotations[ann_id]['phenotype'],
-                        'level': annotations[ann_id]['level'],
-                        'category': annotations[ann_id]['category'],
-                        'genotypes': {}
-                    }
-                pharmgkb[rsid]['genotypes'][genotype] = row.get('Annotation Text', '')
+    pharmgkb = load_pharmgkb_utils(annotations_path, alleles_path)
 
     print(f"    Loaded {len(pharmgkb):,} drug-gene interactions")
     return pharmgkb
@@ -249,17 +213,21 @@ def classify_zygosity(finding):
 # REPORT GENERATION
 # =============================================================================
 
-def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject_name: str = None):
+def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject_name: Optional[str] = None):
     """Generate the exhaustive lifestyle/health genetic report."""
     print_step(f"Generating exhaustive genetic report")
 
     # Import the generator logic
     from generate_exhaustive_report import (
-        generate_executive_summary, generate_priority_findings,
-        generate_pathway_analysis, generate_full_findings,
-        generate_pharmgkb_report, generate_action_summary, generate_disclaimer,
-        CLINICAL_CONTEXT, PATHWAYS
+        generate_executive_summary,
+        generate_priority_findings,
+        generate_pathway_analysis,
+        generate_full_findings,
+        generate_pharmgkb_report,
+        generate_action_summary,
+        generate_disclaimer,
     )
+
 
     # Build the data structure expected by generator
     data = {
@@ -294,7 +262,7 @@ def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject
 
 
 def generate_disease_risk_report(findings: dict, stats: dict, genome_count: int,
-                                  output_path: Path, subject_name: str = None):
+                                  output_path: Path, subject_name: Optional[str] = None):
     """Generate the exhaustive disease risk report."""
     print_step("Generating disease risk report")
 
@@ -445,9 +413,9 @@ This report is for **informational purposes only**. It is NOT a clinical diagnos
 
 
 def generate_actionable_protocol(health_results: dict, disease_findings: dict,
-                                  output_path: Path, subject_name: str = None):
-    """Generate comprehensive actionable health protocol combining ALL sources."""
-    print_step("Generating actionable health protocol (comprehensive)")
+                                 output_path: Path, subject_name: Optional[str] = None):
+    """Generate the actionable health protocol (Action Plan)."""
+    print_step("Generating actionable health protocol")
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
     subject_line = f"\n**Subject:** {subject_name}" if subject_name else ""
@@ -1003,7 +971,7 @@ It is NOT a clinical diagnosis or medical advice.
 # MAIN PIPELINE
 # =============================================================================
 
-def run_full_analysis(genome_path: Path = None, subject_name: str = None):
+def run_full_analysis(genome_path: Optional[Path] = None, subject_name: Optional[str] = None):
     """Run the complete genetic analysis pipeline."""
 
     print_header("FULL GENETIC HEALTH ANALYSIS")
@@ -1069,6 +1037,7 @@ def run_full_analysis(genome_path: Path = None, subject_name: str = None):
                         len(disease_findings['likely_pathogenic']) +
                         len(disease_findings['risk_factor']))
         print(f"\n  2. EXHAUSTIVE_DISEASE_RISK_REPORT.md")
+        print(f"     - {total_disease} total clinical findings")
         print(f"     - {len(disease_findings['pathogenic'])} pathogenic variants")
         print(f"     - {len(disease_findings['likely_pathogenic'])} likely pathogenic")
         print(f"     - {len(disease_findings['risk_factor'])} risk factors")
