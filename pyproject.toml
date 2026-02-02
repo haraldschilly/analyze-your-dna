@@ -62,3 +62,6 @@ python_files = ["test_*.py"]
 dev = [
     "pylint>=4.0.4",
 ]
+
+[tool.pylint."MESSAGES CONTROL"]
+disable = ["line-too-long"]
