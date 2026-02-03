@@ -15,8 +15,6 @@ from traits_snp_database import TRAITS_SNPS
 from fast_loader import load_genome_fast
 from generate_traits_report import (
     analyze_traits_genome,
-    predict_eye_color_mlr,
-    complement_genotype,
     check_genotype_match
 )
 
@@ -30,7 +28,7 @@ def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
     if not user_geno or user_geno == '--':
         return None
 
-    matched_geno, variant_info = check_genotype_match(user_geno, TRAITS_SNPS[rsid]['variants'])
+    _, variant_info = check_genotype_match(user_geno, TRAITS_SNPS[rsid]['variants'])
 
     if variant_info:
         return {

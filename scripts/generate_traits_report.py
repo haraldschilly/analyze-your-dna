@@ -529,7 +529,7 @@ def main():
             subject_name = sys.argv[idx + 1]
 
     print(f"Loading genome from {genome_path}...")
-    genome_by_rsid, genome_by_position = load_genome_fast(genome_path)
+    genome_by_rsid, _ = load_genome_fast(genome_path)
     print(f"✓ Loaded {len(genome_by_rsid):,} SNPs")
 
     print("Analyzing traits...")
@@ -545,6 +545,7 @@ def main():
 
     print(f"\n✅ Traits report generated successfully!")
     print(f"   Output: {output_path}")
+    # pylint: disable=unsubscriptable-object  # False positive - results is a dict
     print(f"   Eye color: {results['eye_color_mlr']['prediction']}")
     print(f"   Blood type: {results['blood_type']['blood_type']}")
     print(f"   Traits analyzed: {results['summary']['analyzed_traits']}")

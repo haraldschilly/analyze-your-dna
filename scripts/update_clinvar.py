@@ -18,7 +18,6 @@ Usage:
 import argparse
 import csv
 import gzip
-import os
 import sys
 import urllib.request
 from datetime import datetime
