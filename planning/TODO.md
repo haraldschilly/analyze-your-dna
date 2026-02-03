@@ -475,3 +475,12 @@ README.md                      # Document new features
 5. Test with: `uv run python3 scripts/generate_traits_report.py data/genome.txt`
 
 **Key principle:** Each trait should have clear genotype→interpretation mappings. For complex traits like eye color, implement the probability model. For simple traits like earwax, just map genotype to outcome.
+
+---
+
+## Future Improvements
+
+### Code Quality & Types
+- [ ] Expand static type checking (`mypy`) to cover all scripts (currently only `comprehensive_snp_database.py` is strictly checked).
+- [ ] Refactor type definitions (e.g., `SnpInfo`, `VariantInfo`) into a shared `scripts/types.py` module to prevent circular imports and encourage reuse across `analyze_genome.py`, `run_full_analysis.py`, etc.
+
