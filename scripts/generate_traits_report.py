@@ -35,13 +35,13 @@ REPORTS_DIR = Path(__file__).parent.parent / "reports"
 
 def complement_genotype(geno: str) -> str:
     """Convert genotype to opposite strand: AA→TT, CG→GC"""
-    COMPLEMENT = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', '-': '-', 'D': 'D', 'I': 'I'}
-    return ''.join(COMPLEMENT.get(b, b) for b in geno)
+    COMPLEMENT = {"A": "T", "T": "A", "C": "G", "G": "C", "-": "-", "D": "D", "I": "I"}
+    return "".join(COMPLEMENT.get(b, b) for b in geno)
 
 
 def check_genotype_match(user_geno: str, expected_variants: dict) -> tuple:
     """Check user genotype against expected, handling strand flip and reversal."""
-    if not user_geno or user_geno == '--':
+    if not user_geno or user_geno == "--":
         return None, None
 
     if user_geno in expected_variants:
@@ -78,7 +78,7 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
     for snp_rsid in ["rs12913832", "rs1800407", "rs16891982", "rs1393350", "rs12896399", "rs12203592"]:
         genotype = genome_by_rsid.get(snp_rsid)
 
-        if not genotype or genotype == '--':
+        if not genotype or genotype == "--":
             if snp_rsid == "rs12913832":  # Critical SNP
                 missing_critical.append(snp_rsid)
             continue
@@ -92,12 +92,9 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
         if dosage > 0:
             logit_blue += dosage * coeffs["blue"]
             logit_inter += dosage * coeffs["inter"]
-            snp_contributions.append({
-                "rsid": snp_rsid,
-                "genotype": genotype,
-                "effect_allele": effect_allele,
-                "dosage": dosage
-            })
+            snp_contributions.append(
+                {"rsid": snp_rsid, "genotype": genotype, "effect_allele": effect_allele, "dosage": dosage}
+            )
 
     if missing_critical:
         return {
@@ -105,7 +102,7 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
             "confidence": 0,
             "probabilities": {"Blue": 0, "Intermediate": 0, "Brown": 0},
             "reason": f"Critical SNP {missing_critical[0]} is missing",
-            "contributions": []
+            "contributions": [],
         }
 
     # Softmax: convert logits to probabilities
@@ -136,12 +133,8 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
     return {
         "prediction": prediction,
         "confidence": confidence,
-        "probabilities": {
-            "Blue": prob_blue,
-            "Intermediate": prob_inter,
-            "Brown": prob_brown
-        },
-        "contributions": snp_contributions
+        "probabilities": {"Blue": prob_blue, "Intermediate": prob_inter, "Brown": prob_brown},
+        "contributions": snp_contributions,
     }
 
 
@@ -156,11 +149,11 @@ def derive_blood_type(genome_by_rsid: dict) -> dict:
             "blood_type": "Unknown",
             "reason": "Missing required SNPs",
             "o_status": o_deletion_geno or "Missing",
-            "ab_status": ab_geno or "Missing"
+            "ab_status": ab_geno or "Missing",
         }
 
     # Normalize indel notation
-    o_deletion_geno = o_deletion_geno.replace('-', 'D')
+    o_deletion_geno = o_deletion_geno.replace("-", "D")
 
     # Step 1: Check O deletion status
     if o_deletion_geno in ["DD", "D/D"]:
@@ -168,7 +161,7 @@ def derive_blood_type(genome_by_rsid: dict) -> dict:
             "blood_type": "O",
             "reason": "Both alleles have deletion - no functional transferase",
             "o_status": o_deletion_geno,
-            "ab_status": "N/A (both alleles non-functional)"
+            "ab_status": "N/A (both alleles non-functional)",
         }
 
     # Step 2: Determine A vs B
@@ -179,10 +172,10 @@ def derive_blood_type(genome_by_rsid: dict) -> dict:
             "blood_type": "Unknown",
             "reason": f"Cannot interpret O-status genotype: {o_deletion_geno}",
             "o_status": o_deletion_geno,
-            "ab_status": ab_geno
+            "ab_status": ab_geno,
         }
 
-    one_o_allele = o_deletion_geno.count('D') == 1 or o_deletion_geno.count('-') == 1
+    one_o_allele = o_deletion_geno.count("D") == 1 or o_deletion_geno.count("-") == 1
 
     if ab_geno == "GG":
         blood_type = "A"
@@ -200,7 +193,7 @@ def derive_blood_type(genome_by_rsid: dict) -> dict:
         "blood_type": blood_type,
         "reason": "Derived from two-SNP logic",
         "o_status": o_deletion_geno,
-        "ab_status": ab_geno
+        "ab_status": ab_geno,
     }
 
 
@@ -208,49 +201,49 @@ def analyze_traits_genome(genome_by_rsid: dict) -> dict:
     """Analyze genome against traits database."""
 
     results = {
-        'findings': [],
-        'by_category': defaultdict(list),
-        'eye_color_mlr': None,
-        'blood_type': None,
-        'mc1r_red_hair_score': 0,
-        'summary': {
-            'total_snps': len(genome_by_rsid),
-            'analyzed_traits': 0,
-        }
+        "findings": [],
+        "by_category": defaultdict(list),
+        "eye_color_mlr": None,
+        "blood_type": None,
+        "mc1r_red_hair_score": 0,
+        "summary": {
+            "total_snps": len(genome_by_rsid),
+            "analyzed_traits": 0,
+        },
     }
 
     # Analyze each trait SNP
     for rsid, info in TRAITS_SNPS.items():
         user_geno = genome_by_rsid.get(rsid)
 
-        if not user_geno or user_geno == '--':
+        if not user_geno or user_geno == "--":
             continue
 
-        matched_geno, variant_info = check_genotype_match(user_geno, info['variants'])
+        matched_geno, variant_info = check_genotype_match(user_geno, info["variants"])
 
         if variant_info:
             finding = {
-                'rsid': rsid,
-                'gene': info['gene'],
-                'category': info['category'],
-                'genotype': user_geno,
-                'matched_genotype': matched_geno,
-                'status': variant_info['status'],
-                'description': variant_info['desc'],
-                'magnitude': variant_info['magnitude'],
-                'note': info.get('note', ''),
+                "rsid": rsid,
+                "gene": info["gene"],
+                "category": info["category"],
+                "genotype": user_geno,
+                "matched_genotype": matched_geno,
+                "status": variant_info["status"],
+                "description": variant_info["desc"],
+                "magnitude": variant_info["magnitude"],
+                "note": info.get("note", ""),
             }
-            results['findings'].append(finding)
-            results['by_category'][info['category']].append(finding)
-            results['summary']['analyzed_traits'] += 1
+            results["findings"].append(finding)
+            results["by_category"][info["category"]].append(finding)
+            results["summary"]["analyzed_traits"] += 1
 
             # Track MC1R for red hair check
-            if info['gene'] == 'MC1R' and 'red_hair' in variant_info['status']:
-                results['mc1r_red_hair_score'] += variant_info['magnitude']
+            if info["gene"] == "MC1R" and "red_hair" in variant_info["status"]:
+                results["mc1r_red_hair_score"] += variant_info["magnitude"]
 
     # Special analyses
-    results['eye_color_mlr'] = predict_eye_color_mlr(genome_by_rsid)
-    results['blood_type'] = derive_blood_type(genome_by_rsid)
+    results["eye_color_mlr"] = predict_eye_color_mlr(genome_by_rsid)
+    results["blood_type"] = derive_blood_type(genome_by_rsid)
 
     return results
 
@@ -258,7 +251,7 @@ def analyze_traits_genome(genome_by_rsid: dict) -> dict:
 def generate_traits_report(results: dict, subject_name: str, output_path: Path):
     """Generate markdown traits report."""
 
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         # Header
         f.write(f"# Genetic Traits Report for {subject_name}\n\n")
         f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
@@ -281,35 +274,35 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
 
         # Eye Color (with MLR)
         f.write("### Eye Color\n\n")
-        eye_mlr = results['eye_color_mlr']
+        eye_mlr = results["eye_color_mlr"]
 
-        if eye_mlr['prediction'] == "Inconclusive":
+        if eye_mlr["prediction"] == "Inconclusive":
             f.write(f"**Prediction: Inconclusive**\n\n")
             f.write(f"Reason: {eye_mlr['reason']}\n\n")
         else:
             f.write(f"**Prediction: {eye_mlr['prediction']}** ")
-            f.write(f"({eye_mlr['confidence']*100:.0f}% confidence)\n\n")
+            f.write(f"({eye_mlr['confidence'] * 100:.0f}% confidence)\n\n")
 
             # Probability table
-            probs = eye_mlr['probabilities']
+            probs = eye_mlr["probabilities"]
             f.write("| Outcome | Probability |\n")
             f.write("|---------|-------------|\n")
-            f.write(f"| Blue | {probs['Blue']*100:.1f}% |\n")
-            f.write(f"| Intermediate (Green/Hazel) | {probs['Intermediate']*100:.1f}% |\n")
-            f.write(f"| Brown | {probs['Brown']*100:.1f}% |\n\n")
+            f.write(f"| Blue | {probs['Blue'] * 100:.1f}% |\n")
+            f.write(f"| Intermediate (Green/Hazel) | {probs['Intermediate'] * 100:.1f}% |\n")
+            f.write(f"| Brown | {probs['Brown'] * 100:.1f}% |\n\n")
 
             # Key contributors
-            if eye_mlr['contributions']:
+            if eye_mlr["contributions"]:
                 f.write("**Key genetic contributors:**\n\n")
-                for contrib in eye_mlr['contributions']:
-                    if contrib['dosage'] > 0:
-                        gene = TRAITS_SNPS[contrib['rsid']]['gene']
+                for contrib in eye_mlr["contributions"]:
+                    if contrib["dosage"] > 0:
+                        gene = TRAITS_SNPS[contrib["rsid"]]["gene"]
                         f.write(f"- `{contrib['rsid']}` ({gene}): {contrib['genotype']} ")
                         f.write(f"({contrib['dosage']} copies of {contrib['effect_allele']} allele)\n")
                 f.write("\n")
 
             # Find HERC2 master switch
-            herc2_findings = [f for f in results['by_category'].get('Eye Color', []) if f['rsid'] == 'rs12913832']
+            herc2_findings = [f for f in results["by_category"].get("Eye Color", []) if f["rsid"] == "rs12913832"]
             if herc2_findings:
                 herc2 = herc2_findings[0]
                 f.write(f"Your genotype at the HERC2 master switch (rs12913832) is **{herc2['genotype']}**, ")
@@ -319,7 +312,7 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         f.write("### Hair Color\n\n")
 
         # Check for red hair first (epistatic)
-        red_score = results['mc1r_red_hair_score']
+        red_score = results["mc1r_red_hair_score"]
         if red_score >= 4:
             f.write("**Prediction: Red/Ginger Hair**\n\n")
             f.write("You carry two or more MC1R loss-of-function variants (R-alleles), ")
@@ -331,18 +324,18 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
             f.write("you may have auburn highlights, reddish undertones, or a ginger beard (if male).\n\n")
         else:
             # Check SLC45A2 and KITLG for blonde/dark spectrum
-            slc45a2 = [f for f in results['findings'] if f['rsid'] == 'rs16891982']
-            kitlg = [f for f in results['findings'] if f['rsid'] == 'rs12821256']
+            slc45a2 = [f for f in results["findings"] if f["rsid"] == "rs16891982"]
+            kitlg = [f for f in results["findings"] if f["rsid"] == "rs12821256"]
 
-            if slc45a2 and 'light' in slc45a2[0]['status']:
-                if kitlg and 'blonde' in kitlg[0]['status']:
+            if slc45a2 and "light" in slc45a2[0]["status"]:
+                if kitlg and "blonde" in kitlg[0]["status"]:
                     f.write("**Prediction: Blonde / Light Brown**\n\n")
                     f.write("Combination of SLC45A2 (light) and KITLG (blonde driver) suggests ")
                     f.write("light hair color - likely blonde to light brown.\n\n")
                 else:
                     f.write("**Prediction: Light Brown**\n\n")
                     f.write("SLC45A2 indicates lighter pigmentation.\n\n")
-            elif slc45a2 and 'dark' in slc45a2[0]['status']:
+            elif slc45a2 and "dark" in slc45a2[0]["status"]:
                 f.write("**Prediction: Dark Brown / Black**\n\n")
                 f.write("SLC45A2 indicates darker pigmentation.\n\n")
             else:
@@ -350,7 +343,7 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
                 f.write("Intermediate hair color most likely.\n\n")
 
         # MC1R details
-        mc1r_findings = [f for f in results['findings'] if f['gene'] == 'MC1R']
+        mc1r_findings = [f for f in results["findings"] if f["gene"] == "MC1R"]
         if mc1r_findings:
             f.write("**MC1R variants detected:**\n\n")
             for finding in mc1r_findings:
@@ -359,22 +352,22 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
 
         # Skin Tone
         f.write("### Skin Tone\n\n")
-        slc24a5 = [f for f in results['findings'] if f['rsid'] == 'rs1426654']
+        slc24a5 = [f for f in results["findings"] if f["rsid"] == "rs1426654"]
         if slc24a5:
             finding = slc24a5[0]
             f.write(f"**Primary indicator (SLC24A5):** {finding['genotype']}\n\n")
             f.write(f"{finding['description']}\n\n")
 
-            if finding['genotype'] in ['AA', 'AG', 'GA']:
+            if finding["genotype"] in ["AA", "AG", "GA"]:
                 f.write("The A allele at SLC24A5 is the 'golden mutation' - nearly fixed in Europeans ")
                 f.write("and explains ~25-38% of European-African skin tone difference.\n\n")
 
         # Freckles
-        irf4 = [f for f in results['findings'] if f['rsid'] == 'rs12203592']
+        irf4 = [f for f in results["findings"] if f["rsid"] == "rs12203592"]
         if irf4:
             finding = irf4[0]
             f.write(f"**Freckles (IRF4):** ")
-            if 'T' in finding['genotype']:
+            if "T" in finding["genotype"]:
                 f.write(f"Likely present - {finding['description']}\n\n")
             else:
                 f.write(f"Less likely - {finding['description']}\n\n")
@@ -385,13 +378,13 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         f.write("---\n\n## Taste & Smell\n\n")
 
         # Bitter Taste (TAS2R38 haplotype)
-        tas2r38_snps = [f for f in results['findings'] if f['gene'] == 'TAS2R38']
+        tas2r38_snps = [f for f in results["findings"] if f["gene"] == "TAS2R38"]
         if tas2r38_snps and len(tas2r38_snps) == 3:
             f.write("### Bitter Taste Sensitivity (PTC/PROP)\n\n")
 
             # Count PAV and AVI alleles across the 3 SNPs
             # This is simplified - real haplotype phasing would be better
-            pav_count = sum(1 for snp in tas2r38_snps if 'taster' in snp['status'].lower())
+            pav_count = sum(1 for snp in tas2r38_snps if "taster" in snp["status"].lower())
 
             if pav_count >= 2:
                 f.write("**Result: Taster (likely PAV/PAV or PAV/AVI)**\n\n")
@@ -411,8 +404,8 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
             f.write("\n")
 
         # Other taste/smell traits
-        for category in ['Cilantro Aversion', 'Asparagus Smell', 'Sweet Preference']:
-            findings = results['by_category'].get(category, [])
+        for category in ["Cilantro Aversion", "Asparagus Smell", "Sweet Preference"]:
+            findings = results["by_category"].get(category, [])
             if findings:
                 f.write(f"### {category}\n\n")
                 for finding in findings:
@@ -426,14 +419,14 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
 
         # Blood Type
         f.write("### Blood Type (Derived)\n\n")
-        blood_type = results['blood_type']
+        blood_type = results["blood_type"]
         f.write(f"**Predicted Blood Type: {blood_type['blood_type']}**\n\n")
         f.write(f"Based on rs8176719 (O deletion): `{blood_type['o_status']}`\n")
         f.write(f"Based on rs8176746 (A/B determinant): `{blood_type['ab_status']}`\n\n")
         f.write(f"*Note: {blood_type['reason']}*\n\n")
 
         # Hair Texture
-        hair_texture = results['by_category'].get('Hair Texture', [])
+        hair_texture = results["by_category"].get("Hair Texture", [])
         if hair_texture:
             f.write("### Hair Texture\n\n")
             for finding in hair_texture:
@@ -441,20 +434,20 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
                 f.write(f"{finding['description']}\n\n")
 
         # Earwax Type
-        earwax = results['by_category'].get('Earwax Type', [])
+        earwax = results["by_category"].get("Earwax Type", [])
         if earwax:
             f.write("### Earwax Type & Body Odor\n\n")
             finding = earwax[0]
             f.write(f"**ABCC11 ({finding['rsid']}):** {finding['genotype']}\n\n")
             f.write(f"{finding['description']}\n\n")
-            if finding['genotype'] == 'AA':
+            if finding["genotype"] == "AA":
                 f.write("*The AA genotype also results in significantly reduced body odor - ")
                 f.write("a pleiotropic effect of the same gene.*\n\n")
 
         # Facial Morphology
         f.write("### Facial Features\n\n")
-        for category in ['Nose Shape', 'Chin/Jaw', 'Earlobes', 'Unibrow', 'Cleft Chin']:
-            findings = results['by_category'].get(category, [])
+        for category in ["Nose Shape", "Chin/Jaw", "Earlobes", "Unibrow", "Cleft Chin"]:
+            findings = results["by_category"].get(category, [])
             if findings:
                 f.write(f"**{category}:**\n\n")
                 for finding in findings:
@@ -465,13 +458,13 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         # Anthropometrics
         f.write("### Body Type Tendencies\n\n")
 
-        height_findings = results['by_category'].get('Height', [])
+        height_findings = results["by_category"].get("Height", [])
         if height_findings:
             f.write(f"**Height genes:** {len(height_findings)} variants detected\n\n")
             f.write("*Note: Height is highly polygenic (~700+ variants). ")
             f.write("These top SNPs show tendency direction only.*\n\n")
 
-        bmi_findings = results['by_category'].get('BMI/Weight', [])
+        bmi_findings = results["by_category"].get("BMI/Weight", [])
         if bmi_findings:
             f.write(f"**BMI/Weight:**\n\n")
             for finding in bmi_findings:
@@ -484,14 +477,14 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         # =====================================================================
         f.write("---\n\n## Vision & Refractive Traits\n\n")
 
-        for category in ['Myopia', 'Astigmatism', 'AMD Risk', 'Glaucoma Risk']:
-            findings = results['by_category'].get(category, [])
+        for category in ["Myopia", "Astigmatism", "AMD Risk", "Glaucoma Risk"]:
+            findings = results["by_category"].get(category, [])
             if findings:
                 f.write(f"### {category}\n\n")
                 for finding in findings:
                     f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
                     f.write(f"{finding['description']}\n\n")
-                    if finding['magnitude'] >= 2:
+                    if finding["magnitude"] >= 2:
                         f.write(f"⚠️ *Impact level: {finding['magnitude']}/3*\n\n")
 
         # =====================================================================
@@ -499,8 +492,8 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         # =====================================================================
         f.write("---\n\n## Behavioral & Neurological Traits\n\n")
 
-        for category in ['Photic Sneeze', 'Misophonia', 'Motion Sickness', 'Perfect Pitch', 'Mosquito Attractiveness']:
-            findings = results['by_category'].get(category, [])
+        for category in ["Photic Sneeze", "Misophonia", "Motion Sickness", "Perfect Pitch", "Mosquito Attractiveness"]:
+            findings = results["by_category"].get(category, [])
             if findings:
                 f.write(f"### {category}\n\n")
                 for finding in findings:

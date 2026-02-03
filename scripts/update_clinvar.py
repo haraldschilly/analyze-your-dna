@@ -48,16 +48,45 @@ OUTPUT_GZ = DATA_DIR / "clinvar_alleles.tsv.gz"
 
 # Output column order (matches original clinvar_alleles.tsv format)
 OUTPUT_COLUMNS = [
-    "chrom", "pos", "ref", "alt", "start", "stop", "strand",
-    "variation_type", "variation_id", "rcv", "scv", "allele_id",
-    "symbol", "hgvs_c", "hgvs_p", "molecular_consequence",
-    "clinical_significance", "clinical_significance_ordered",
-    "pathogenic", "likely_pathogenic", "uncertain_significance",
-    "likely_benign", "benign", "review_status", "review_status_ordered",
-    "last_evaluated", "all_submitters", "submitters_ordered", "all_traits",
-    "all_pmids", "inheritance_modes", "age_of_onset", "prevalence",
-    "disease_mechanism", "origin", "xrefs", "dates_ordered",
-    "gold_stars", "conflicted"
+    "chrom",
+    "pos",
+    "ref",
+    "alt",
+    "start",
+    "stop",
+    "strand",
+    "variation_type",
+    "variation_id",
+    "rcv",
+    "scv",
+    "allele_id",
+    "symbol",
+    "hgvs_c",
+    "hgvs_p",
+    "molecular_consequence",
+    "clinical_significance",
+    "clinical_significance_ordered",
+    "pathogenic",
+    "likely_pathogenic",
+    "uncertain_significance",
+    "likely_benign",
+    "benign",
+    "review_status",
+    "review_status_ordered",
+    "last_evaluated",
+    "all_submitters",
+    "submitters_ordered",
+    "all_traits",
+    "all_pmids",
+    "inheritance_modes",
+    "age_of_onset",
+    "prevalence",
+    "disease_mechanism",
+    "origin",
+    "xrefs",
+    "dates_ordered",
+    "gold_stars",
+    "conflicted",
 ]
 
 # Gold stars mapping from ClinVar's official review status
@@ -142,11 +171,12 @@ def convert_clinvar(input_gz: Path, output_tsv: Path, include_all: bool = False)
     print(f"Converting {input_gz.name} to {output_tsv.name}")
     print("  Filtering for GRCh37 assembly (23andMe uses GRCh37)")
 
-    with gzip.open(input_gz, 'rt', encoding='utf-8') as f_in, \
-         open(output_tsv, 'w', newline='', encoding='utf-8') as f_out:
-
-        reader = csv.DictReader(f_in, delimiter='\t')
-        writer = csv.DictWriter(f_out, fieldnames=OUTPUT_COLUMNS, delimiter='\t')
+    with (
+        gzip.open(input_gz, "rt", encoding="utf-8") as f_in,
+        open(output_tsv, "w", newline="", encoding="utf-8") as f_out,
+    ):
+        reader = csv.DictReader(f_in, delimiter="\t")
+        writer = csv.DictWriter(f_out, fieldnames=OUTPUT_COLUMNS, delimiter="\t")
         writer.writeheader()
 
         for row in reader:
@@ -186,10 +216,10 @@ def convert_clinvar(input_gz: Path, output_tsv: Path, include_all: bool = False)
             if not include_all:
                 sig_lower = clinical_sig.lower()
                 is_actionable = (
-                    ("pathogenic" in sig_lower and "conflict" not in sig_lower) or
-                    "likely pathogenic" in sig_lower or
-                    "risk factor" in sig_lower or
-                    "drug response" in sig_lower
+                    ("pathogenic" in sig_lower and "conflict" not in sig_lower)
+                    or "likely pathogenic" in sig_lower
+                    or "risk factor" in sig_lower
+                    or "drug response" in sig_lower
                 )
                 if not is_actionable:
                     stats["filtered_out"] += 1
@@ -248,7 +278,7 @@ def compress_output(tsv_path: Path, gz_path: Path) -> None:
     """Compress the TSV file to .gz format."""
     print(f"Compressing to {gz_path.name}")
 
-    with open(tsv_path, 'rb') as f_in, gzip.open(gz_path, 'wb') as f_out:
+    with open(tsv_path, "rb") as f_in, gzip.open(gz_path, "wb") as f_out:
         while chunk := f_in.read(1024 * 1024):  # 1MB chunks
             f_out.write(chunk)
 
@@ -261,28 +291,14 @@ def compress_output(tsv_path: Path, gz_path: Path) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Download and convert NCBI ClinVar to clinvar_alleles.tsv format"
+    parser = argparse.ArgumentParser(description="Download and convert NCBI ClinVar to clinvar_alleles.tsv format")
+    parser.add_argument("--keep-download", action="store_true", help="Keep the downloaded variant_summary.txt.gz file")
+    parser.add_argument("--no-gzip", action="store_true", help="Don't compress the output TSV file")
+    parser.add_argument(
+        "--skip-download", action="store_true", help="Skip download if variant_summary.txt.gz already exists"
     )
     parser.add_argument(
-        "--keep-download",
-        action="store_true",
-        help="Keep the downloaded variant_summary.txt.gz file"
-    )
-    parser.add_argument(
-        "--no-gzip",
-        action="store_true",
-        help="Don't compress the output TSV file"
-    )
-    parser.add_argument(
-        "--skip-download",
-        action="store_true",
-        help="Skip download if variant_summary.txt.gz already exists"
-    )
-    parser.add_argument(
-        "--include-all",
-        action="store_true",
-        help="Include all variants (default: only clinically actionable)"
+        "--include-all", action="store_true", help="Include all variants (default: only clinically actionable)"
     )
     args = parser.parse_args()
 
@@ -317,7 +333,7 @@ def main():
     print(f"  Total rows in variant_summary: {stats['total_rows']:,}")
     print(f"  GRCh37 rows: {stats['grch37_rows']:,}")
     print(f"  Rows with valid VCF data: {stats['valid_vcf_rows']:,}")
-    if stats['filtered_out'] > 0:
+    if stats["filtered_out"] > 0:
         print(f"  Filtered out (benign/VUS): {stats['filtered_out']:,}")
     print(f"  Rows written: {stats['written_rows']:,}")
 

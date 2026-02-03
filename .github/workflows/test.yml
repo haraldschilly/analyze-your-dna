@@ -26,6 +26,9 @@ jobs:
         # Sync project and install the 'dev' dependency group
         run: uv sync --group dev
 
+      - name: ruff-check
+        run: uv run ruff format --check scripts/ tests/
+
       - name: pylint
         run: uv run pylint scripts/
 

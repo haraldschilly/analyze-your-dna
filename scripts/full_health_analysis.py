@@ -34,69 +34,69 @@ REPORTS_DIR = Path(__file__).parent.parent / "reports"
 def analyze_genome(genome: dict, pharmgkb: dict) -> dict:
     """Analyze genome against comprehensive database."""
     results = {
-        'findings': [],
-        'pharmgkb_findings': [],
-        'by_category': defaultdict(list),
-        'summary': {
-            'total_snps': len(genome),
-            'analyzed_snps': 0,
-            'high_impact': 0,
-            'moderate_impact': 0,
-            'low_impact': 0,
-        }
+        "findings": [],
+        "pharmgkb_findings": [],
+        "by_category": defaultdict(list),
+        "summary": {
+            "total_snps": len(genome),
+            "analyzed_snps": 0,
+            "high_impact": 0,
+            "moderate_impact": 0,
+            "low_impact": 0,
+        },
     }
 
     # Check against comprehensive database
     for rsid, info in COMPREHENSIVE_SNPS.items():
         if rsid in genome:
-            genotype = genome[rsid]['genotype']
+            genotype = genome[rsid]["genotype"]
             genotype_rev = genotype[::-1] if len(genotype) == 2 else genotype
 
-            variant_info = info['variants'].get(genotype) or info['variants'].get(genotype_rev)
+            variant_info = info["variants"].get(genotype) or info["variants"].get(genotype_rev)
 
             if variant_info:
                 finding = {
-                    'rsid': rsid,
-                    'gene': info['gene'],
-                    'category': info['category'],
-                    'genotype': genotype,
-                    'status': variant_info['status'],
-                    'description': variant_info['desc'],
-                    'magnitude': variant_info['magnitude'],
-                    'note': info.get('note', ''),
+                    "rsid": rsid,
+                    "gene": info["gene"],
+                    "category": info["category"],
+                    "genotype": genotype,
+                    "status": variant_info["status"],
+                    "description": variant_info["desc"],
+                    "magnitude": variant_info["magnitude"],
+                    "note": info.get("note", ""),
                 }
-                results['findings'].append(finding)
-                results['by_category'][info['category']].append(finding)
-                results['summary']['analyzed_snps'] += 1
+                results["findings"].append(finding)
+                results["by_category"][info["category"]].append(finding)
+                results["summary"]["analyzed_snps"] += 1
 
-                if variant_info['magnitude'] >= 3:
-                    results['summary']['high_impact'] += 1
-                elif variant_info['magnitude'] >= 2:
-                    results['summary']['moderate_impact'] += 1
-                elif variant_info['magnitude'] >= 1:
-                    results['summary']['low_impact'] += 1
+                if variant_info["magnitude"] >= 3:
+                    results["summary"]["high_impact"] += 1
+                elif variant_info["magnitude"] >= 2:
+                    results["summary"]["moderate_impact"] += 1
+                elif variant_info["magnitude"] >= 1:
+                    results["summary"]["low_impact"] += 1
 
     # Check PharmGKB
     for rsid, info in pharmgkb.items():
         if rsid in genome:
-            genotype = genome[rsid]['genotype']
+            genotype = genome[rsid]["genotype"]
             genotype_rev = genotype[::-1] if len(genotype) == 2 else genotype
-            annotation = info['genotypes'].get(genotype) or info['genotypes'].get(genotype_rev)
-            if annotation and info['level'] in ['1A', '1B', '2A', '2B']:
+            annotation = info["genotypes"].get(genotype) or info["genotypes"].get(genotype_rev)
+            if annotation and info["level"] in ["1A", "1B", "2A", "2B"]:
                 finding = {
-                    'rsid': rsid,
-                    'gene': info['gene'],
-                    'drugs': info['drugs'],
-                    'genotype': genotype,
-                    'annotation': annotation,
-                    'level': info['level'],
-                    'category': info['category'],
+                    "rsid": rsid,
+                    "gene": info["gene"],
+                    "drugs": info["drugs"],
+                    "genotype": genotype,
+                    "annotation": annotation,
+                    "level": info["level"],
+                    "category": info["category"],
                 }
-                results['pharmgkb_findings'].append(finding)
+                results["pharmgkb_findings"].append(finding)
 
     # Sort findings
-    results['findings'].sort(key=lambda x: -x['magnitude'])
-    results['pharmgkb_findings'].sort(key=lambda x: x['level'])
+    results["findings"].sort(key=lambda x: -x["magnitude"])
+    results["pharmgkb_findings"].sort(key=lambda x: x["level"])
 
     return results
 
@@ -104,7 +104,7 @@ def analyze_genome(genome: dict, pharmgkb: dict) -> dict:
 def generate_comprehensive_report(results: dict, output_path: Path):
     """Generate the comprehensive health optimization report."""
 
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write("# Complete Genetic Health Optimization Report\n\n")
         f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
         f.write("---\n\n")
@@ -123,7 +123,7 @@ def generate_comprehensive_report(results: dict, output_path: Path):
         f.write("## 🔴 Top Priority Findings\n\n")
         f.write("These findings have the highest impact on your health decisions.\n\n")
 
-        high_impact = [x for x in results['findings'] if x['magnitude'] >= 3]
+        high_impact = [x for x in results["findings"] if x["magnitude"] >= 3]
         if high_impact:
             for finding in high_impact:
                 f.write(f"### {finding['gene']} ({finding['rsid']})\n\n")
@@ -132,7 +132,7 @@ def generate_comprehensive_report(results: dict, output_path: Path):
                 f.write(f"- **Status:** {finding['status'].replace('_', ' ').title()}\n")
                 f.write(f"- **Impact:** {finding['magnitude']}/6\n")
                 f.write(f"- **Details:** {finding['description']}\n")
-                if finding['note']:
+                if finding["note"]:
                     f.write(f"- **Note:** {finding['note']}\n")
                 f.write("\n")
         else:
@@ -162,25 +162,35 @@ def generate_comprehensive_report(results: dict, output_path: Path):
         ]
 
         for category, emoji, description in category_order:
-            if category in results['by_category']:
-                findings = results['by_category'][category]
+            if category in results["by_category"]:
+                findings = results["by_category"][category]
                 f.write("---\n\n")
                 f.write(f"## {emoji} {category}\n\n")
                 f.write(f"*{description}*\n\n")
 
                 # Sort by magnitude within category
-                findings_sorted = sorted(findings, key=lambda x: -x['magnitude'])
+                findings_sorted = sorted(findings, key=lambda x: -x["magnitude"])
 
                 f.write("| Gene | SNP | Genotype | Status | Impact | Interpretation |\n")
                 f.write("|------|-----|----------|--------|--------|----------------|\n")
 
                 for finding in findings_sorted:
-                    status = finding['status'].replace('_', ' ').title()
-                    desc = finding['description']
+                    status = finding["status"].replace("_", " ").title()
+                    desc = finding["description"]
                     if len(desc) > 60:
                         desc = desc[:57] + "..."
-                    impact_indicator = "🔴" if finding['magnitude'] >= 3 else "🟡" if finding['magnitude'] >= 2 else "🟢" if finding['magnitude'] >= 1 else "⚪"
-                    f.write(f"| {finding['gene']} | {finding['rsid']} | `{finding['genotype']}` | {status} | {impact_indicator} {finding['magnitude']} | {desc} |\n")
+                    impact_indicator = (
+                        "🔴"
+                        if finding["magnitude"] >= 3
+                        else "🟡"
+                        if finding["magnitude"] >= 2
+                        else "🟢"
+                        if finding["magnitude"] >= 1
+                        else "⚪"
+                    )
+                    f.write(
+                        f"| {finding['gene']} | {finding['rsid']} | `{finding['genotype']}` | {status} | {impact_indicator} {finding['magnitude']} | {desc} |\n"
+                    )
 
                 f.write("\n")
 
@@ -196,8 +206,8 @@ def generate_comprehensive_report(results: dict, output_path: Path):
         f.write("Clinical-grade drug-gene interaction data. Level 1A/1B = strongest evidence.\n\n")
 
         # Group by evidence level
-        level_1 = [x for x in results['pharmgkb_findings'] if x['level'] in ['1A', '1B']]
-        level_2 = [x for x in results['pharmgkb_findings'] if x['level'] in ['2A', '2B']]
+        level_1 = [x for x in results["pharmgkb_findings"] if x["level"] in ["1A", "1B"]]
+        level_2 = [x for x in results["pharmgkb_findings"] if x["level"] in ["2A", "2B"]]
 
         if level_1:
             f.write("### Level 1 Evidence (Clinical Guidelines Exist)\n\n")
@@ -205,7 +215,7 @@ def generate_comprehensive_report(results: dict, output_path: Path):
                 f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
                 f.write(f"- Drugs: {finding['drugs']}\n")
                 f.write(f"- Your Genotype: `{finding['genotype']}`\n")
-                annotation = finding['annotation']
+                annotation = finding["annotation"]
                 if len(annotation) > 300:
                     annotation = annotation[:297] + "..."
                 f.write(f"- {annotation}\n\n")
@@ -247,13 +257,13 @@ def generate_comprehensive_report(results: dict, output_path: Path):
 def write_category_interpretation(f, category: str, findings: list):
     """Write detailed interpretation and recommendations for each category."""
 
-    findings_dict = {f['gene']: f for f in findings}
+    findings_dict = {f["gene"]: f for f in findings}
 
     if category == "Methylation":
         f.write("### Methylation Interpretation\n\n")
 
-        mthfr_677 = findings_dict.get('MTHFR')
-        if mthfr_677 and mthfr_677['magnitude'] >= 2:
+        mthfr_677 = findings_dict.get("MTHFR")
+        if mthfr_677 and mthfr_677["magnitude"] >= 2:
             f.write("**MTHFR C677T Finding:**\n")
             f.write("Your MTHFR variant reduces your ability to convert folic acid to its active form (methylfolate). ")
             f.write("This affects:\n")
@@ -268,8 +278,8 @@ def write_category_interpretation(f, category: str, findings: list):
             f.write("- Eat folate-rich foods: leafy greens, legumes, liver\n")
             f.write("- Avoid folic acid-fortified processed foods when possible\n\n")
 
-        comt = findings_dict.get('COMT')
-        if comt and comt['status'] == 'slow':
+        comt = findings_dict.get("COMT")
+        if comt and comt["status"] == "slow":
             f.write("**COMT + MTHFR Interaction:**\n")
             f.write("With slow COMT, methylation support becomes more complex. ")
             f.write("Too much methylfolate can increase methyl donors, potentially worsening anxiety/overstimulation. ")
@@ -278,9 +288,9 @@ def write_category_interpretation(f, category: str, findings: list):
     elif category == "Neurotransmitters":
         f.write("### Neurotransmitter Interpretation\n\n")
 
-        comt = findings_dict.get('COMT')
+        comt = findings_dict.get("COMT")
         if comt:
-            if comt['status'] == 'slow':
+            if comt["status"] == "slow":
                 f.write("**Slow COMT (Met/Met):**\n")
                 f.write("You have higher baseline dopamine and norepinephrine levels. This means:\n\n")
                 f.write("*Advantages:*\n")
@@ -298,7 +308,7 @@ def write_category_interpretation(f, category: str, findings: list):
                 f.write("- Consider adaptogens (ashwagandha, rhodiola) over stimulants\n")
                 f.write("- Magnesium supports COMT function\n")
                 f.write("- Green tea (L-theanine + caffeine) may be better tolerated than coffee\n\n")
-            elif comt['status'] == 'fast':
+            elif comt["status"] == "fast":
                 f.write("**Fast COMT (Val/Val):**\n")
                 f.write("You clear dopamine and norepinephrine quickly. This means:\n\n")
                 f.write("*Advantages:*\n")
@@ -310,8 +320,8 @@ def write_category_interpretation(f, category: str, findings: list):
                 f.write("- May need more motivation/reward to stay engaged\n")
                 f.write("- May tolerate higher caffeine without issues\n\n")
 
-        bdnf = findings_dict.get('BDNF')
-        if bdnf and bdnf['magnitude'] >= 2:
+        bdnf = findings_dict.get("BDNF")
+        if bdnf and bdnf["magnitude"] >= 2:
             f.write("**BDNF Val66Met Finding:**\n")
             f.write("Your BDNF variant reduces activity-dependent BDNF secretion, which affects neuroplasticity. ")
             f.write("This makes **exercise especially important** for you - physical activity is one of the strongest ")
@@ -320,17 +330,17 @@ def write_category_interpretation(f, category: str, findings: list):
     elif category == "Fitness":
         f.write("### Fitness Profile Interpretation\n\n")
 
-        actn3 = findings_dict.get('ACTN3')
-        ace = findings_dict.get('ACE')
+        actn3 = findings_dict.get("ACTN3")
+        ace = findings_dict.get("ACE")
 
         if actn3:
             f.write(f"**Muscle Fiber Type (ACTN3): {actn3['status'].replace('_', ' ').title()}**\n\n")
-            if actn3['status'] == 'power':
+            if actn3["status"] == "power":
                 f.write("You have the 'power' genotype with functional alpha-actinin-3 in fast-twitch muscle fibers.\n")
                 f.write("- Better suited for: Sprinting, jumping, strength/power sports\n")
                 f.write("- Training focus: Can excel at explosive movements, strength training\n")
                 f.write("- Recovery: May recover faster from power-based training\n\n")
-            elif actn3['status'] == 'endurance':
+            elif actn3["status"] == "endurance":
                 f.write("You lack alpha-actinin-3 in fast-twitch fibers (X/X genotype).\n")
                 f.write("- Better suited for: Endurance sports, distance running, cycling\n")
                 f.write("- Advantage: More efficient slow-twitch fiber function\n")
@@ -341,12 +351,12 @@ def write_category_interpretation(f, category: str, findings: list):
 
         if ace:
             f.write(f"**ACE Profile: {ace['status'].replace('_', ' ').title()}**\n\n")
-            if 'endurance' in ace['status']:
+            if "endurance" in ace["status"]:
                 f.write("Lower ACE activity associated with:\n")
                 f.write("- Better endurance performance\n")
                 f.write("- Superior altitude adaptation\n")
                 f.write("- More efficient oxygen utilization\n\n")
-            elif 'power' in ace['status']:
+            elif "power" in ace["status"]:
                 f.write("Higher ACE activity associated with:\n")
                 f.write("- Better strength/power performance\n")
                 f.write("- Greater muscle hypertrophy response\n")
@@ -355,18 +365,18 @@ def write_category_interpretation(f, category: str, findings: list):
     elif category == "Nutrition":
         f.write("### Nutritional Genomics Interpretation\n\n")
 
-        fto = findings_dict.get('FTO')
-        if fto and fto['magnitude'] >= 1:
+        fto = findings_dict.get("FTO")
+        if fto and fto["magnitude"] >= 1:
             f.write(f"**FTO (Obesity Risk): {fto['status'].replace('_', ' ').title()}**\n\n")
-            if fto['status'] in ['increased', 'elevated']:
+            if fto["status"] in ["increased", "elevated"]:
                 f.write("Your FTO variant is associated with increased appetite and reduced satiety signaling.\n")
                 f.write("- Higher protein intake helps counteract this effect\n")
                 f.write("- Regular exercise significantly modifies FTO risk\n")
                 f.write("- Focus on satiety: protein, fiber, whole foods\n")
                 f.write("- May benefit more from structured eating schedules\n\n")
 
-        vit_d = findings_dict.get('GC')
-        if vit_d and vit_d['status'] == 'low':
+        vit_d = findings_dict.get("GC")
+        if vit_d and vit_d["status"] == "low":
             f.write("**Vitamin D (GC): Genetically Low**\n\n")
             f.write("You have reduced vitamin D binding protein, leading to lower circulating vitamin D.\n")
             f.write("- Supplementation typically needed, especially at northern latitudes\n")
@@ -375,16 +385,16 @@ def write_category_interpretation(f, category: str, findings: list):
             f.write("- Take with fat-containing meal for absorption\n")
             f.write("- Get 25-OH vitamin D tested after 2-3 months\n\n")
 
-        fads = findings_dict.get('FADS1')
-        if fads and fads['status'] == 'low_conversion':
+        fads = findings_dict.get("FADS1")
+        if fads and fads["status"] == "low_conversion":
             f.write("**Omega-3 Conversion (FADS1): Low**\n\n")
             f.write("You poorly convert plant omega-3s (ALA) to EPA/DHA.\n")
             f.write("- Flax, chia, walnuts won't provide adequate EPA/DHA for you\n")
             f.write("- Need direct sources: fatty fish, fish oil, or algae oil\n")
             f.write("- Consider 1-2g EPA+DHA daily from marine sources\n\n")
 
-        lactose = findings_dict.get('MCM6/LCT')
-        if lactose and lactose['status'] == 'lactose_intolerant':
+        lactose = findings_dict.get("MCM6/LCT")
+        if lactose and lactose["status"] == "lactose_intolerant":
             f.write("**Lactose Intolerance: Confirmed**\n\n")
             f.write("You have the lactase non-persistence genotype.\n")
             f.write("- Lactase enzyme production declines in adulthood\n")
@@ -400,12 +410,12 @@ def write_category_interpretation(f, category: str, findings: list):
         _apoe_7412 = "rs7412"
 
         # Check for blood pressure genes
-        bp_genes = ['AGTR1', 'AGT', 'ACE', 'GNB3']
-        bp_findings = [findings_dict[g] for g in bp_genes if g in findings_dict and findings_dict[g]['magnitude'] >= 1]
+        bp_genes = ["AGTR1", "AGT", "ACE", "GNB3"]
+        bp_findings = [findings_dict[g] for g in bp_genes if g in findings_dict and findings_dict[g]["magnitude"] >= 1]
 
         if bp_findings:
             f.write("**Blood Pressure Genetics:**\n\n")
-            risk_count = sum(1 for f in bp_findings if f['magnitude'] >= 2)
+            risk_count = sum(1 for f in bp_findings if f["magnitude"] >= 2)
             if risk_count >= 2:
                 f.write("⚠️ You have multiple genetic variants associated with elevated blood pressure risk.\n\n")
                 f.write("**Recommendations:**\n")
@@ -418,9 +428,9 @@ def write_category_interpretation(f, category: str, findings: list):
                 f.write("- If prescribed BP medications, genetic profile may guide selection\n\n")
 
         # Clotting factors
-        f5 = findings_dict.get('F5')
-        f2 = findings_dict.get('F2')
-        if (f5 and f5['magnitude'] >= 3) or (f2 and f2['magnitude'] >= 3):
+        f5 = findings_dict.get("F5")
+        f2 = findings_dict.get("F2")
+        if (f5 and f5["magnitude"] >= 3) or (f2 and f2["magnitude"] >= 3):
             f.write("**⚠️ Clotting Factor Variant Detected:**\n\n")
             f.write("You carry a variant that increases blood clot risk.\n")
             f.write("- Inform all healthcare providers\n")
@@ -433,25 +443,25 @@ def write_category_interpretation(f, category: str, findings: list):
     elif category == "Caffeine Response":
         f.write("### Caffeine Response Interpretation\n\n")
 
-        cyp1a2 = findings_dict.get('CYP1A2')
-        adora_anx = findings_dict.get('ADORA2A')
+        cyp1a2 = findings_dict.get("CYP1A2")
+        adora_anx = findings_dict.get("ADORA2A")
 
         f.write("**Your Caffeine Profile:**\n\n")
 
         if cyp1a2:
             f.write(f"- **Metabolism (CYP1A2):** {cyp1a2['status'].replace('_', ' ').title()}\n")
         if adora_anx:
-            status = adora_anx['status']
-            if status == 'anxiety_prone':
+            status = adora_anx["status"]
+            if status == "anxiety_prone":
                 f.write(f"- **Anxiety Response (ADORA2A):** Prone to caffeine-induced anxiety\n")
-            elif status == 'lower_sensitivity':
+            elif status == "lower_sensitivity":
                 f.write(f"- **Anxiety Response (ADORA2A):** Lower sensitivity\n")
 
         f.write("\n**Recommendations:**\n")
 
         # Build personalized caffeine recommendations
-        slow_metabolizer = cyp1a2 and cyp1a2['status'] in ['slow', 'intermediate']
-        anxiety_prone = adora_anx and adora_anx['status'] == 'anxiety_prone'
+        slow_metabolizer = cyp1a2 and cyp1a2["status"] in ["slow", "intermediate"]
+        anxiety_prone = adora_anx and adora_anx["status"] == "anxiety_prone"
 
         if slow_metabolizer and anxiety_prone:
             f.write("- ⚠️ You're both a slower metabolizer AND anxiety-prone to caffeine\n")
@@ -479,7 +489,7 @@ def write_category_interpretation(f, category: str, findings: list):
 def write_action_plan(f, results: dict):
     """Write personalized action plan based on all findings."""
 
-    findings_dict = {finding['gene']: finding for finding in results['findings']}
+    findings_dict = {finding["gene"]: finding for finding in results["findings"]}
 
     # Organize recommendations by priority
     immediate_actions = []
@@ -489,65 +499,75 @@ def write_action_plan(f, results: dict):
     monitoring_recs = []
 
     # MTHFR
-    if 'MTHFR' in findings_dict and findings_dict['MTHFR']['magnitude'] >= 2:
-        supplement_recs.append("**Methylation Support:** Consider methylfolate (400-800mcg) + methylcobalamin B12 (1000mcg)")
+    if "MTHFR" in findings_dict and findings_dict["MTHFR"]["magnitude"] >= 2:
+        supplement_recs.append(
+            "**Methylation Support:** Consider methylfolate (400-800mcg) + methylcobalamin B12 (1000mcg)"
+        )
         monitoring_recs.append("Get homocysteine levels tested")
         dietary_recs.append("Emphasize folate-rich foods: leafy greens, legumes, liver")
 
     # COMT
-    if 'COMT' in findings_dict:
-        comt = findings_dict['COMT']
-        if comt['status'] == 'slow':
-            lifestyle_recs.append("**Stress Management is Critical:** Daily meditation, regular exercise, adequate sleep")
+    if "COMT" in findings_dict:
+        comt = findings_dict["COMT"]
+        if comt["status"] == "slow":
+            lifestyle_recs.append(
+                "**Stress Management is Critical:** Daily meditation, regular exercise, adequate sleep"
+            )
             lifestyle_recs.append("Be cautious with stimulants - use lower doses, earlier in day")
             supplement_recs.append("Magnesium (300-400mg glycinate) in evening may help")
 
     # Vitamin D
-    if 'GC' in findings_dict and findings_dict['GC']['status'] == 'low':
+    if "GC" in findings_dict and findings_dict["GC"]["status"] == "low":
         supplement_recs.append("**Vitamin D:** 2,500-5,000 IU daily depending on season (you're genetically low)")
         monitoring_recs.append("Test 25-OH vitamin D in 2-3 months, target 40-60 ng/mL")
 
     # FADS1/Omega-3
-    if 'FADS1' in findings_dict and findings_dict['FADS1']['status'] == 'low_conversion':
+    if "FADS1" in findings_dict and findings_dict["FADS1"]["status"] == "low_conversion":
         dietary_recs.append("**Omega-3s:** Get EPA/DHA directly from fish or algae oil (you convert ALA poorly)")
         supplement_recs.append("Fish oil or algae oil: 1-2g EPA+DHA daily")
 
     # FTO
-    if 'FTO' in findings_dict and findings_dict['FTO']['magnitude'] >= 1:
+    if "FTO" in findings_dict and findings_dict["FTO"]["magnitude"] >= 1:
         dietary_recs.append("**Satiety Focus:** Higher protein, fiber-rich foods (FTO variant responds well)")
         lifestyle_recs.append("Regular exercise significantly modifies FTO obesity risk")
 
     # TCF7L2/Diabetes
-    if 'TCF7L2' in findings_dict and findings_dict['TCF7L2']['magnitude'] >= 2:
+    if "TCF7L2" in findings_dict and findings_dict["TCF7L2"]["magnitude"] >= 2:
         dietary_recs.append("**Carb Management:** Low-glycemic diet recommended (TCF7L2 diabetes risk variant)")
         monitoring_recs.append("Consider periodic fasting glucose or HbA1c monitoring")
 
     # Blood pressure genes
-    bp_risk = sum(1 for g in ['AGTR1', 'AGT', 'GNB3'] if g in findings_dict and findings_dict[g]['magnitude'] >= 2)
+    bp_risk = sum(1 for g in ["AGTR1", "AGT", "GNB3"] if g in findings_dict and findings_dict[g]["magnitude"] >= 2)
     if bp_risk >= 1:
         lifestyle_recs.append("**Blood Pressure:** Monitor regularly, sodium restriction helpful")
         dietary_recs.append("DASH diet pattern recommended")
 
     # Celiac
-    if 'HLA-DQA1' in findings_dict and findings_dict['HLA-DQA1']['magnitude'] >= 2:
+    if "HLA-DQA1" in findings_dict and findings_dict["HLA-DQA1"]["magnitude"] >= 2:
         monitoring_recs.append("If unexplained GI issues arise, consider celiac antibody testing (you carry HLA-DQ2.5)")
 
     # Iron
-    if 'HFE' in findings_dict and findings_dict['HFE']['magnitude'] >= 1:
+    if "HFE" in findings_dict and findings_dict["HFE"]["magnitude"] >= 1:
         monitoring_recs.append("Monitor iron/ferritin periodically (HFE carrier)")
         dietary_recs.append("Don't supplement iron unless deficiency confirmed")
 
     # BDNF
-    if 'BDNF' in findings_dict and findings_dict['BDNF']['magnitude'] >= 2:
-        lifestyle_recs.append("**Exercise is Critical:** Your BDNF variant makes exercise especially important for brain health")
+    if "BDNF" in findings_dict and findings_dict["BDNF"]["magnitude"] >= 2:
+        lifestyle_recs.append(
+            "**Exercise is Critical:** Your BDNF variant makes exercise especially important for brain health"
+        )
 
     # Fitness
-    if 'ACTN3' in findings_dict:
-        actn3 = findings_dict['ACTN3']
-        if actn3['status'] == 'endurance':
-            lifestyle_recs.append("**Training Style:** Your genetics favor endurance - you may excel at aerobic training")
-        elif actn3['status'] == 'power':
-            lifestyle_recs.append("**Training Style:** Your genetics favor power/strength - explosive training suits you")
+    if "ACTN3" in findings_dict:
+        actn3 = findings_dict["ACTN3"]
+        if actn3["status"] == "endurance":
+            lifestyle_recs.append(
+                "**Training Style:** Your genetics favor endurance - you may excel at aerobic training"
+            )
+        elif actn3["status"] == "power":
+            lifestyle_recs.append(
+                "**Training Style:** Your genetics favor power/strength - explosive training suits you"
+            )
 
     # Write organized recommendations
     f.write("### Immediate Actions\n\n")
@@ -616,12 +636,12 @@ def main():
 
     # Save raw results
     results_json = {
-        'findings': results['findings'],
-        'pharmgkb_findings': results['pharmgkb_findings'],
-        'summary': results['summary'],
+        "findings": results["findings"],
+        "pharmgkb_findings": results["pharmgkb_findings"],
+        "summary": results["summary"],
     }
     results_path = REPORTS_DIR / "comprehensive_results.json"
-    with open(results_path, 'w') as f:
+    with open(results_path, "w") as f:
         json.dump(results_json, f, indent=2)
     print(f"Raw results saved to {results_path}")
 

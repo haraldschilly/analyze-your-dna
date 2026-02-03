@@ -49,25 +49,18 @@ def load_genome():
     genome_by_rsid = {}
     genome_by_position = {}
 
-    with open(GENOME_PATH, 'r') as f:
+    with open(GENOME_PATH, "r") as f:
         for line in f:
-            if line.startswith('#'):
+            if line.startswith("#"):
                 continue
-            parts = line.strip().split('\t')
+            parts = line.strip().split("\t")
             if len(parts) >= 4:
                 rsid, chrom, pos, genotype = parts[0], parts[1], parts[2], parts[3]
-                if genotype != '--':
-                    genome_by_rsid[rsid] = {
-                        'chromosome': chrom,
-                        'position': pos,
-                        'genotype': genotype
-                    }
+                if genotype != "--":
+                    genome_by_rsid[rsid] = {"chromosome": chrom, "position": pos, "genotype": genotype}
                     # Position-based key for ClinVar matching
                     pos_key = f"{chrom}:{pos}"
-                    genome_by_position[pos_key] = {
-                        'rsid': rsid,
-                        'genotype': genotype
-                    }
+                    genome_by_position[pos_key] = {"rsid": rsid, "genotype": genotype}
 
     print(f"  Loaded {len(genome_by_rsid):,} SNPs")
     return genome_by_rsid, genome_by_position
@@ -79,45 +72,40 @@ def load_clinvar(genome_by_position):
     print("Loading ClinVar database and matching variants...")
 
     findings = {
-        'pathogenic': [],
-        'likely_pathogenic': [],
-        'risk_factor': [],
-        'drug_response': [],
-        'protective': [],
-        'other_significant': [],
-        'uncertain_but_notable': []
+        "pathogenic": [],
+        "likely_pathogenic": [],
+        "risk_factor": [],
+        "drug_response": [],
+        "protective": [],
+        "other_significant": [],
+        "uncertain_but_notable": [],
     }
 
-    stats = {
-        'total_clinvar': 0,
-        'matched': 0,
-        'pathogenic_matched': 0,
-        'likely_pathogenic_matched': 0
-    }
+    stats = {"total_clinvar": 0, "matched": 0, "pathogenic_matched": 0, "likely_pathogenic_matched": 0}
 
-    with open(CLINVAR_PATH, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f, delimiter='\t')
+    with open(CLINVAR_PATH, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f, delimiter="\t")
 
         for row in reader:
-            stats['total_clinvar'] += 1
+            stats["total_clinvar"] += 1
 
             # Create position key
-            chrom = row['chrom']
-            pos = row['pos']
+            chrom = row["chrom"]
+            pos = row["pos"]
             pos_key = f"{chrom}:{pos}"
 
             # Check if user has this position
             if pos_key not in genome_by_position:
                 continue
 
-            stats['matched'] += 1
+            stats["matched"] += 1
 
             user_data = genome_by_position[pos_key]
-            user_genotype = user_data['genotype']
-            ref_allele = row['ref']
-            alt_allele = row['alt']
-            clinical_sig = row['clinical_significance'].lower()
-            clinical_sig_ordered = row.get('clinical_significance_ordered', clinical_sig)
+            user_genotype = user_data["genotype"]
+            ref_allele = row["ref"]
+            alt_allele = row["alt"]
+            clinical_sig = row["clinical_significance"].lower()
+            clinical_sig_ordered = row.get("clinical_significance_ordered", clinical_sig)
 
             # CRITICAL: Only process true SNPs (single nucleotide variants)
             # 23andMe data cannot reliably represent indels (insertions/deletions)
@@ -141,50 +129,50 @@ def load_clinvar(genome_by_position):
 
             # Build finding record
             finding = {
-                'chromosome': chrom,
-                'position': pos,
-                'rsid': user_data['rsid'],
-                'gene': row['symbol'],
-                'ref': ref_allele,
-                'alt': alt_allele,
-                'user_genotype': user_genotype,
-                'is_homozygous': is_homozygous,
-                'is_heterozygous': is_heterozygous,
-                'clinical_significance': row['clinical_significance'],
-                'clinical_significance_ordered': clinical_sig_ordered,
-                'review_status': row['review_status'],
-                'gold_stars': int(row['gold_stars']) if row['gold_stars'] else 0,
-                'traits': row['all_traits'],
-                'inheritance': row.get('inheritance_modes', ''),
-                'hgvs_c': row.get('hgvs_c', ''),
-                'hgvs_p': row.get('hgvs_p', ''),
-                'molecular_consequence': row.get('molecular_consequence', ''),
-                'pmids': row.get('all_pmids', ''),
-                'xrefs': row.get('xrefs', ''),
-                'age_of_onset': row.get('age_of_onset', ''),
-                'prevalence': row.get('prevalence', ''),
-                'submitters': row.get('all_submitters', ''),
-                'last_evaluated': row.get('last_evaluated', '')
+                "chromosome": chrom,
+                "position": pos,
+                "rsid": user_data["rsid"],
+                "gene": row["symbol"],
+                "ref": ref_allele,
+                "alt": alt_allele,
+                "user_genotype": user_genotype,
+                "is_homozygous": is_homozygous,
+                "is_heterozygous": is_heterozygous,
+                "clinical_significance": row["clinical_significance"],
+                "clinical_significance_ordered": clinical_sig_ordered,
+                "review_status": row["review_status"],
+                "gold_stars": int(row["gold_stars"]) if row["gold_stars"] else 0,
+                "traits": row["all_traits"],
+                "inheritance": row.get("inheritance_modes", ""),
+                "hgvs_c": row.get("hgvs_c", ""),
+                "hgvs_p": row.get("hgvs_p", ""),
+                "molecular_consequence": row.get("molecular_consequence", ""),
+                "pmids": row.get("all_pmids", ""),
+                "xrefs": row.get("xrefs", ""),
+                "age_of_onset": row.get("age_of_onset", ""),
+                "prevalence": row.get("prevalence", ""),
+                "submitters": row.get("all_submitters", ""),
+                "last_evaluated": row.get("last_evaluated", ""),
             }
 
             # Categorize by clinical significance
-            if 'pathogenic' in clinical_sig and 'likely' not in clinical_sig and 'conflict' not in clinical_sig:
-                findings['pathogenic'].append(finding)
-                stats['pathogenic_matched'] += 1
-            elif 'likely pathogenic' in clinical_sig or 'likely_pathogenic' in clinical_sig:
-                findings['likely_pathogenic'].append(finding)
-                stats['likely_pathogenic_matched'] += 1
-            elif 'risk factor' in clinical_sig or 'risk_factor' in clinical_sig:
-                findings['risk_factor'].append(finding)
-            elif 'drug response' in clinical_sig or 'drug_response' in clinical_sig:
-                findings['drug_response'].append(finding)
-            elif 'protective' in clinical_sig:
-                findings['protective'].append(finding)
-            elif 'association' in clinical_sig or 'affects' in clinical_sig:
-                findings['other_significant'].append(finding)
-            elif 'uncertain' in clinical_sig and finding['gold_stars'] >= 2:
+            if "pathogenic" in clinical_sig and "likely" not in clinical_sig and "conflict" not in clinical_sig:
+                findings["pathogenic"].append(finding)
+                stats["pathogenic_matched"] += 1
+            elif "likely pathogenic" in clinical_sig or "likely_pathogenic" in clinical_sig:
+                findings["likely_pathogenic"].append(finding)
+                stats["likely_pathogenic_matched"] += 1
+            elif "risk factor" in clinical_sig or "risk_factor" in clinical_sig:
+                findings["risk_factor"].append(finding)
+            elif "drug response" in clinical_sig or "drug_response" in clinical_sig:
+                findings["drug_response"].append(finding)
+            elif "protective" in clinical_sig:
+                findings["protective"].append(finding)
+            elif "association" in clinical_sig or "affects" in clinical_sig:
+                findings["other_significant"].append(finding)
+            elif "uncertain" in clinical_sig and finding["gold_stars"] >= 2:
                 # High-confidence uncertain significance - might be notable
-                findings['uncertain_but_notable'].append(finding)
+                findings["uncertain_but_notable"].append(finding)
 
     print(f"  ClinVar entries scanned: {stats['total_clinvar']:,}")
     print(f"  Positions matched in genome: {stats['matched']:,}")
@@ -196,23 +184,23 @@ def load_clinvar(genome_by_position):
 
 def classify_zygosity_impact(finding):
     """Determine clinical impact based on zygosity and inheritance."""
-    inheritance = finding['inheritance'].lower() if finding['inheritance'] else ''
-    is_hom = finding['is_homozygous']
-    is_het = finding['is_heterozygous']
+    inheritance = finding["inheritance"].lower() if finding["inheritance"] else ""
+    is_hom = finding["is_homozygous"]
+    is_het = finding["is_heterozygous"]
 
     if is_hom:
-        return 'AFFECTED', 'Homozygous for variant allele'
+        return "AFFECTED", "Homozygous for variant allele"
     elif is_het:
-        if 'recessive' in inheritance:
-            return 'CARRIER', 'Heterozygous carrier (autosomal recessive condition)'
-        elif 'dominant' in inheritance:
-            return 'AFFECTED', 'Heterozygous (autosomal dominant - one copy sufficient)'
-        elif 'x-linked' in inheritance:
-            return 'CARRIER/AT_RISK', 'X-linked variant (impact depends on sex)'
+        if "recessive" in inheritance:
+            return "CARRIER", "Heterozygous carrier (autosomal recessive condition)"
+        elif "dominant" in inheritance:
+            return "AFFECTED", "Heterozygous (autosomal dominant - one copy sufficient)"
+        elif "x-linked" in inheritance:
+            return "CARRIER/AT_RISK", "X-linked variant (impact depends on sex)"
         else:
-            return 'HETEROZYGOUS', 'Heterozygous (inheritance pattern not specified)'
+            return "HETEROZYGOUS", "Heterozygous (inheritance pattern not specified)"
 
-    return 'UNKNOWN', 'Zygosity unclear'
+    return "UNKNOWN", "Zygosity unclear"
 
 
 def generate_report(findings, stats, genome_by_rsid):
@@ -222,12 +210,12 @@ def generate_report(findings, stats, genome_by_rsid):
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     # Count totals
-    total_pathogenic = len(findings['pathogenic'])
-    total_likely_path = len(findings['likely_pathogenic'])
-    total_risk = len(findings['risk_factor'])
-    total_drug = len(findings['drug_response'])
-    total_protective = len(findings['protective'])
-    total_other = len(findings['other_significant'])
+    total_pathogenic = len(findings["pathogenic"])
+    total_likely_path = len(findings["likely_pathogenic"])
+    total_risk = len(findings["risk_factor"])
+    total_drug = len(findings["drug_response"])
+    total_protective = len(findings["protective"])
+    total_other = len(findings["other_significant"])
 
     print(f"  Found {total_pathogenic} pathogenic and {total_likely_path} likely pathogenic variants")
     print(f"  Found {total_risk} risk factors and {total_drug} drug response variants")
@@ -237,25 +225,25 @@ def generate_report(findings, stats, genome_by_rsid):
     carrier_findings = []
     het_unknown_findings = []
 
-    for f in findings['pathogenic'] + findings['likely_pathogenic']:
+    for f in findings["pathogenic"] + findings["likely_pathogenic"]:
         status, desc = classify_zygosity_impact(f)
-        f['zygosity_status'] = status
-        f['zygosity_description'] = desc
+        f["zygosity_status"] = status
+        f["zygosity_description"] = desc
 
-        if status == 'AFFECTED':
+        if status == "AFFECTED":
             affected_findings.append(f)
-        elif status == 'CARRIER':
+        elif status == "CARRIER":
             carrier_findings.append(f)
         else:
             het_unknown_findings.append(f)
 
     # Sort by gold stars (confidence) descending
-    affected_findings.sort(key=lambda x: (-x['gold_stars'], x['gene']))
-    carrier_findings.sort(key=lambda x: (-x['gold_stars'], x['gene']))
-    het_unknown_findings.sort(key=lambda x: (-x['gold_stars'], x['gene']))
-    findings['risk_factor'].sort(key=lambda x: (-x['gold_stars'], x['gene']))
-    findings['drug_response'].sort(key=lambda x: (-x['gold_stars'], x['gene']))
-    findings['protective'].sort(key=lambda x: (-x['gold_stars'], x['gene']))
+    affected_findings.sort(key=lambda x: (-x["gold_stars"], x["gene"]))
+    carrier_findings.sort(key=lambda x: (-x["gold_stars"], x["gene"]))
+    het_unknown_findings.sort(key=lambda x: (-x["gold_stars"], x["gene"]))
+    findings["risk_factor"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
+    findings["drug_response"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
+    findings["protective"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
 
     report = f"""# Exhaustive Disease Risk Report
 
@@ -267,8 +255,8 @@ def generate_report(findings, stats, genome_by_rsid):
 
 ### Genome Overview
 - **Total SNPs in Raw Data:** {len(genome_by_rsid):,}
-- **ClinVar Variants Scanned:** {stats['total_clinvar']:,}
-- **Your Positions in ClinVar:** {stats['matched']:,}
+- **ClinVar Variants Scanned:** {stats["total_clinvar"]:,}
+- **Your Positions in ClinVar:** {stats["matched"]:,}
 
 ### Clinical Findings Summary
 
@@ -302,34 +290,34 @@ These variants are classified as pathogenic and your genotype suggests you may b
 
 """
         for f in affected_findings:
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            report += f"""### {f['gene']} — {f['traits'].split(';')[0] if f['traits'] else 'Condition not specified'}
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Condition not specified"}
 
 | Field | Value |
 |-------|-------|
-| **Gene** | {f['gene']} |
-| **Position** | chr{f['chromosome']}:{f['position']} |
-| **RSID** | {f['rsid']} |
-| **Your Genotype** | `{f['user_genotype']}` |
-| **Variant** | {f['ref']} → {f['alt']} |
-| **Zygosity** | {'Homozygous' if f['is_homozygous'] else 'Heterozygous'} |
-| **Clinical Significance** | {f['clinical_significance']} |
-| **Confidence** | {stars} ({f['gold_stars']}/4) |
-| **Review Status** | {f['review_status']} |
-| **Inheritance** | {f['inheritance'] if f['inheritance'] else 'Not specified'} |
+| **Gene** | {f["gene"]} |
+| **Position** | chr{f["chromosome"]}:{f["position"]} |
+| **RSID** | {f["rsid"]} |
+| **Your Genotype** | `{f["user_genotype"]}` |
+| **Variant** | {f["ref"]} → {f["alt"]} |
+| **Zygosity** | {"Homozygous" if f["is_homozygous"] else "Heterozygous"} |
+| **Clinical Significance** | {f["clinical_significance"]} |
+| **Confidence** | {stars} ({f["gold_stars"]}/4) |
+| **Review Status** | {f["review_status"]} |
+| **Inheritance** | {f["inheritance"] if f["inheritance"] else "Not specified"} |
 
-**Condition(s):** {f['traits'] if f['traits'] else 'Not specified'}
+**Condition(s):** {f["traits"] if f["traits"] else "Not specified"}
 
-**Molecular Detail:** {f['hgvs_p'] if f['hgvs_p'] else f['hgvs_c'] if f['hgvs_c'] else 'Not available'}
+**Molecular Detail:** {f["hgvs_p"] if f["hgvs_p"] else f["hgvs_c"] if f["hgvs_c"] else "Not available"}
 
-**Consequence:** {f['molecular_consequence'] if f['molecular_consequence'] else 'Not specified'}
+**Consequence:** {f["molecular_consequence"] if f["molecular_consequence"] else "Not specified"}
 
-{f'**Age of Onset:** {f["age_of_onset"]}' if f['age_of_onset'] else ''}
-{f'**Prevalence:** {f["prevalence"]}' if f['prevalence'] else ''}
+{f"**Age of Onset:** {f["age_of_onset"]}" if f["age_of_onset"] else ""}
+{f"**Prevalence:** {f["prevalence"]}" if f["prevalence"] else ""}
 
-**Database References:** {f['xrefs'] if f['xrefs'] else 'None'}
+**Database References:** {f["xrefs"] if f["xrefs"] else "None"}
 
-**Literature:** {f['pmids'] if f['pmids'] else 'None'}
+**Literature:** {f["pmids"] if f["pmids"] else "None"}
 
 ---
 
@@ -349,32 +337,32 @@ You are a heterozygous carrier for these autosomal recessive conditions.
 
 """
         for f in carrier_findings:
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            condition = f['traits'].split(';')[0] if f['traits'] else 'Condition not specified'
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            condition = f["traits"].split(";")[0] if f["traits"] else "Condition not specified"
 
             # Add carrier-specific notes for known conditions
-            carrier_notes = get_carrier_phenotype_notes(f['gene'], condition)
+            carrier_notes = get_carrier_phenotype_notes(f["gene"], condition)
 
-            report += f"""### {f['gene']} — {condition}
+            report += f"""### {f["gene"]} — {condition}
 
 | Field | Value |
 |-------|-------|
-| **Gene** | {f['gene']} |
-| **Position** | chr{f['chromosome']}:{f['position']} |
-| **RSID** | {f['rsid']} |
-| **Your Genotype** | `{f['user_genotype']}` (Carrier) |
-| **Variant** | {f['ref']} → {f['alt']} |
-| **Clinical Significance** | {f['clinical_significance']} |
-| **Confidence** | {stars} ({f['gold_stars']}/4) |
+| **Gene** | {f["gene"]} |
+| **Position** | chr{f["chromosome"]}:{f["position"]} |
+| **RSID** | {f["rsid"]} |
+| **Your Genotype** | `{f["user_genotype"]}` (Carrier) |
+| **Variant** | {f["ref"]} → {f["alt"]} |
+| **Clinical Significance** | {f["clinical_significance"]} |
+| **Confidence** | {stars} ({f["gold_stars"]}/4) |
 | **Inheritance** | Autosomal Recessive |
 
-**Full Condition(s):** {f['traits'] if f['traits'] else 'Not specified'}
+**Full Condition(s):** {f["traits"] if f["traits"] else "Not specified"}
 
-**Molecular Detail:** {f['hgvs_p'] if f['hgvs_p'] else f['hgvs_c'] if f['hgvs_c'] else 'Not available'}
+**Molecular Detail:** {f["hgvs_p"] if f["hgvs_p"] else f["hgvs_c"] if f["hgvs_c"] else "Not available"}
 
 {carrier_notes}
 
-**Database References:** {f['xrefs'] if f['xrefs'] else 'None'}
+**Database References:** {f["xrefs"] if f["xrefs"] else "None"}
 
 ---
 
@@ -390,106 +378,106 @@ carrier status only.
 
 """
         for f in het_unknown_findings:
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            report += f"""### {f['gene']} — {f['traits'].split(';')[0] if f['traits'] else 'Condition not specified'}
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Condition not specified"}
 
 | Field | Value |
 |-------|-------|
-| **Gene** | {f['gene']} |
-| **Position** | chr{f['chromosome']}:{f['position']} |
-| **RSID** | {f['rsid']} |
-| **Your Genotype** | `{f['user_genotype']}` |
-| **Variant** | {f['ref']} → {f['alt']} |
-| **Clinical Significance** | {f['clinical_significance']} |
-| **Confidence** | {stars} ({f['gold_stars']}/4) |
-| **Inheritance** | {f['inheritance'] if f['inheritance'] else 'Not specified'} |
+| **Gene** | {f["gene"]} |
+| **Position** | chr{f["chromosome"]}:{f["position"]} |
+| **RSID** | {f["rsid"]} |
+| **Your Genotype** | `{f["user_genotype"]}` |
+| **Variant** | {f["ref"]} → {f["alt"]} |
+| **Clinical Significance** | {f["clinical_significance"]} |
+| **Confidence** | {stars} ({f["gold_stars"]}/4) |
+| **Inheritance** | {f["inheritance"] if f["inheritance"] else "Not specified"} |
 
-**Condition(s):** {f['traits'] if f['traits'] else 'Not specified'}
+**Condition(s):** {f["traits"] if f["traits"] else "Not specified"}
 
-**Molecular Detail:** {f['hgvs_p'] if f['hgvs_p'] else f['hgvs_c'] if f['hgvs_c'] else 'Not available'}
+**Molecular Detail:** {f["hgvs_p"] if f["hgvs_p"] else f["hgvs_c"] if f["hgvs_c"] else "Not available"}
 
 ---
 
 """
 
     # RISK FACTORS
-    if findings['risk_factor']:
+    if findings["risk_factor"]:
         report += """## 🔵 Risk Factor Variants
 
 These variants are associated with increased susceptibility to certain conditions.
 They do not guarantee disease but indicate elevated risk.
 
 """
-        for f in findings['risk_factor']:
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            report += f"""### {f['gene']} — {f['traits'].split(';')[0] if f['traits'] else 'Risk factor'}
+        for f in findings["risk_factor"]:
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Risk factor"}
 
 | **RSID** | **Genotype** | **Significance** | **Confidence** |
 |----------|--------------|------------------|----------------|
-| {f['rsid']} | `{f['user_genotype']}` | {f['clinical_significance']} | {stars} |
+| {f["rsid"]} | `{f["user_genotype"]}` | {f["clinical_significance"]} | {stars} |
 
-**Associated Conditions:** {f['traits'] if f['traits'] else 'Not specified'}
+**Associated Conditions:** {f["traits"] if f["traits"] else "Not specified"}
 
 ---
 
 """
 
     # DRUG RESPONSE
-    if findings['drug_response']:
+    if findings["drug_response"]:
         report += """## 💊 Drug Response Variants
 
 These variants affect response to medications.
 
 """
-        for f in findings['drug_response']:
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            report += f"""### {f['gene']} — {f['traits'].split(';')[0] if f['traits'] else 'Drug response'}
+        for f in findings["drug_response"]:
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Drug response"}
 
 | **RSID** | **Genotype** | **Significance** | **Confidence** |
 |----------|--------------|------------------|----------------|
-| {f['rsid']} | `{f['user_genotype']}` | {f['clinical_significance']} | {stars} |
+| {f["rsid"]} | `{f["user_genotype"]}` | {f["clinical_significance"]} | {stars} |
 
-**Drug/Response:** {f['traits'] if f['traits'] else 'Not specified'}
+**Drug/Response:** {f["traits"] if f["traits"] else "Not specified"}
 
 ---
 
 """
 
     # PROTECTIVE
-    if findings['protective']:
+    if findings["protective"]:
         report += """## 🟢 Protective Variants
 
 These variants are associated with reduced disease risk or protective effects.
 
 """
-        for f in findings['protective']:
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            report += f"""### {f['gene']} — {f['traits'].split(';')[0] if f['traits'] else 'Protective'}
+        for f in findings["protective"]:
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Protective"}
 
 | **RSID** | **Genotype** | **Significance** | **Confidence** |
 |----------|--------------|------------------|----------------|
-| {f['rsid']} | `{f['user_genotype']}` | {f['clinical_significance']} | {stars} |
+| {f["rsid"]} | `{f["user_genotype"]}` | {f["clinical_significance"]} | {stars} |
 
-**Protective Against:** {f['traits'] if f['traits'] else 'Not specified'}
+**Protective Against:** {f["traits"] if f["traits"] else "Not specified"}
 
 ---
 
 """
 
     # OTHER SIGNIFICANT
-    if findings['other_significant']:
+    if findings["other_significant"]:
         report += """## ⚪ Other Clinically Noted Variants
 
 These variants have clinical annotations that don't fit the above categories.
 
 """
-        for f in findings['other_significant'][:50]:  # Limit to 50
-            stars = '⭐' * f['gold_stars'] + '☆' * (4 - f['gold_stars'])
-            report += f"""### {f['gene']} — {f['rsid']}
+        for f in findings["other_significant"][:50]:  # Limit to 50
+            stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
+            report += f"""### {f["gene"]} — {f["rsid"]}
 
 | **Genotype** | **Significance** | **Confidence** | **Traits** |
 |--------------|------------------|----------------|------------|
-| `{f['user_genotype']}` | {f['clinical_significance']} | {stars} | {f['traits'][:100] if f['traits'] else 'Not specified'}... |
+| `{f["user_genotype"]}` | {f["clinical_significance"]} | {stars} | {f["traits"][:100] if f["traits"] else "Not specified"}... |
 
 ---
 
@@ -501,13 +489,13 @@ These variants have clinical annotations that don't fit the above categories.
 | Metric | Value |
 |--------|-------|
 | Total SNPs in genome | {len(genome_by_rsid):,} |
-| ClinVar variants scanned | {stats['total_clinvar']:,} |
-| Genome positions with ClinVar data | {stats['matched']:,} |
-| Pathogenic variants found | {stats['pathogenic_matched']} |
-| Likely pathogenic variants found | {stats['likely_pathogenic_matched']} |
-| Risk factors found | {len(findings['risk_factor'])} |
-| Drug response variants | {len(findings['drug_response'])} |
-| Protective variants | {len(findings['protective'])} |
+| ClinVar variants scanned | {stats["total_clinvar"]:,} |
+| Genome positions with ClinVar data | {stats["matched"]:,} |
+| Pathogenic variants found | {stats["pathogenic_matched"]} |
+| Likely pathogenic variants found | {stats["likely_pathogenic_matched"]} |
+| Risk factors found | {len(findings["risk_factor"])} |
+| Drug response variants | {len(findings["drug_response"])} |
+| Protective variants | {len(findings["protective"])} |
 
 ---
 
@@ -535,7 +523,7 @@ This report is for **informational and educational purposes only**. It is NOT a 
 """
 
     # Write report
-    with open(OUTPUT_PATH, 'w', encoding='utf-8') as f:
+    with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(report)
 
     print(f"Report written to: {OUTPUT_PATH}")
@@ -546,7 +534,7 @@ def get_carrier_phenotype_notes(gene, _condition):
     """Return carrier-specific phenotype notes for known conditions."""
 
     carrier_effects = {
-        'CFTR': """
+        "CFTR": """
 **Carrier Phenotype Notes:**
 - CF carriers may have ~10% reduced lung function (FEV1)
 - Increased risk of pancreatitis (2-3x general population)
@@ -554,7 +542,7 @@ def get_carrier_phenotype_notes(gene, _condition):
 - Possible male fertility effects (CBAVD spectrum)
 - **Recommended:** Baseline pulmonary function test, avoid smoking
 """,
-        'HBB': """
+        "HBB": """
 **Carrier Phenotype Notes (Sickle Cell Trait):**
 - Generally asymptomatic under normal conditions
 - Possible complications at extreme altitude or severe dehydration
@@ -562,46 +550,46 @@ def get_carrier_phenotype_notes(gene, _condition):
 - Rare: exercise-related complications in extreme conditions
 - **Recommended:** Stay hydrated during intense exercise; inform physicians before surgery
 """,
-        'SERPINA1': """
+        "SERPINA1": """
 **Carrier Phenotype Notes (Alpha-1 Antitrypsin):**
 - Carriers (MZ) have ~60% normal AAT levels
 - Mildly increased risk of COPD, especially if smoking
 - Possible liver involvement in some carriers
 - **Recommended:** Absolutely avoid smoking; baseline liver function; consider AAT level testing
 """,
-        'GBA': """
+        "GBA": """
 **Carrier Phenotype Notes (Gaucher Disease):**
 - Carriers have increased Parkinson's disease risk (5-8x)
 - No Gaucher disease symptoms
 - **Recommended:** Awareness of early Parkinson's symptoms; inform neurologist of carrier status
 """,
-        'HFE': """
+        "HFE": """
 **Carrier Phenotype Notes (Hemochromatosis):**
 - Carriers may have mildly elevated iron absorption
 - Usually clinically insignificant
 - **Recommended:** Periodic ferritin monitoring; avoid unnecessary iron supplements
 """,
-        'HEXA': """
+        "HEXA": """
 **Carrier Phenotype Notes (Tay-Sachs):**
 - Carriers have no symptoms or health effects
 - Purely reproductive implications
 - **Recommended:** Carrier testing for partner if planning pregnancy
 """,
-        'SMN1': """
+        "SMN1": """
 **Carrier Phenotype Notes (Spinal Muscular Atrophy):**
 - Carriers have no symptoms
 - ~1 in 50 people are carriers
 - **Recommended:** Carrier testing for partner if planning pregnancy
 """,
-        'PAH': """
+        "PAH": """
 **Carrier Phenotype Notes (Phenylketonuria):**
 - Carriers have no symptoms
 - Normal phenylalanine metabolism
 - **Recommended:** Carrier testing for partner if planning pregnancy
-"""
+""",
     }
 
-    gene_upper = gene.upper() if gene else ''
+    gene_upper = gene.upper() if gene else ""
     if gene_upper in carrier_effects:
         return carrier_effects[gene_upper]
 

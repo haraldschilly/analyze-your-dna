@@ -34,45 +34,48 @@ CLINICAL_CONTEXT = {
             "Elevated homocysteine levels (cardiovascular risk marker)",
             "Reduced production of SAMe (S-adenosylmethionine), the universal methyl donor",
             "Potential impacts on neurotransmitter synthesis, DNA repair, and detoxification",
-            "Folic acid from fortified foods may accumulate as unmetabolized folic acid (UMFA)"
+            "Folic acid from fortified foods may accumulate as unmetabolized folic acid (UMFA)",
         ],
         "actions": [
             "Use methylfolate (5-MTHF) instead of folic acid - typical dose 400-800mcg",
             "Consider methylcobalamin (methyl-B12) rather than cyanocobalamin",
             "Support with riboflavin (B2) which is a cofactor for MTHFR",
             "Monitor homocysteine levels periodically",
-            "Avoid high-dose folic acid supplements and limit heavily fortified foods"
+            "Avoid high-dose folic acid supplements and limit heavily fortified foods",
         ],
-        "interactions": ["Synergizes with MTRR status - both impaired compounds effect", "COMT status affects methylation demand"]
+        "interactions": [
+            "Synergizes with MTRR status - both impaired compounds effect",
+            "COMT status affects methylation demand",
+        ],
     },
     ("MTRR", "significantly_reduced"): {
         "mechanism": "MTRR regenerates methylcobalamin (methyl-B12), the active form of B12. Impaired MTRR means B12 recycling is less efficient, potentially leading to functional B12 deficiency even with normal blood levels.",
         "implications": [
             "May need higher B12 intake to maintain adequate methylcobalamin levels",
             "Can compound MTHFR issues (both affect methylation)",
-            "Potential neurological and cognitive effects if B12 recycling insufficient"
+            "Potential neurological and cognitive effects if B12 recycling insufficient",
         ],
         "actions": [
             "Use methylcobalamin or adenosylcobalamin forms of B12",
             "Consider sublingual or injectable B12 for better absorption",
             "Typical supportive dose: 1000-5000mcg methylcobalamin",
-            "Check serum B12 and methylmalonic acid (MMA) for functional status"
+            "Check serum B12 and methylmalonic acid (MMA) for functional status",
         ],
-        "interactions": ["Compounds with MTHFR C677T", "Affects homocysteine pathway"]
+        "interactions": ["Compounds with MTHFR C677T", "Affects homocysteine pathway"],
     },
     ("PEMT", "reduced"): {
         "mechanism": "PEMT creates phosphatidylcholine from phosphatidylethanolamine using SAMe. Reduced function means you rely more on dietary choline intake.",
         "implications": [
             "Higher dietary choline requirement",
             "Particularly important during pregnancy (fetal brain development)",
-            "May affect liver health and lipid metabolism"
+            "May affect liver health and lipid metabolism",
         ],
         "actions": [
             "Increase dietary choline: eggs (especially yolks), liver, beef, fish",
             "Consider choline supplementation: 250-500mg phosphatidylcholine or CDP-choline",
-            "Ensure adequate methyl donors (folate, B12) as PEMT uses SAMe"
+            "Ensure adequate methyl donors (folate, B12) as PEMT uses SAMe",
         ],
-        "interactions": ["Increased demand when MTHFR is impaired (SAMe dependent)"]
+        "interactions": ["Increased demand when MTHFR is impaired (SAMe dependent)"],
     },
     # NEUROTRANSMITTERS
     ("COMT", "slow"): {
@@ -82,7 +85,7 @@ CLINICAL_CONTEXT = {
             "More sensitive to stress - catecholamines accumulate faster under pressure",
             "Stimulants (caffeine, medications) have stronger, longer-lasting effects",
             "May be more prone to anxiety and rumination",
-            "Can have advantages in pain tolerance"
+            "Can have advantages in pain tolerance",
         ],
         "actions": [
             "Prioritize stress management: meditation, breathwork, regular exercise",
@@ -90,23 +93,23 @@ CLINICAL_CONTEXT = {
             "Magnesium (glycinate, 300-400mg) supports COMT function",
             "Consider adaptogens (ashwagandha, rhodiola) over stimulants for energy",
             "L-theanine may help modulate catecholamine effects",
-            "Avoid combining multiple stimulants"
+            "Avoid combining multiple stimulants",
         ],
-        "interactions": ["Synergizes with caffeine metabolism genes", "Affects response to ADHD medications"]
+        "interactions": ["Synergizes with caffeine metabolism genes", "Affects response to ADHD medications"],
     },
     ("OPRM1", "altered"): {
         "mechanism": "OPRM1 encodes the mu-opioid receptor. The A118G variant alters receptor binding, affecting response to endorphins, opioid medications, and reward from alcohol.",
         "implications": [
             "May require different opioid dosing for pain management",
             "Altered reward response to alcohol (some studies show increased craving)",
-            "Potentially different response to naltrexone treatment"
+            "Potentially different response to naltrexone treatment",
         ],
         "actions": [
             "Inform anesthesiologists before surgery",
             "May need adjusted opioid dosing for adequate pain control",
-            "Be aware of potentially altered alcohol reward response"
+            "Be aware of potentially altered alcohol reward response",
         ],
-        "interactions": ["Relevant for pain management planning"]
+        "interactions": ["Relevant for pain management planning"],
     },
     # CAFFEINE
     ("CYP1A2", "intermediate"): {
@@ -114,138 +117,129 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Moderate caffeine clearance - effects last several hours",
             "Afternoon caffeine may affect sleep more than fast metabolizers",
-            "Cardiovascular effects of caffeine are intermediate"
+            "Cardiovascular effects of caffeine are intermediate",
         ],
         "actions": [
             "Limit caffeine to morning/early afternoon (before 2pm ideally)",
             "Moderate intake (~200-300mg/day) typically well-tolerated",
-            "Wait 90+ minutes after waking for first caffeine (cortisol awakening response)"
+            "Wait 90+ minutes after waking for first caffeine (cortisol awakening response)",
         ],
-        "interactions": ["ADORA2A affects anxiety response to caffeine"]
+        "interactions": ["ADORA2A affects anxiety response to caffeine"],
     },
     ("ADORA2A", "anxiety_prone"): {
         "mechanism": "ADORA2A encodes adenosine receptors. This variant is associated with increased anxiety response to caffeine.",
         "implications": [
             "More likely to experience jitteriness, anxiety, or panic from caffeine",
-            "May be more sensitive to sleep disruption from caffeine"
+            "May be more sensitive to sleep disruption from caffeine",
         ],
         "actions": [
             "Consider lower caffeine doses or slower-release forms",
             "Pair caffeine with L-theanine (green tea naturally has this)",
             "Matcha or green tea may be better tolerated than coffee",
-            "Consider caffeine alternatives: yerba mate, guayusa"
+            "Consider caffeine alternatives: yerba mate, guayusa",
         ],
-        "interactions": ["Compounds with slow COMT for stress sensitivity"]
+        "interactions": ["Compounds with slow COMT for stress sensitivity"],
     },
     ("ADORA2A", "lower_sensitivity"): {
         "mechanism": "This variant is associated with lower caffeine sensitivity regarding anxiety.",
         "implications": [
             "Less likely to experience anxiety from caffeine",
-            "May tolerate higher doses without jitteriness"
+            "May tolerate higher doses without jitteriness",
         ],
-        "actions": [
-            "Can likely enjoy caffeine without anxiety issues",
-            "Still respect timing for sleep quality"
-        ],
-        "interactions": []
+        "actions": ["Can likely enjoy caffeine without anxiety issues", "Still respect timing for sleep quality"],
+        "interactions": [],
     },
     # CARDIOVASCULAR
     ("AGTR1", "increased"): {
         "mechanism": "AGTR1 encodes the angiotensin II type 1 receptor. This variant is associated with increased receptor activity and hypertension risk.",
         "implications": [
             "Higher risk of developing hypertension",
-            "May have enhanced response to angiotensin receptor blockers (ARBs)"
+            "May have enhanced response to angiotensin receptor blockers (ARBs)",
         ],
         "actions": [
             "Regular blood pressure monitoring",
             "Sodium restriction particularly beneficial",
-            "ARBs (losartan, valsartan) may be especially effective if BP medication needed"
+            "ARBs (losartan, valsartan) may be especially effective if BP medication needed",
         ],
-        "interactions": ["Compounds with ACE and AGT variants"]
+        "interactions": ["Compounds with ACE and AGT variants"],
     },
     ("ACE", "high"): {
         "mechanism": "Higher ACE activity means more conversion of angiotensin I to angiotensin II, a potent vasoconstrictor.",
         "implications": [
             "Increased hypertension risk",
             "May confer advantage in power/sprint athletics",
-            "Good response expected to ACE inhibitors"
+            "Good response expected to ACE inhibitors",
         ],
         "actions": [
             "Blood pressure monitoring essential",
             "ACE inhibitors (lisinopril, enalapril) likely very effective if needed",
-            "Potassium-rich diet supports blood pressure"
+            "Potassium-rich diet supports blood pressure",
         ],
-        "interactions": ["Synergizes with AGTR1 and AGT variants for BP risk"]
+        "interactions": ["Synergizes with AGTR1 and AGT variants for BP risk"],
     },
     ("AGT", "increased"): {
         "mechanism": "AGT M235T is associated with higher angiotensinogen levels, feeding into the renin-angiotensin system.",
-        "implications": [
-            "Slightly elevated blood pressure risk",
-            "Contributes to overall cardiovascular profile"
-        ],
-        "actions": [
-            "Part of overall BP monitoring strategy",
-            "Responds to general cardiovascular lifestyle measures"
-        ],
-        "interactions": ["Additive with ACE and AGTR1 variants"]
+        "implications": ["Slightly elevated blood pressure risk", "Contributes to overall cardiovascular profile"],
+        "actions": ["Part of overall BP monitoring strategy", "Responds to general cardiovascular lifestyle measures"],
+        "interactions": ["Additive with ACE and AGTR1 variants"],
     },
     ("GNB3", "increased"): {
         "mechanism": "GNB3 C825T affects G-protein signaling, associated with hypertension and obesity risk.",
         "implications": [
             "Increased hypertension risk",
             "May be more prone to weight gain",
-            "Can affect response to certain medications"
+            "Can affect response to certain medications",
         ],
         "actions": [
             "Weight management particularly important",
             "Regular blood pressure monitoring",
-            "May respond differently to beta-blockers"
+            "May respond differently to beta-blockers",
         ],
-        "interactions": ["Compounds with other BP variants"]
+        "interactions": ["Compounds with other BP variants"],
     },
     # NUTRITION
     ("APOA2", "sensitive"): {
         "mechanism": "APOA2 affects how saturated fat influences body weight. The CC genotype shows strong correlation between saturated fat intake and obesity.",
         "implications": [
             "Saturated fat intake more strongly linked to weight gain for you",
-            "Limiting saturated fat may be more impactful than for others"
+            "Limiting saturated fat may be more impactful than for others",
         ],
         "actions": [
             "Limit saturated fat to <7% of calories",
             "Replace with unsaturated fats (olive oil, nuts, avocado)",
             "Minimize: butter, fatty red meat, full-fat dairy, coconut oil",
-            "Prioritize: olive oil, fatty fish, nuts, avocados"
+            "Prioritize: olive oil, fatty fish, nuts, avocados",
         ],
-        "interactions": []
+        "interactions": [],
     },
     ("GC", "low"): {
         "mechanism": "GC encodes vitamin D binding protein. This variant results in lower circulating 25-OH vitamin D levels.",
         "implications": [
             "Genetically predisposed to lower vitamin D status",
             "Higher supplementation needs, especially at northern latitudes",
-            "May need to supplement year-round"
+            "May need to supplement year-round",
         ],
         "actions": [
             "Supplement vitamin D3: 2,000-5,000 IU/day depending on season and sun exposure",
             "Take with fat-containing meal for absorption",
             "Test 25-OH vitamin D after 2-3 months",
             "Target blood level: 40-60 ng/mL (100-150 nmol/L)",
-            "Consider vitamin K2 (MK-7) alongside D3"
+            "Consider vitamin K2 (MK-7) alongside D3",
         ],
-        "interactions": []
+        "interactions": [],
     },
     ("BCMO1", "reduced"): {
         "mechanism": "BCMO1 converts beta-carotene to vitamin A. Reduced activity means less efficient conversion from plant sources.",
         "implications": [
             "Plant carotenoids (carrots, sweet potatoes) less efficiently converted to vitamin A",
-            "May benefit from preformed vitamin A sources"
+            "May benefit from preformed vitamin A sources",
         ],
         "actions": [
             "Include preformed vitamin A: liver, eggs, dairy, fatty fish",
             "Don't rely solely on beta-carotene for vitamin A needs",
-            "Still consume carotenoid-rich foods for other benefits (antioxidant)"
+            "Still consume carotenoid-rich foods for other benefits (antioxidant)",
         ],
-        "interactions": []
+        "interactions": [],
     },
     # INFLAMMATION
     ("IL6", "high"): {
@@ -253,16 +247,16 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Higher baseline inflammation",
             "More pronounced inflammatory response to triggers",
-            "May affect recovery, aging, chronic disease risk"
+            "May affect recovery, aging, chronic disease risk",
         ],
         "actions": [
             "Anti-inflammatory diet: omega-3s, colorful vegetables, low processed foods",
             "Omega-3 fatty acids (EPA/DHA): 2-3g/day",
             "Regular exercise (but don't overtrain)",
             "Adequate sleep - sleep deprivation spikes IL-6",
-            "Consider curcumin, SPMs (specialized pro-resolving mediators)"
+            "Consider curcumin, SPMs (specialized pro-resolving mediators)",
         ],
-        "interactions": ["Affects recovery and chronic disease risk"]
+        "interactions": ["Affects recovery and chronic disease risk"],
     },
     # AUTOIMMUNE
     ("HLA-DQA1", "increased_risk"): {
@@ -270,30 +264,30 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Increased risk of celiac disease (but not guaranteed)",
             "~3% of HLA-DQ2.5 carriers develop celiac disease",
-            "Should be aware of celiac symptoms"
+            "Should be aware of celiac symptoms",
         ],
         "actions": [
             "Know celiac symptoms: GI issues, fatigue, anemia, nutrient deficiencies",
             "If symptoms arise, get celiac antibody testing (tTG-IgA) while still eating gluten",
             "No need for preventive gluten-free diet unless symptomatic",
-            "Inform healthcare providers of this risk"
+            "Inform healthcare providers of this risk",
         ],
-        "interactions": []
+        "interactions": [],
     },
     # SKIN
     ("MC1R", "accelerated"): {
         "mechanism": "MC1R variants affect melanin production and skin aging. V92M is associated with accelerated skin aging.",
         "implications": [
             "May show earlier signs of skin aging (wrinkles, photoaging)",
-            "Importance of sun protection heightened"
+            "Importance of sun protection heightened",
         ],
         "actions": [
             "Daily broad-spectrum SPF 30+ sunscreen",
             "Topical retinoids (tretinoin, retinol) for anti-aging",
             "Antioxidant serums (vitamin C, E)",
-            "Avoid excessive sun exposure and tanning"
+            "Avoid excessive sun exposure and tanning",
         ],
-        "interactions": []
+        "interactions": [],
     },
     # SLEEP
     ("ARNTL", "significantly_altered"): {
@@ -301,41 +295,38 @@ CLINICAL_CONTEXT = {
         "implications": [
             "May have less robust circadian rhythm",
             "Potentially more susceptible to jet lag, shift work effects",
-            "Sleep timing may be less consistent"
+            "Sleep timing may be less consistent",
         ],
         "actions": [
             "Strong light exposure in morning (10,000 lux or sunlight)",
             "Consistent sleep/wake times, even weekends",
             "Blue light reduction in evening",
             "Consider melatonin 0.5-1mg 30-60 min before bed if needed",
-            "Keep bedroom cool, dark, quiet"
+            "Keep bedroom cool, dark, quiet",
         ],
-        "interactions": []
+        "interactions": [],
     },
     # DETOXIFICATION
     ("NAT2", "intermediate"): {
         "mechanism": "NAT2 acetylates various drugs and toxins. Intermediate acetylators have moderate metabolism of NAT2 substrates.",
         "implications": [
             "Moderate metabolism of drugs like isoniazid, hydralazine, some sulfonamides",
-            "Between slow and fast acetylator phenotypes"
+            "Between slow and fast acetylator phenotypes",
         ],
-        "actions": [
-            "Generally standard drug dosing appropriate",
-            "Inform physicians if taking NAT2-metabolized drugs"
-        ],
-        "interactions": []
+        "actions": ["Generally standard drug dosing appropriate", "Inform physicians if taking NAT2-metabolized drugs"],
+        "interactions": [],
     },
     ("SOD2", "high_activity"): {
         "mechanism": "SOD2 (MnSOD) is a key mitochondrial antioxidant enzyme. High activity (Ala/Ala) provides efficient superoxide neutralization.",
         "implications": [
             "Efficient mitochondrial antioxidant defense",
-            "Good protection against mitochondrial oxidative stress"
+            "Good protection against mitochondrial oxidative stress",
         ],
         "actions": [
             "This is a favorable variant - no specific intervention needed",
-            "Continue supporting mitochondrial health: exercise, CoQ10, adequate sleep"
+            "Continue supporting mitochondrial health: exercise, CoQ10, adequate sleep",
         ],
-        "interactions": []
+        "interactions": [],
     },
     # FITNESS
     ("ACTN3", "mixed"): {
@@ -343,26 +334,26 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Versatile muscle fiber composition",
             "Can develop both power and endurance capacity",
-            "Neither extreme sprinter nor ultra-endurance genotype"
+            "Neither extreme sprinter nor ultra-endurance genotype",
         ],
         "actions": [
             "Train for both power and endurance based on goals",
             "Respond well to varied training programs",
-            "Can optimize for either direction with proper training"
+            "Can optimize for either direction with proper training",
         ],
-        "interactions": []
+        "interactions": [],
     },
     ("ADRB2", "gly16"): {
         "mechanism": "ADRB2 Gly16 is associated with enhanced lipolysis (fat burning) response to exercise and catecholamines.",
         "implications": [
             "Better fat mobilization during exercise",
-            "Enhanced response to beta-agonists (bronchodilators)"
+            "Enhanced response to beta-agonists (bronchodilators)",
         ],
         "actions": [
             "May see good fat loss response to exercise",
-            "Cardio and HIIT can be particularly effective for body composition"
+            "Cardio and HIIT can be particularly effective for body composition",
         ],
-        "interactions": []
+        "interactions": [],
     },
     # IRON
     ("HFE", "carrier"): {
@@ -370,39 +361,30 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Mild increase in iron absorption",
             "Usually not clinically significant alone",
-            "Should be aware of iron accumulation over time"
+            "Should be aware of iron accumulation over time",
         ],
         "actions": [
             "Periodic ferritin checks (every 1-2 years)",
             "Avoid unnecessary iron supplements",
-            "Blood donation if ferritin runs high - helps regulate iron"
+            "Blood donation if ferritin runs high - helps regulate iron",
         ],
-        "interactions": ["Compound with C282Y for hemochromatosis risk"]
+        "interactions": ["Compound with C282Y for hemochromatosis risk"],
     },
     # LONGEVITY
     ("TP53", "arg72"): {
         "mechanism": "TP53 R72P affects p53 apoptotic efficiency. Arg72 has less efficient apoptosis induction.",
-        "implications": [
-            "Slightly less efficient programmed cell death",
-            "Complex effects on cancer and aging"
-        ],
+        "implications": ["Slightly less efficient programmed cell death", "Complex effects on cancer and aging"],
         "actions": [
             "Standard cancer screening appropriate for age",
-            "Anti-aging lifestyle: exercise, sleep, stress management, healthy diet"
+            "Anti-aging lifestyle: exercise, sleep, stress management, healthy diet",
         ],
-        "interactions": []
+        "interactions": [],
     },
     ("CETP", "favorable"): {
         "mechanism": "CETP I405V affects cholesterol transfer between lipoproteins. This variant is associated with higher HDL and longevity.",
-        "implications": [
-            "Favorable lipid profile tendency",
-            "Associated with exceptional longevity in studies"
-        ],
-        "actions": [
-            "This is a favorable variant",
-            "Support with heart-healthy lifestyle"
-        ],
-        "interactions": []
+        "implications": ["Favorable lipid profile tendency", "Associated with exceptional longevity in studies"],
+        "actions": ["This is a favorable variant", "Support with heart-healthy lifestyle"],
+        "interactions": [],
     },
     # ALCOHOL
     ("ADH1B", "slow"): {
@@ -410,14 +392,14 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Alcohol effects last longer",
             "May feel effects at lower doses",
-            "Slower acetaldehyde production (not the \"flush\" gene)"
+            'Slower acetaldehyde production (not the "flush" gene)',
         ],
         "actions": [
             "Moderate alcohol consumption appropriate",
             "Effects may persist longer - factor into timing",
-            "Space drinks and stay hydrated"
+            "Space drinks and stay hydrated",
         ],
-        "interactions": ["ALDH2 affects second step (acetaldehyde clearance)"]
+        "interactions": ["ALDH2 affects second step (acetaldehyde clearance)"],
     },
     # DRUG METABOLISM
     ("CYP2C19", "rapid"): {
@@ -425,26 +407,23 @@ CLINICAL_CONTEXT = {
         "implications": [
             "Faster breakdown of PPIs (may need higher doses or alternatives)",
             "Faster clopidogrel activation (actually better for this prodrug)",
-            "Some antidepressants metabolized faster"
+            "Some antidepressants metabolized faster",
         ],
         "actions": [
             "PPIs (omeprazole): may need higher doses or alternatives",
             "Clopidogrel: good metabolizer, likely effective",
-            "Inform prescribers about CYP2C19 status"
+            "Inform prescribers about CYP2C19 status",
         ],
-        "interactions": ["Pharmacogenomic testing reference"]
+        "interactions": ["Pharmacogenomic testing reference"],
     },
     ("CYP3A5", "non_expressor"): {
         "mechanism": "CYP3A5*3/*3 means you don't express CYP3A5. CYP3A4 handles the work. This is the most common genotype in many populations.",
-        "implications": [
-            "Standard dosing for CYP3A4/5 substrates",
-            "Tacrolimus dosing follows standard protocols"
-        ],
+        "implications": ["Standard dosing for CYP3A4/5 substrates", "Tacrolimus dosing follows standard protocols"],
         "actions": [
             "Standard drug dosing typically appropriate",
-            "CYP3A4 remains the primary metabolizer for many drugs"
+            "CYP3A4 remains the primary metabolizer for many drugs",
         ],
-        "interactions": []
+        "interactions": [],
     },
 }
 
@@ -466,7 +445,7 @@ PATHWAYS = {
 
 def load_genetic_data(filepath):
     """Load the comprehensive results JSON."""
-    with open(filepath, 'r') as f:
+    with open(filepath, "r") as f:
         return json.load(f)
 
 
@@ -508,14 +487,14 @@ def format_evidence_level(level):
 
 def generate_finding_section(finding, index):
     """Generate a comprehensive section for a single finding."""
-    gene = finding.get('gene', 'Unknown')
-    rsid = finding.get('rsid', '')
-    category = finding.get('category', 'Uncategorized')
-    genotype = finding.get('genotype', '')
-    status = finding.get('status', '')
-    description = finding.get('description', '')
-    magnitude = finding.get('magnitude', 0)
-    note = finding.get('note', '')
+    gene = finding.get("gene", "Unknown")
+    rsid = finding.get("rsid", "")
+    category = finding.get("category", "Uncategorized")
+    genotype = finding.get("genotype", "")
+    status = finding.get("status", "")
+    description = finding.get("description", "")
+    magnitude = finding.get("magnitude", 0)
+    note = finding.get("note", "")
 
     section = []
     section.append(f"### {index}. {gene} ({rsid})")
@@ -542,24 +521,24 @@ def generate_finding_section(finding, index):
     if context:
         section.append("")
         section.append("#### Mechanism")
-        section.append(context['mechanism'])
+        section.append(context["mechanism"])
 
-        if context.get('implications'):
+        if context.get("implications"):
             section.append("")
             section.append("#### Implications")
-            for imp in context['implications']:
+            for imp in context["implications"]:
                 section.append(f"- {imp}")
 
-        if context.get('actions'):
+        if context.get("actions"):
             section.append("")
             section.append("#### Recommended Actions")
-            for action in context['actions']:
+            for action in context["actions"]:
                 section.append(f"- {action}")
 
-        if context.get('interactions'):
+        if context.get("interactions"):
             section.append("")
             section.append("#### Gene Interactions")
-            for interaction in context['interactions']:
+            for interaction in context["interactions"]:
                 section.append(f"- {interaction}")
 
     section.append("")
@@ -571,13 +550,13 @@ def generate_finding_section(finding, index):
 
 def generate_pharmgkb_section(finding, index):
     """Generate a comprehensive section for a PharmGKB drug interaction."""
-    gene = finding.get('gene', 'Unknown')
-    rsid = finding.get('rsid', '')
-    drugs = finding.get('drugs', '')
-    genotype = finding.get('genotype', '')
-    annotation = finding.get('annotation', '')
-    level = finding.get('level', '')
-    category = finding.get('category', 'Other')
+    gene = finding.get("gene", "Unknown")
+    rsid = finding.get("rsid", "")
+    drugs = finding.get("drugs", "")
+    genotype = finding.get("genotype", "")
+    annotation = finding.get("annotation", "")
+    level = finding.get("level", "")
+    category = finding.get("category", "Other")
 
     section = []
     section.append(f"### {index}. {gene} - {rsid}")
@@ -594,7 +573,9 @@ def generate_pharmgkb_section(finding, index):
     # Add drug-specific guidance based on level and category
     if level in ["1A", "1B"]:
         section.append("#### Clinical Significance")
-        section.append("This is a high-evidence drug-gene interaction with clinical guideline support. Discuss with prescribing physicians before starting these medications.")
+        section.append(
+            "This is a high-evidence drug-gene interaction with clinical guideline support. Discuss with prescribing physicians before starting these medications."
+        )
 
     section.append("---")
     section.append("")
@@ -604,12 +585,12 @@ def generate_pharmgkb_section(finding, index):
 
 def generate_category_summary(findings, category):
     """Generate a summary for a category."""
-    cat_findings = [f for f in findings if f.get('category') == category]
+    cat_findings = [f for f in findings if f.get("category") == category]
     if not cat_findings:
         return ""
 
-    high_impact = [f for f in cat_findings if f.get('magnitude', 0) >= 3]
-    mod_impact = [f for f in cat_findings if f.get('magnitude', 0) == 2]
+    high_impact = [f for f in cat_findings if f.get("magnitude", 0) >= 3]
+    mod_impact = [f for f in cat_findings if f.get("magnitude", 0) == 2]
 
     summary = []
     summary.append(f"## {category}")
@@ -626,20 +607,20 @@ def generate_category_summary(findings, category):
 
 def generate_executive_summary(data):
     """Generate executive summary."""
-    findings = data.get('findings', [])
-    pharmgkb = data.get('pharmgkb_findings', [])
-    summary = data.get('summary', {})
+    findings = data.get("findings", [])
+    pharmgkb = data.get("pharmgkb_findings", [])
+    summary = data.get("summary", {})
 
-    high_impact = [f for f in findings if f.get('magnitude', 0) >= 3]
-    mod_impact = [f for f in findings if f.get('magnitude', 0) == 2]
-    low_impact = [f for f in findings if f.get('magnitude', 0) == 1]
+    high_impact = [f for f in findings if f.get("magnitude", 0) >= 3]
+    mod_impact = [f for f in findings if f.get("magnitude", 0) == 2]
+    low_impact = [f for f in findings if f.get("magnitude", 0) == 1]
 
     # Count PharmGKB by level
-    level_1 = [f for f in pharmgkb if f.get('level', '').startswith('1')]
-    level_2 = [f for f in pharmgkb if f.get('level', '').startswith('2')]
+    level_1 = [f for f in pharmgkb if f.get("level", "").startswith("1")]
+    level_2 = [f for f in pharmgkb if f.get("level", "").startswith("2")]
 
     # Categories
-    categories = set(f.get('category') for f in findings)
+    categories = set(f.get("category") for f in findings)
 
     lines = []
     lines.append("# Exhaustive Genetic Health Report")
@@ -659,7 +640,9 @@ def generate_executive_summary(data):
     lines.append(f"- 🔴 **High Impact (magnitude ≥3):** {len(high_impact)}")
     lines.append(f"- 🟡 **Moderate Impact (magnitude 2):** {len(mod_impact)}")
     lines.append(f"- 🟢 **Low Impact (magnitude 1):** {len(low_impact)}")
-    lines.append(f"- ⚪ **Informational (magnitude 0):** {len(findings) - len(high_impact) - len(mod_impact) - len(low_impact)}")
+    lines.append(
+        f"- ⚪ **Informational (magnitude 0):** {len(findings) - len(high_impact) - len(mod_impact) - len(low_impact)}"
+    )
     lines.append("")
     lines.append("### Pharmacogenomics")
     lines.append(f"- 🔵 **Level 1 (Clinical Guidelines):** {len(level_1)}")
@@ -667,7 +650,7 @@ def generate_executive_summary(data):
     lines.append("")
     lines.append("### Categories Covered")
     for cat in sorted(categories):
-        count = len([f for f in findings if f.get('category') == cat])
+        count = len([f for f in findings if f.get("category") == cat])
         lines.append(f"- {cat}: {count} findings")
     lines.append("")
     lines.append("---")
@@ -678,8 +661,8 @@ def generate_executive_summary(data):
 
 def generate_priority_findings(findings):
     """Generate the priority findings section."""
-    high_impact = [f for f in findings if f.get('magnitude', 0) >= 3]
-    mod_impact = [f for f in findings if f.get('magnitude', 0) == 2]
+    high_impact = [f for f in findings if f.get("magnitude", 0) >= 3]
+    mod_impact = [f for f in findings if f.get("magnitude", 0) == 2]
 
     lines = []
     lines.append("## 🔴 Priority Findings (High Impact)")
@@ -704,7 +687,7 @@ def generate_priority_findings(findings):
 
 def generate_full_findings(findings):
     """Generate all findings organized by category."""
-    categories = sorted(set(f.get('category', 'Other') for f in findings))
+    categories = sorted(set(f.get("category", "Other") for f in findings))
 
     lines = []
     lines.append("## Complete Findings by Category")
@@ -713,7 +696,7 @@ def generate_full_findings(findings):
     lines.append("")
 
     for category in categories:
-        cat_findings = [f for f in findings if f.get('category') == category]
+        cat_findings = [f for f in findings if f.get("category") == category]
         if not cat_findings:
             continue
 
@@ -721,15 +704,15 @@ def generate_full_findings(findings):
         lines.append("")
 
         # Sort by magnitude (highest first)
-        cat_findings.sort(key=lambda x: x.get('magnitude', 0), reverse=True)
+        cat_findings.sort(key=lambda x: x.get("magnitude", 0), reverse=True)
 
         for i, finding in enumerate(cat_findings, 1):
-            gene = finding.get('gene', 'Unknown')
-            rsid = finding.get('rsid', '')
-            genotype = finding.get('genotype', '')
-            status = finding.get('status', '').replace('_', ' ').title()
-            description = finding.get('description', '')
-            magnitude = finding.get('magnitude', 0)
+            gene = finding.get("gene", "Unknown")
+            rsid = finding.get("rsid", "")
+            genotype = finding.get("genotype", "")
+            status = finding.get("status", "").replace("_", " ").title()
+            description = finding.get("description", "")
+            magnitude = finding.get("magnitude", 0)
 
             mag_icon = "🔴" if magnitude >= 3 else "🟡" if magnitude == 2 else "🟢" if magnitude == 1 else "⚪"
 
@@ -737,10 +720,10 @@ def generate_full_findings(findings):
             lines.append(f"- **Genotype:** `{genotype}` | **Status:** {status} | **Impact:** {magnitude}/6")
             lines.append(f"- {description}")
 
-            context = get_clinical_context(gene, finding.get('status', ''))
+            context = get_clinical_context(gene, finding.get("status", ""))
             if context:
                 lines.append(f"- **Mechanism:** {context['mechanism'][:200]}...")
-                if context.get('actions'):
+                if context.get("actions"):
                     lines.append(f"- **Key Action:** {context['actions'][0]}")
 
             lines.append("")
@@ -761,10 +744,10 @@ def generate_pharmgkb_report(pharmgkb):
     lines.append("")
 
     # Organize by evidence level
-    level_1a = [f for f in pharmgkb if f.get('level') == '1A']
-    level_1b = [f for f in pharmgkb if f.get('level') == '1B']
-    level_2a = [f for f in pharmgkb if f.get('level') == '2A']
-    level_2b = [f for f in pharmgkb if f.get('level') == '2B']
+    level_1a = [f for f in pharmgkb if f.get("level") == "1A"]
+    level_1b = [f for f in pharmgkb if f.get("level") == "1B"]
+    level_2a = [f for f in pharmgkb if f.get("level") == "2A"]
+    level_2b = [f for f in pharmgkb if f.get("level") == "2B"]
 
     if level_1a:
         lines.append("### Level 1A - Highest Evidence (Clinical Guideline Annotations)")
@@ -803,7 +786,7 @@ def generate_pathway_analysis(findings):
 
     for pathway_name, pathway_genes in PATHWAYS.items():
         # Find findings in this pathway
-        pathway_findings = [f for f in findings if f.get('gene') in pathway_genes]
+        pathway_findings = [f for f in findings if f.get("gene") in pathway_genes]
         if not pathway_findings:
             continue
 
@@ -811,9 +794,9 @@ def generate_pathway_analysis(findings):
         lines.append("")
 
         for finding in pathway_findings:
-            gene = finding.get('gene', '')
-            status = finding.get('status', '').replace('_', ' ').title()
-            magnitude = finding.get('magnitude', 0)
+            gene = finding.get("gene", "")
+            status = finding.get("status", "").replace("_", " ").title()
+            magnitude = finding.get("magnitude", 0)
             mag_icon = "🔴" if magnitude >= 3 else "🟡" if magnitude == 2 else "🟢" if magnitude == 1 else "⚪"
 
             lines.append(f"- {mag_icon} **{gene}:** {status}")
@@ -822,16 +805,20 @@ def generate_pathway_analysis(findings):
 
         # Add pathway interpretation if relevant
         if pathway_name == "Methylation Cycle":
-            mthfr = next((f for f in pathway_findings if f.get('gene') == 'MTHFR' and f.get('magnitude', 0) >= 2), None)
-            mtrr = next((f for f in pathway_findings if f.get('gene') == 'MTRR' and f.get('magnitude', 0) >= 2), None)
+            mthfr = next((f for f in pathway_findings if f.get("gene") == "MTHFR" and f.get("magnitude", 0) >= 2), None)
+            mtrr = next((f for f in pathway_findings if f.get("gene") == "MTRR" and f.get("magnitude", 0) >= 2), None)
             if mthfr and mtrr:
-                lines.append("⚠️ **Pathway Impact:** Multiple methylation cycle variants detected. Consider comprehensive methylation support (methylfolate + methylcobalamin + B2).")
+                lines.append(
+                    "⚠️ **Pathway Impact:** Multiple methylation cycle variants detected. Consider comprehensive methylation support (methylfolate + methylcobalamin + B2)."
+                )
                 lines.append("")
 
         elif pathway_name == "Blood Pressure":
-            bp_findings = [f for f in pathway_findings if f.get('magnitude', 0) >= 1]
+            bp_findings = [f for f in pathway_findings if f.get("magnitude", 0) >= 1]
             if len(bp_findings) >= 2:
-                lines.append("⚠️ **Pathway Impact:** Multiple blood pressure-related variants. Recommend regular monitoring and lifestyle optimization.")
+                lines.append(
+                    "⚠️ **Pathway Impact:** Multiple blood pressure-related variants. Recommend regular monitoring and lifestyle optimization."
+                )
                 lines.append("")
 
         lines.append("---")
@@ -854,19 +841,19 @@ def generate_action_summary(findings):
     medical_actions = []
 
     for finding in findings:
-        context = get_clinical_context(finding.get('gene'), finding.get('status'))
-        if context and context.get('actions'):
-            for action in context['actions']:
+        context = get_clinical_context(finding.get("gene"), finding.get("status"))
+        if context and context.get("actions"):
+            for action in context["actions"]:
                 action_lower = action.lower()
-                if any(word in action_lower for word in ['supplement', 'vitamin', 'mg', 'mcg', 'iu', 'dose']):
+                if any(word in action_lower for word in ["supplement", "vitamin", "mg", "mcg", "iu", "dose"]):
                     supplement_actions.append(f"- {action} *(from {finding.get('gene')})*")
-                elif any(word in action_lower for word in ['diet', 'eat', 'food', 'limit', 'avoid', 'meal']):
+                elif any(word in action_lower for word in ["diet", "eat", "food", "limit", "avoid", "meal"]):
                     diet_actions.append(f"- {action} *(from {finding.get('gene')})*")
-                elif any(word in action_lower for word in ['exercise', 'sleep', 'stress', 'meditation']):
+                elif any(word in action_lower for word in ["exercise", "sleep", "stress", "meditation"]):
                     lifestyle_actions.append(f"- {action} *(from {finding.get('gene')})*")
-                elif any(word in action_lower for word in ['test', 'monitor', 'check', 'measure']):
+                elif any(word in action_lower for word in ["test", "monitor", "check", "measure"]):
                     monitoring_actions.append(f"- {action} *(from {finding.get('gene')})*")
-                elif any(word in action_lower for word in ['doctor', 'physician', 'medical', 'prescrib']):
+                elif any(word in action_lower for word in ["doctor", "physician", "medical", "prescrib"]):
                     medical_actions.append(f"- {action} *(from {finding.get('gene')})*")
 
     if supplement_actions:
@@ -940,8 +927,8 @@ def main():
     print(f"Loading genetic data from {data_path}...")
     data = load_genetic_data(data_path)
 
-    findings = data.get('findings', [])
-    pharmgkb = data.get('pharmgkb_findings', [])
+    findings = data.get("findings", [])
+    pharmgkb = data.get("pharmgkb_findings", [])
 
     print(f"Processing {len(findings)} findings and {len(pharmgkb)} drug interactions...")
 
@@ -979,7 +966,7 @@ def main():
     full_report = "\n".join(report_parts)
 
     print(f"Writing report to {output_path}...")
-    with open(output_path, 'w') as f:
+    with open(output_path, "w") as f:
         f.write(full_report)
 
     print(f"\n✅ Report generated successfully!")

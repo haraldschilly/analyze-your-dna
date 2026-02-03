@@ -36,7 +36,7 @@ packages = ["scripts"]
 
 [tool.ruff]
 target-version = "py310"
-line-length = 100
+line-length = 120
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "UP", "B", "C4"]
@@ -51,6 +51,7 @@ disallow_untyped_defs = false  # Gradual typing
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+addopts = "--cov=scripts --cov-report=term-missing"
 
 [dependency-groups]
 dev = [
@@ -59,6 +60,7 @@ dev = [
     "pytest>=9.0.2",
     "ruff>=0.4.0",
     "mypy>=1.10.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [tool.pylint."MESSAGES CONTROL"]
