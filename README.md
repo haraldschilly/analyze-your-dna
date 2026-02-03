@@ -27,7 +27,7 @@ This tool is designed to be used with an AI agent. It allows you to "chat" with 
 **Recommended Agents:**
 *   [**Claude Code (Anthropic)**](https://claude.ai/code) - The primary agent this project was designed for.
 *   [**Gemini (Google)**](https://ai.google.dev/gemini-api/docs/cli) - Excellent analysis capabilities.
-*   [**OpenCode (open source)**](https://opencode.ai/) - can make use of a variety of models.
+*   [**OpenCode (open source)**](https://opencode.ai/) - Makes use of a variety of models.
 *   [**Codex (OpenAI)**](https://openai.com/codex/) - Agent optimized for coding.
 
 ### Interactive Session Example
