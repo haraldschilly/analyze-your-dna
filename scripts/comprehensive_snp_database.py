@@ -19,7 +19,9 @@ Covers: Drug metabolism, methylation, fitness, nutrition, sleep, cardiovascular,
 cognition, longevity, inflammation, and lifestyle factors.
 """
 
-COMPREHENSIVE_SNPS = {
+from scripts.utils import SnpDatabase
+
+COMPREHENSIVE_SNPS: SnpDatabase = {
     # =========================================================================
     # SECTION 1: DRUG METABOLISM (from original)
     # =========================================================================
@@ -1397,38 +1399,7 @@ COMPREHENSIVE_SNPS = {
     # =========================================================================
     # SECTION 11: SKIN & AGING
     # =========================================================================
-    "rs1805007": {
-        "gene": "MC1R",
-        "category": "Skin",
-        "variants": {
-            "CC": {"status": "normal", "desc": "Normal MC1R - standard sun sensitivity", "magnitude": 0},
-            "CT": {
-                "status": "carrier",
-                "desc": "MC1R R151C carrier - increased sun sensitivity, freckling, skin cancer risk",
-                "magnitude": 2,
-            },
-            "TC": {
-                "status": "carrier",
-                "desc": "MC1R R151C carrier - increased sun sensitivity, freckling, skin cancer risk",
-                "magnitude": 2,
-            },
-            "TT": {
-                "status": "high_risk",
-                "desc": "MC1R R151C homozygous - red hair phenotype, very high sun sensitivity",
-                "magnitude": 3,
-            },
-        },
-    },
-    "rs1805008": {
-        "gene": "MC1R",
-        "category": "Skin",
-        "variants": {
-            "CC": {"status": "normal", "desc": "Normal MC1R R160W", "magnitude": 0},
-            "CT": {"status": "carrier", "desc": "MC1R R160W carrier - increased sun sensitivity", "magnitude": 2},
-            "TC": {"status": "carrier", "desc": "MC1R R160W carrier - increased sun sensitivity", "magnitude": 2},
-            "TT": {"status": "high_risk", "desc": "MC1R R160W homozygous - high sun/skin cancer risk", "magnitude": 3},
-        },
-    },
+    # MC1R entries moved to SECTION 19 (Dryness & Tissue Hydration)
     "rs12203592": {
         "gene": "IRF4",
         "category": "Skin",
@@ -1861,6 +1832,214 @@ COMPREHENSIVE_SNPS = {
                 "status": "reduced_bmd",
                 "desc": "ESR1 PvuII T/T - tendency toward lower bone mineral density, especially postmenopausal",
                 "magnitude": 2,
+            },
+        },
+    },
+    # =========================================================================
+    # SECTION 19: DRYNESS & TISSUE HYDRATION (Skin, Eye, Mucosal)
+    # =========================================================================
+    # FLG - Skin Barrier (Filaggrin)
+    "rs61816761": {
+        "gene": "FLG",
+        "category": "Dryness/Skin",
+        "note": "R501X Mutation (Stop Codon). Strongest risk factor for dry skin/eczema.",
+        "variants": {
+            # Forward strand (C>T)
+            "CC": {"status": "normal", "desc": "Normal FLG function (no R501X mutation)", "magnitude": 0},
+            "CT": {
+                "status": "carrier",
+                "desc": "FLG R501X Carrier - 50% filaggrin reduction. High risk for dry skin (xerosis) and eczema.",
+                "magnitude": 3,
+            },
+            "TC": {
+                "status": "carrier",
+                "desc": "FLG R501X Carrier - 50% filaggrin reduction. High risk for dry skin (xerosis) and eczema.",
+                "magnitude": 3,
+            },
+            "TT": {
+                "status": "affected",
+                "desc": "FLG R501X Homozygous - Severe dry skin/Ichthyosis vulgaris risk.",
+                "magnitude": 5,
+            },
+            # Reverse strand (G>A)
+            "GG": {"status": "normal", "desc": "Normal FLG function", "magnitude": 0},
+            "GA": {
+                "status": "carrier",
+                "desc": "FLG R501X Carrier - 50% filaggrin reduction. High risk for dry skin.",
+                "magnitude": 3,
+            },
+            "AG": {
+                "status": "carrier",
+                "desc": "FLG R501X Carrier - 50% filaggrin reduction. High risk for dry skin.",
+                "magnitude": 3,
+            },
+            "AA": {
+                "status": "affected",
+                "desc": "FLG R501X Homozygous - Severe dry skin/Ichthyosis vulgaris risk.",
+                "magnitude": 5,
+            },
+        },
+    },
+    "rs558269137": {
+        "gene": "FLG",
+        "category": "Dryness/Skin",
+        "note": "2282del4 Mutation (Frameshift).",
+        "variants": {
+            # Deletion is risk. Check for Insertion/Deletion markers.
+            "II": {"status": "normal", "desc": "Normal FLG (no 2282del4 mutation)", "magnitude": 0},
+            "ID": {
+                "status": "carrier",
+                "desc": "FLG 2282del4 Carrier - 50% filaggrin reduction. Risk for dry skin and fissures.",
+                "magnitude": 3,
+            },
+            "DI": {
+                "status": "carrier",
+                "desc": "FLG 2282del4 Carrier - 50% filaggrin reduction. Risk for dry skin and fissures.",
+                "magnitude": 3,
+            },
+            "DD": {
+                "status": "affected",
+                "desc": "FLG 2282del4 Homozygous - Severe dry skin/Ichthyosis vulgaris.",
+                "magnitude": 5,
+            },
+        },
+    },
+    # TRPV1 - Cough Sensitivity
+    "rs8065080": {
+        "gene": "TRPV1",
+        "category": "Dryness/Sensory",
+        "note": "I585V. Ile (A) is sensitive/functional. Val (G) is protective/dampened.",
+        "variants": {
+            "AA": {
+                "status": "high_sensitivity",
+                "desc": "TRPV1 Ile/Ile (High Sensitivity) - 'Hair-trigger' cough reflex, sensitive to dryness/spices.",
+                "magnitude": 2,
+            },
+            "AG": {"status": "intermediate", "desc": "TRPV1 Intermediate Sensitivity", "magnitude": 1},
+            "GA": {"status": "intermediate", "desc": "TRPV1 Intermediate Sensitivity", "magnitude": 1},
+            "GG": {
+                "status": "reduced_sensitivity",
+                "desc": "TRPV1 Val/Val (Protective) - Reduced cough sensitivity, 'dampened' nerve response.",
+                "magnitude": 0,
+            },
+        },
+    },
+    # STAT4 - Sjögren's Risk
+    "rs7582694": {
+        "gene": "STAT4",
+        "category": "Dryness/Autoimmune",
+        "note": "Sjögren's Syndrome Risk Variant",
+        "variants": {
+            "GG": {"status": "normal", "desc": "Normal STAT4 risk", "magnitude": 0},
+            "GT": {
+                "status": "increased_risk",
+                "desc": "STAT4 Variant (Heterozygous) - Increased risk for autoimmune dryness (Sjögren's).",
+                "magnitude": 2,
+            },
+            "TG": {
+                "status": "increased_risk",
+                "desc": "STAT4 Variant (Heterozygous) - Increased risk for autoimmune dryness (Sjögren's).",
+                "magnitude": 2,
+            },
+            "TT": {
+                "status": "high_risk",
+                "desc": "STAT4 Homozygous Risk - Elevated risk for Sjögren's Syndrome and autoimmune disorders.",
+                "magnitude": 3,
+            },
+        },
+    },
+    # IRF5 - Sjögren's Risk
+    "rs10488631": {
+        "gene": "IRF5",
+        "category": "Dryness/Autoimmune",
+        "note": "Interferon Regulatory Factor 5",
+        "variants": {
+            "TT": {"status": "normal", "desc": "Normal IRF5 risk", "magnitude": 0},
+            "TC": {
+                "status": "increased_risk",
+                "desc": "IRF5 Variant - Upregulated interferon, increased Sjögren's risk.",
+                "magnitude": 2,
+            },
+            "CT": {
+                "status": "increased_risk",
+                "desc": "IRF5 Variant - Upregulated interferon, increased Sjögren's risk.",
+                "magnitude": 2,
+            },
+            "CC": {
+                "status": "high_risk",
+                "desc": "IRF5 Homozygous Risk - High interferon response, elevated Sjögren's risk.",
+                "magnitude": 3,
+            },
+        },
+    },
+    # PCGF3 - ACE Cough
+    "rs1044147": {
+        "gene": "PCGF3",
+        "category": "Dryness/Pharmacogenomics",
+        "note": "Risk for ACE Inhibitor induced cough",
+        "variants": {
+            "GG": {"status": "normal", "desc": "Normal risk for ACE inhibitor cough", "magnitude": 0},
+            "AG": {
+                "status": "risk",
+                "desc": "Increased risk of dry cough if taking ACE inhibitors.",
+                "magnitude": 1,
+            },
+            "GA": {
+                "status": "risk",
+                "desc": "Increased risk of dry cough if taking ACE inhibitors.",
+                "magnitude": 1,
+            },
+            "AA": {
+                "status": "high_risk",
+                "desc": "High risk of dry cough if taking ACE inhibitors.",
+                "magnitude": 2,
+            },
+        },
+    },
+    # MC1R - Skin Integument (Pigmentation/Barrier)
+    "rs1805007": {
+        "gene": "MC1R",
+        "category": "Dryness/Skin",
+        "note": "R151C (Red Hair Variant). Linked to thinner epidermis and reduced barrier function.",
+        "variants": {
+            "CC": {"status": "normal", "desc": "Normal MC1R (R151)", "magnitude": 0},
+            "CT": {
+                "status": "carrier",
+                "desc": "MC1R R151C Carrier - Fair skin trait, sun sensitivity, and reduced barrier function (dryness risk).",
+                "magnitude": 2,
+            },
+            "TC": {
+                "status": "carrier",
+                "desc": "MC1R R151C Carrier - Fair skin trait, sun sensitivity, and reduced barrier function (dryness risk).",
+                "magnitude": 2,
+            },
+            "TT": {
+                "status": "red_hair",
+                "desc": "MC1R R151C Homozygous - Red hair phenotype, high sun sensitivity, prone to dry skin.",
+                "magnitude": 3,
+            },
+        },
+    },
+    "rs1805008": {
+        "gene": "MC1R",
+        "category": "Dryness/Skin",
+        "note": "R160W (Red Hair Variant)",
+        "variants": {
+            "CC": {"status": "normal", "desc": "Normal MC1R (R160)", "magnitude": 0},
+            "CT": {
+                "status": "carrier",
+                "desc": "MC1R R160W Carrier - Fair skin, sun sensitivity, potential barrier reduction.",
+                "magnitude": 2,
+            },
+            "TC": {
+                "status": "carrier",
+                "desc": "MC1R R160W Carrier - Fair skin, sun sensitivity, potential barrier reduction.",
+                "magnitude": 2,
+            },
+            "TT": {
+                "status": "red_hair",
+                "desc": "MC1R R160W Homozygous - Red hair phenotype, high sun sensitivity.",
+                "magnitude": 3,
             },
         },
     },

@@ -118,6 +118,7 @@ class MockPolarsDataFrame:
 
 class MockPolars:
     Utf8 = "Utf8"
+    Int64 = "Int64"
 
     def col(self, name):
         return MockExpr(name)

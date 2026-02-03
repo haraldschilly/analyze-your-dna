@@ -19,7 +19,9 @@ Observable characteristics: pigmentation, taste, morphology, vision, etc.
 Excludes disease/health traits (those are in comprehensive_snp_database.py)
 """
 
-TRAITS_SNPS = {
+from scripts.utils import SnpDatabase
+
+TRAITS_SNPS: SnpDatabase = {
     # =========================================================================
     # SECTION A: PIGMENTATION (HIrisPlex-S System)
     # =========================================================================

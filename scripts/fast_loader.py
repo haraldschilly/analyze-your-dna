@@ -174,6 +174,8 @@ def _load_clinvar_polars(
         clinvar_path,
         separator="\t",
         infer_schema_length=10000,
+        null_values=["-"],
+        schema_overrides={"chrom": pl.Utf8, "gold_stars": pl.Int64},
     )
 
     total_rows = len(df)

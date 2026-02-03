@@ -10,6 +10,7 @@ keywords = ["genetics", "23andme", "health", "genomics", "clinvar", "pharmgkb", 
 
 dependencies = [
     "polars>=1.0.0",
+    "typing-extensions>=4.15.0",
 ]
 
 [project.optional-dependencies]
