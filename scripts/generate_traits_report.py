@@ -21,14 +21,14 @@ Analyzes observable characteristics: pigmentation, taste, morphology, vision, et
 Excludes disease/health traits (covered in separate health reports).
 """
 
-import sys
 import math
+import sys
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
-from collections import defaultdict
 
-from traits_snp_database import TRAITS_SNPS, EYE_COLOR_MLR
 from fast_loader import load_genome_fast
+from traits_snp_database import EYE_COLOR_MLR, TRAITS_SNPS
 
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
 
@@ -277,7 +277,7 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         eye_mlr = results["eye_color_mlr"]
 
         if eye_mlr["prediction"] == "Inconclusive":
-            f.write(f"**Prediction: Inconclusive**\n\n")
+            f.write("**Prediction: Inconclusive**\n\n")
             f.write(f"Reason: {eye_mlr['reason']}\n\n")
         else:
             f.write(f"**Prediction: {eye_mlr['prediction']}** ")
@@ -366,7 +366,7 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         irf4 = [f for f in results["findings"] if f["rsid"] == "rs12203592"]
         if irf4:
             finding = irf4[0]
-            f.write(f"**Freckles (IRF4):** ")
+            f.write("**Freckles (IRF4):** ")
             if "T" in finding["genotype"]:
                 f.write(f"Likely present - {finding['description']}\n\n")
             else:
@@ -466,7 +466,7 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
 
         bmi_findings = results["by_category"].get("BMI/Weight", [])
         if bmi_findings:
-            f.write(f"**BMI/Weight:**\n\n")
+            f.write("**BMI/Weight:**\n\n")
             for finding in bmi_findings:
                 f.write(f"- `{finding['rsid']}` ({finding['gene']}): {finding['genotype']} - ")
                 f.write(f"{finding['description']}\n")
@@ -548,10 +548,10 @@ def main():
     REPORTS_DIR.mkdir(exist_ok=True)
     output_path = REPORTS_DIR / "TRAITS_REPORT.md"
 
-    print(f"Generating report...")
+    print("Generating report...")
     generate_traits_report(results, subject_name, output_path)
 
-    print(f"\n✅ Traits report generated successfully!")
+    print("\n✅ Traits report generated successfully!")
     print(f"   Output: {output_path}")
     # pylint: disable=unsubscriptable-object  # False positive - results is a dict
     print(f"   Eye color: {results['eye_color_mlr']['prediction']}")

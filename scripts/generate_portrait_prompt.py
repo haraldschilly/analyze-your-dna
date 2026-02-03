@@ -21,14 +21,14 @@ Generates detailed prompts for image generation based on genetic traits.
 Creates text descriptions suitable for models like Google Imagen, DALL-E, Stable Diffusion.
 """
 
-import sys
 import argparse
+import sys
 from datetime import datetime
 from pathlib import Path
 
-from traits_snp_database import TRAITS_SNPS
 from fast_loader import load_genome_fast
 from generate_traits_report import analyze_traits_genome, check_genotype_match
+from traits_snp_database import TRAITS_SNPS
 
 
 def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
@@ -360,7 +360,7 @@ def generate_portrait_prompt(
         notes.append(f"Male pattern baldness: high risk (age {age})")
 
     if wears_glasses:
-        notes.append(f"Glasses: myopia risk elevated")
+        notes.append("Glasses: myopia risk elevated")
 
     if fto:
         notes.append(f"Build: FTO {fto['genotype']} ({fto['status']})")

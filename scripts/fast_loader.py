@@ -29,8 +29,9 @@ Usage:
 
 import csv
 import os
+from collections.abc import Callable
 from pathlib import Path
-from typing import Tuple, Dict, Optional, TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING
 
 # Try to import polars for fast parsing
 try:
@@ -60,7 +61,7 @@ def get_loader_info() -> str:
     return f"Using standard Python CSV loader {mode_msg}"
 
 
-def load_genome_fast(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
+def load_genome_fast(genome_path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
     """
     Load 23andMe genome file into dictionaries.
     Uses polars for ~5-10x speedup when available.
@@ -73,7 +74,7 @@ def load_genome_fast(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict
     return _load_genome_stdlib(genome_path)
 
 
-def _load_genome_polars(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
+def _load_genome_polars(genome_path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
     """Load genome using polars (fast path)."""
     assert pl is not None
     # Read TSV, skip comment lines
@@ -119,12 +120,12 @@ def _load_genome_polars(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, D
     return genome_by_rsid, genome_by_position
 
 
-def _load_genome_stdlib(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, Dict]]:
+def _load_genome_stdlib(genome_path: Path) -> tuple[dict[str, dict], dict[str, dict]]:
     """Load genome using standard library csv (slow path)."""
     genome_by_rsid = {}
     genome_by_position = {}
 
-    with open(genome_path, "r", encoding="utf-8") as f:
+    with open(genome_path, encoding="utf-8") as f:
         # Skip comments manually
         for line in f:
             if line.startswith("#"):
@@ -146,8 +147,8 @@ def _load_genome_stdlib(genome_path: Path) -> Tuple[Dict[str, Dict], Dict[str, D
 
 
 def load_clinvar_fast(
-    clinvar_path: Path, genome_by_position: Dict[str, Dict]
-) -> Tuple[Dict[str, list], Dict[str, int]]:
+    clinvar_path: Path, genome_by_position: dict[str, dict]
+) -> tuple[dict[str, list], dict[str, int]]:
     """
     Load and scan ClinVar database against user genome.
     Uses polars for speedup when available.
@@ -159,9 +160,9 @@ def load_clinvar_fast(
 
 def _load_clinvar_polars(
     clinvar_path: Path,
-    genome_by_position: Dict[str, Dict],
-    progress_callback: Optional[Callable] = None,
-) -> Tuple[Dict[str, list], Dict[str, int]]:
+    genome_by_position: dict[str, dict],
+    progress_callback: Callable | None = None,
+) -> tuple[dict[str, list], dict[str, int]]:
     """Load ClinVar using polars (fast path)."""
     assert pl is not None
 
@@ -267,8 +268,8 @@ def _load_clinvar_polars(
 
 
 def _load_clinvar_stdlib(
-    clinvar_path: Path, genome_by_position: Dict[str, Dict]
-) -> Tuple[Dict[str, list], Dict[str, int]]:
+    clinvar_path: Path, genome_by_position: dict[str, dict]
+) -> tuple[dict[str, list], dict[str, int]]:
     """Load and scan ClinVar using standard library csv (slow path)."""
     findings = {
         "pathogenic": [],
@@ -281,7 +282,7 @@ def _load_clinvar_stdlib(
 
     stats = {"total_clinvar": 0, "matched": 0, "pathogenic_matched": 0, "likely_pathogenic_matched": 0}
 
-    with open(clinvar_path, "r", encoding="utf-8") as f:
+    with open(clinvar_path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
 
         for row in reader:

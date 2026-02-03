@@ -20,9 +20,9 @@ Generates a complete lifestyle/health optimization report based on genetic data.
 """
 
 import json
-from pathlib import Path
 from collections import defaultdict
 from datetime import datetime
+from pathlib import Path
 
 from comprehensive_snp_database import COMPREHENSIVE_SNPS
 from utils import load_genome, load_pharmgkb
@@ -453,9 +453,9 @@ def write_category_interpretation(f, category: str, findings: list):
         if adora_anx:
             status = adora_anx["status"]
             if status == "anxiety_prone":
-                f.write(f"- **Anxiety Response (ADORA2A):** Prone to caffeine-induced anxiety\n")
+                f.write("- **Anxiety Response (ADORA2A):** Prone to caffeine-induced anxiety\n")
             elif status == "lower_sensitivity":
-                f.write(f"- **Anxiety Response (ADORA2A):** Lower sensitivity\n")
+                f.write("- **Anxiety Response (ADORA2A):** Lower sensitivity\n")
 
         f.write("\n**Recommendations:**\n")
 
@@ -626,7 +626,7 @@ def main():
     # Load PharmGKB
     pharmgkb_annotations = DATA_DIR / "clinical_annotations.tsv"
     pharmgkb_alleles = DATA_DIR / "clinical_ann_alleles.tsv"
-    print(f"\nLoading PharmGKB data...")
+    print("\nLoading PharmGKB data...")
     pharmgkb = load_pharmgkb(pharmgkb_annotations, pharmgkb_alleles)
     print(f"Loaded {len(pharmgkb):,} drug-gene interactions")
 

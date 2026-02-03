@@ -21,10 +21,10 @@ Cross-references personal genome against ClinVar, PharmGKB, and curated high-imp
 
 import csv
 import json
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
-from utils import load_genome, load_pharmgkb, ensure_clinvar
+from utils import ensure_clinvar, load_genome, load_pharmgkb
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 REPORTS_DIR = Path(__file__).parent.parent / "reports"
@@ -643,7 +643,7 @@ CURATED_SNPS = {
 def load_clinvar(clinvar_path: Path) -> dict:
     """Load ClinVar pathogenic variants."""
     clinvar = {}
-    with open(clinvar_path, "r") as f:
+    with open(clinvar_path) as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             # Focus on pathogenic/likely pathogenic variants
@@ -971,7 +971,7 @@ def main():
     # Load PharmGKB
     pharmgkb_annotations = DATA_DIR / "clinical_annotations.tsv"
     pharmgkb_alleles = DATA_DIR / "clinical_ann_alleles.tsv"
-    print(f"\nLoading PharmGKB data...")
+    print("\nLoading PharmGKB data...")
     pharmgkb = load_pharmgkb(pharmgkb_annotations, pharmgkb_alleles)
     print(f"Loaded {len(pharmgkb):,} drug-gene interactions")
 

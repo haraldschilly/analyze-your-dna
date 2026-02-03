@@ -49,7 +49,7 @@ def load_genome():
     genome_by_rsid = {}
     genome_by_position = {}
 
-    with open(GENOME_PATH, "r") as f:
+    with open(GENOME_PATH) as f:
         for line in f:
             if line.startswith("#"):
                 continue
@@ -83,7 +83,7 @@ def load_clinvar(genome_by_position):
 
     stats = {"total_clinvar": 0, "matched": 0, "pathogenic_matched": 0, "likely_pathogenic_matched": 0}
 
-    with open(CLINVAR_PATH, "r", encoding="utf-8") as f:
+    with open(CLINVAR_PATH, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
 
         for row in reader:
@@ -312,8 +312,8 @@ These variants are classified as pathogenic and your genotype suggests you may b
 
 **Consequence:** {f["molecular_consequence"] if f["molecular_consequence"] else "Not specified"}
 
-{f"**Age of Onset:** {f["age_of_onset"]}" if f["age_of_onset"] else ""}
-{f"**Prevalence:** {f["prevalence"]}" if f["prevalence"] else ""}
+{f"**Age of Onset:** {f['age_of_onset']}" if f["age_of_onset"] else ""}
+{f"**Prevalence:** {f['prevalence']}" if f["prevalence"] else ""}
 
 **Database References:** {f["xrefs"] if f["xrefs"] else "None"}
 

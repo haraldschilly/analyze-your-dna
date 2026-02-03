@@ -26,7 +26,7 @@ from pathlib import Path
 def load_genome(genome_path: Path) -> dict:
     """Load 23andMe genome file into a dictionary."""
     genome = {}
-    with open(genome_path, "r") as f:
+    with open(genome_path) as f:
         for line in f:
             if line.startswith("#"):
                 continue
@@ -43,7 +43,7 @@ def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
     pharmgkb = {}
     annotations = {}
 
-    with open(annotations_path, "r") as f:
+    with open(annotations_path) as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             ann_id = row.get("Clinical Annotation ID", "")
@@ -58,7 +58,7 @@ def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
                     "category": row.get("Phenotype Category", ""),
                 }
 
-    with open(alleles_path, "r") as f:
+    with open(alleles_path) as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             ann_id = row.get("Clinical Annotation ID", "")
@@ -106,8 +106,8 @@ def snp_database_stats():
     Used to regenerate the README.md 'What It Analyzes' tables.
     Run: uv run python3 -c "from scripts.utils import snp_database_stats; snp_database_stats()"
     """
-    from comprehensive_snp_database import COMPREHENSIVE_SNPS
     from analyze_genome import CURATED_SNPS
+    from comprehensive_snp_database import COMPREHENSIVE_SNPS
     from traits_snp_database import TRAITS_SNPS
 
     for name, db in [

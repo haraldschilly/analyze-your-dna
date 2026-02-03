@@ -445,7 +445,7 @@ PATHWAYS = {
 
 def load_genetic_data(filepath):
     """Load the comprehensive results JSON."""
-    with open(filepath, "r") as f:
+    with open(filepath) as f:
         return json.load(f)
 
 
@@ -507,7 +507,7 @@ def generate_finding_section(finding, index):
     section.append(f"**Description:** {description}")
 
     if note:
-        section.append(f"")
+        section.append("")
         section.append(f"**Note:** {note}")
 
     # Add pathways this gene belongs to
@@ -620,7 +620,7 @@ def generate_executive_summary(data):
     level_2 = [f for f in pharmgkb if f.get("level", "").startswith("2")]
 
     # Categories
-    categories = set(f.get("category") for f in findings)
+    categories = {f.get("category") for f in findings}
 
     lines = []
     lines.append("# Exhaustive Genetic Health Report")
@@ -687,7 +687,7 @@ def generate_priority_findings(findings):
 
 def generate_full_findings(findings):
     """Generate all findings organized by category."""
-    categories = sorted(set(f.get("category", "Other") for f in findings))
+    categories = sorted({f.get("category", "Other") for f in findings})
 
     lines = []
     lines.append("## Complete Findings by Category")
@@ -969,7 +969,7 @@ def main():
     with open(output_path, "w") as f:
         f.write(full_report)
 
-    print(f"\n✅ Report generated successfully!")
+    print("\n✅ Report generated successfully!")
     print(f"   Output: {output_path}")
     print(f"   Total length: {len(full_report):,} characters")
     print(f"   Findings covered: {len(findings)}")

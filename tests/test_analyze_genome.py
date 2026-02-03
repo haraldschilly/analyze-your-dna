@@ -1,5 +1,5 @@
-import pytest
 from unittest.mock import patch
+
 from scripts.analyze_genome import analyze_genome
 
 MOCK_CURATED_SNPS = {
@@ -44,16 +44,6 @@ def test_analyze_genome_reverse_complement(mock_clinvar_data, mock_pharmgkb_data
 
     # Let's mock a genome with "TT" for rs123 (assuming A <-> T)
     # Actually, let's just use a new rsid to be clear
-
-    mock_genome = {"rs999": {"chromosome": "2", "position": "300", "genotype": "TT"}}
-
-    mock_curated = {
-        "rs999": {
-            "gene": "REV",
-            "category": "Test",
-            "variants": {"AA": {"status": "rev_match", "desc": "Matched reverse", "magnitude": 1}},
-        }
-    }
 
     # Note: The code does `genotype[::-1]` (reverse) not complement.
     # Wait, `genotype[::-1]` for "TT" is "TT". For "AG" it is "GA".

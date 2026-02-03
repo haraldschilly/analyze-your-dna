@@ -28,20 +28,20 @@ Usage:
     python run_full_analysis.py --name "John Doe"   # Add name to reports
 """
 
-import sys
 import json
-from pathlib import Path
-from datetime import datetime
+import sys
 from collections import defaultdict
-from typing import Optional
+from datetime import datetime
+from pathlib import Path
 
 # Add scripts directory to path for imports
 SCRIPT_DIR = Path(__file__).parent
 sys.path.insert(0, str(SCRIPT_DIR))
 
-from comprehensive_snp_database import COMPREHENSIVE_SNPS
-from fast_loader import load_genome_fast, load_clinvar_fast, get_loader_info
-from utils import ensure_clinvar, load_pharmgkb as load_pharmgkb_utils
+from comprehensive_snp_database import COMPREHENSIVE_SNPS  # noqa: E402
+from fast_loader import get_loader_info, load_clinvar_fast, load_genome_fast  # noqa: E402
+from utils import ensure_clinvar  # noqa: E402
+from utils import load_pharmgkb as load_pharmgkb_utils  # noqa: E402
 
 # Directory configuration
 BASE_DIR = SCRIPT_DIR.parent
@@ -233,19 +233,19 @@ def classify_zygosity(finding):
 # =============================================================================
 
 
-def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject_name: Optional[str] = None):
+def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject_name: str | None = None):
     """Generate the exhaustive lifestyle/health genetic report."""
-    print_step(f"Generating exhaustive genetic report")
+    print_step("Generating exhaustive genetic report")
 
     # Import the generator logic
     from generate_exhaustive_report import (
-        generate_executive_summary,
-        generate_priority_findings,
-        generate_pathway_analysis,
-        generate_full_findings,
-        generate_pharmgkb_report,
         generate_action_summary,
         generate_disclaimer,
+        generate_executive_summary,
+        generate_full_findings,
+        generate_pathway_analysis,
+        generate_pharmgkb_report,
+        generate_priority_findings,
     )
 
     # Build the data structure expected by generator
@@ -280,7 +280,7 @@ def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject
 
 
 def generate_disease_risk_report(
-    findings: dict, stats: dict, genome_count: int, output_path: Path, subject_name: Optional[str] = None
+    findings: dict, stats: dict, genome_count: int, output_path: Path, subject_name: str | None = None
 ):
     """Generate the exhaustive disease risk report."""
     print_step("Generating disease risk report")
@@ -432,7 +432,7 @@ This report is for **informational purposes only**. It is NOT a clinical diagnos
 
 
 def generate_actionable_protocol(
-    health_results: dict, disease_findings: dict, output_path: Path, subject_name: Optional[str] = None
+    health_results: dict, disease_findings: dict, output_path: Path, subject_name: str | None = None
 ):
     """Generate the actionable health protocol (Action Plan)."""
     print_step("Generating actionable health protocol")
@@ -1009,7 +1009,7 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
             report += "| Condition | Genes Involved |\n"
             report += "|-----------|----------------|\n"
             for condition, genes in sorted(conditions.items()):
-                unique_genes = list(set(g for g in genes if g))[:5]
+                unique_genes = list({g for g in genes if g})[:5]
                 report += f"| {condition} | {', '.join(unique_genes)} |\n"
         else:
             report += "Risk factors detected but not categorizable. See full disease risk report for details.\n"
@@ -1046,7 +1046,7 @@ It is NOT a clinical diagnosis or medical advice.
 # =============================================================================
 
 
-def run_full_analysis(genome_path: Optional[Path] = None, subject_name: Optional[str] = None):
+def run_full_analysis(genome_path: Path | None = None, subject_name: str | None = None):
     """Run the complete genetic analysis pipeline."""
 
     print_header("FULL GENETIC HEALTH ANALYSIS")
@@ -1104,7 +1104,7 @@ def run_full_analysis(genome_path: Optional[Path] = None, subject_name: Optional
     # Summary
     print_header("ANALYSIS COMPLETE")
     print(f"\nReports generated in: {REPORTS_DIR}")
-    print(f"\n  1. EXHAUSTIVE_GENETIC_REPORT.md")
+    print("\n  1. EXHAUSTIVE_GENETIC_REPORT.md")
     print(f"     - {len(health_results['findings'])} lifestyle/health findings")
     print(f"     - {len(health_results['pharmgkb_findings'])} drug-gene interactions")
 
@@ -1114,14 +1114,14 @@ def run_full_analysis(genome_path: Optional[Path] = None, subject_name: Optional
             + len(disease_findings["likely_pathogenic"])
             + len(disease_findings["risk_factor"])
         )
-        print(f"\n  2. EXHAUSTIVE_DISEASE_RISK_REPORT.md")
+        print("\n  2. EXHAUSTIVE_DISEASE_RISK_REPORT.md")
         print(f"     - {total_disease} total clinical findings")
         print(f"     - {len(disease_findings['pathogenic'])} pathogenic variants")
         print(f"     - {len(disease_findings['likely_pathogenic'])} likely pathogenic")
         print(f"     - {len(disease_findings['risk_factor'])} risk factors")
 
-    print(f"\n  3. ACTIONABLE_HEALTH_PROTOCOL_V3.md")
-    print(f"     - Comprehensive protocol (lifestyle + disease risk + carrier status)")
+    print("\n  3. ACTIONABLE_HEALTH_PROTOCOL_V3.md")
+    print("     - Comprehensive protocol (lifestyle + disease risk + carrier status)")
 
     print(f"\nFinished: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 

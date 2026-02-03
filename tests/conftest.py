@@ -1,6 +1,7 @@
-import pytest
 import sys
 from pathlib import Path
+
+import pytest
 
 # Add scripts directory to sys.path to allow imports from scripts
 sys.path.append(str(Path(__file__).parents[1] / "scripts"))
