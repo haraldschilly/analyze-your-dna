@@ -223,6 +223,36 @@ The pipeline generates three reports in `reports/`:
 | `EXHAUSTIVE_DISEASE_RISK_REPORT.md` | Pathogenic variants, carrier status, risk factors from ClinVar |
 | `ACTIONABLE_HEALTH_PROTOCOL_V3.md` | Personalized supplements, diet, exercise, monitoring recommendations |
 
+### Optional: Trait Analysis Scripts
+
+Two additional scripts analyze observable physical and sensory traits (not run by default):
+
+**Traits Report**
+```bash
+uv run python3 scripts/generate_traits_report.py data/genome.txt --name "Subject"
+```
+Generates a comprehensive traits report covering:
+- **Pigmentation**: Eye color (with MLR probability model), hair color/texture, skin tone, freckles
+- **Taste & Smell**: Bitter taste sensitivity (PTC), cilantro aversion, asparagus smell, sweet preference
+- **Physical Traits**: Blood type (derived), height tendency, BMI predisposition, muscle composition
+- **Facial Morphology**: Nose shape, chin/jaw, earlobes, cleft chin
+- **Vision**: Myopia, hyperopia, astigmatism risk
+- **Other**: Earwax type, hair texture, male pattern baldness (age-dependent)
+
+**AI Portrait Prompt Generator (Experimental)**
+```bash
+uv run python3 scripts/generate_portrait_prompt.py data/genome.txt \
+    --birth-year 1980 --sex male --hair-style "short" \
+    --output prompts/portrait.txt
+```
+Generates natural language image prompts for AI image generators (Google Imagen, DALL-E, Stable Diffusion) based on genetic traits combined with user inputs (age, sex, hair style preference). Includes:
+- Front view and side profile descriptions
+- Age-dependent traits (graying after 35, male pattern baldness with age thresholds)
+- Body type and facial features from genetic markers
+- Accessories (glasses if myopia risk detected)
+
+This is an experimental feature exploring DNA-based image generation.
+
 ---
 
 ## Project Structure
