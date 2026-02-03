@@ -24,9 +24,17 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 
 Always use `uv run python3` to run scripts — never use the system-wide `python3` directly.
 
-```bash
+```
 uv sync
 uv run python3 scripts/run_full_analysis.py data/genome.txt --name "Subject"
+```
+
+## Testing
+
+Before pushing any changes, ensure all tests pass:
+
+```bash
+uv run pytest
 ```
 
 ## Data Flow
