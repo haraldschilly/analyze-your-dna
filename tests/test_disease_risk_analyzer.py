@@ -21,18 +21,20 @@ def test_load_clinvar_matching(mock_genome_by_position):
     # User has rs123 at 1:100 with genotype "AA".
     # ClinVar has 1:100 Ref: A, Alt: G.
     # User is AA (Ref/Ref). Should NOT match.
-    
-    with patch("builtins.open", mock_open(read_data=CLINVAR_CONTENT)):
-        findings, stats = load_clinvar(mock_genome_by_position)
-        assert stats['matched'] == 1  # Matches position
-        assert stats['pathogenic_matched'] == 0 # But no variant allele match (user is AA, var is G)
+
+    with patch("scripts.disease_risk_analyzer.ensure_clinvar"):  # Skip decompression in tests
+        with patch("builtins.open", mock_open(read_data=CLINVAR_CONTENT)):
+            findings, stats = load_clinvar(mock_genome_by_position)
+            assert stats['matched'] == 1  # Matches position
+            assert stats['pathogenic_matched'] == 0 # But no variant allele match (user is AA, var is G)
 
     # Now let's try a match. User is AG.
     mock_genome_het = {
         "1:100": {"rsid": "rs123", "genotype": "AG"}
     }
-    with patch("builtins.open", mock_open(read_data=CLINVAR_CONTENT)):
-        findings, stats = load_clinvar(mock_genome_het)
-        assert stats['matched'] == 1
-        assert stats['pathogenic_matched'] == 1
-        assert len(findings['pathogenic']) == 1
+    with patch("scripts.disease_risk_analyzer.ensure_clinvar"):  # Skip decompression in tests
+        with patch("builtins.open", mock_open(read_data=CLINVAR_CONTENT)):
+            findings, stats = load_clinvar(mock_genome_het)
+            assert stats['matched'] == 1
+            assert stats['pathogenic_matched'] == 1
+            assert len(findings['pathogenic']) == 1

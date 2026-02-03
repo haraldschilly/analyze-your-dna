@@ -13,8 +13,12 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 | `scripts/run_full_analysis.py` | Main entry point - orchestrates entire pipeline |
 | `scripts/fast_loader.py` | Optimized data loading with polars fallback |
 | `scripts/comprehensive_snp_database.py` | ~200 curated SNPs with interpretations |
+| `scripts/traits_snp_database.py` | ~100 curated trait SNPs (pigmentation, morphology, taste, vision) |
 | `scripts/generate_exhaustive_report.py` | Report generation with clinical context |
+| `scripts/generate_traits_report.py` | Traits report (observable characteristics) |
+| `scripts/generate_portrait_prompt.py` | AI portrait prompt generator from genetic traits |
 | `scripts/disease_risk_analyzer.py` | ClinVar variant analysis |
+| `planning/TODO.md` | **Active task tracking** - check here for open work items |
 
 ## Running the Pipeline
 

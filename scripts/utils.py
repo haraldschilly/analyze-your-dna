@@ -90,15 +90,20 @@ def ensure_clinvar(data_dir):
 
 
 def snp_database_stats():
-    """Print SNP coverage stats for both curated databases.
+    """Print SNP coverage stats for all curated databases.
 
     Used to regenerate the README.md 'What It Analyzes' tables.
     Run: uv run python3 -c "from scripts.utils import snp_database_stats; snp_database_stats()"
     """
     from comprehensive_snp_database import COMPREHENSIVE_SNPS
     from analyze_genome import CURATED_SNPS
+    from traits_snp_database import TRAITS_SNPS
 
-    for name, db in [("COMPREHENSIVE_SNPS", COMPREHENSIVE_SNPS), ("CURATED_SNPS", CURATED_SNPS)]:
+    for name, db in [
+        ("COMPREHENSIVE_SNPS", COMPREHENSIVE_SNPS),
+        ("CURATED_SNPS", CURATED_SNPS),
+        ("TRAITS_SNPS", TRAITS_SNPS)
+    ]:
         cats = defaultdict(lambda: {"snps": set(), "genes": set()})
         for rsid, info in db.items():
             cat = info["category"]
