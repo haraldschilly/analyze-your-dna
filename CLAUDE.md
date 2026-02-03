@@ -60,6 +60,21 @@ pos_key = f"{chrom}:{pos}"
 if pos_key in genome_by_position: ...
 ```
 
+## Code Style Conventions
+
+- **Multi-line Lists**: For lists with many elements (typically > 6), favor a columnar format with one element per line and a trailing comma after the last element.
+  ```python
+  long_list = [
+      "element_1",
+      "element_2",
+      "element_3",
+      "element_4",
+      "element_5",
+      "element_6",
+      "element_7",
+  ]
+  ```
+
 ## Adding New SNPs
 
 Edit `scripts/comprehensive_snp_database.py`:

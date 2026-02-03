@@ -13,32 +13,57 @@ rs456	1	200	GT
 rs789	1	300	--
 """
 
-CLINVAR_CONTENT = (
-    "\t".join(
-        [
-            "chrom",
-            "pos",
-            "symbol",
-            "ref",
-            "alt",
-            "clinical_significance",
-            "review_status",
-            "gold_stars",
-            "all_traits",
-            "inheritance_modes",
-            "hgvs_c",
-            "hgvs_p",
-        ]
-    )
-    + "\n"
-    + "\t".join(
-        ["1", "100", "TEST1", "A", "G", "pathogenic", "criteria", "1", "Disease A", "AD", "c.100A>G", "p.Lys100Glu"]
-    )
-    + "\n"
-    + "\t".join(
-        ["1", "200", "TEST2", "G", "A", "benign", "criteria", "1", "Disease B", "AR", "c.200G>A", "p.Arg200Gln"]
-    )
-    + "\n"
+CLINVAR_CONTENT = "\n".join(
+    [
+        "\t".join(
+            [
+                "chrom",
+                "pos",
+                "symbol",
+                "ref",
+                "alt",
+                "clinical_significance",
+                "review_status",
+                "gold_stars",
+                "all_traits",
+                "inheritance_modes",
+                "hgvs_c",
+                "hgvs_p",
+            ]
+        ),
+        "\t".join(
+            [
+                "1",
+                "100",
+                "TEST1",
+                "A",
+                "G",
+                "pathogenic",
+                "criteria",
+                "1",
+                "Disease A",
+                "AD",
+                "c.100A>G",
+                "p.Lys100Glu",
+            ]
+        ),
+        "\t".join(
+            [
+                "1",
+                "200",
+                "TEST2",
+                "G",
+                "A",
+                "benign",
+                "criteria",
+                "1",
+                "Disease B",
+                "AR",
+                "c.200G>A",
+                "p.Arg200Gln",
+            ]
+        ),
+    ]
 )
 
 # =============================================================================
