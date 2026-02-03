@@ -59,7 +59,7 @@ class SnpInfo(TypedDict):
 
 
 # Type alias for the database structure
-ComprehensiveSnpDatabase = dict[str, SnpInfo]
+SnpDatabase = dict[str, SnpInfo]
 
 
 def load_genome(genome_path: Path) -> dict:

@@ -33,7 +33,7 @@ jobs:
         run: uv run pylint scripts/
 
       - name: mypy
-        run: uv run mypy scripts/comprehensive_snp_database.py
+        run: uv run mypy scripts/comprehensive_snp_database.py scripts/traits_snp_database.py
 
       - name: pytest
         run: uv run pytest tests
