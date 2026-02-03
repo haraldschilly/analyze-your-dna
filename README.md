@@ -14,8 +14,9 @@ This project is derived from work by **Nick Saraev**, originally demonstrated in
 
 **"I gave an AI my DNA and let it analyze my entire genome"**
 YouTube: https://youtu.be/O1ICQworLVc
+Website: https://nicksaraev.com
 
-The original concept uses Claude Code to analyze 23andMe genetic data against ClinVar and PharmGKB databases to generate personalized health reports.
+The original concept uses Claude Code (or other agents) to analyze 23andMe genetic data against ClinVar and PharmGKB databases to generate personalized health reports.
 
 ---
 
@@ -333,8 +334,48 @@ This downloads the latest `variant_summary.txt.gz` from NCBI and converts it to 
 
 ---
 
-## License
+## Attribution
 
-This analysis pipeline is for personal/educational use. Not for clinical or diagnostic purposes.
+**Original Author & Concept:**
+This project is deeply inspired by and based on the work of **Nick Saraev**.
+- Original Video: ["I gave an AI my DNA and let it analyze my entire genome"](https://youtu.be/O1ICQworLVc)
+- Website: [nicksaraev.com](https://nicksaraev.com)
 
-**Original concept by Nick Saraev** - https://youtu.be/O1ICQworLVc
+**Data Sources:**
+This software aggregates data from the following public databases:
+1.  **PharmGKB**: [Annotated drug-gene interactions](https://www.pharmgkb.org/).
+    *   *License:* [Creative Commons Attribution-ShareAlike 4.0 International License (CC BY-SA 4.0)](https://creativecommons.org/licenses/by-sa/4.0/).
+2.  **ClinVar**: [Public archive of reports of relationships among human variations and phenotypes](https://www.ncbi.nlm.nih.gov/clinvar/).
+    *   *License:* Public Domain (National Center for Biotechnology Information).
+
+---
+
+## License & Disclaimer
+
+**Copyright (C) 2026**
+
+### License: GNU GPLv3
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License** as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+
+**Why GPLv3?**
+This project relies on data from **PharmGKB**, which uses the Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0) license. This data license requires that any derived works (including software that interprets this specific data) must be shared under compatible terms to prevent commercial lock-in. GPLv3 is one of the few software licenses explicitly compatible with CC BY-SA 4.0, ensuring that this tool and its derivatives remain open and free for the community.
+
+This project is licensed under **GPLv3** to ensure compatibility with the **CC BY-SA 4.0** license used by the included PharmGKB data.
+
+*   **Code:** GNU General Public License v3.0
+*   **Data (PharmGKB):** Creative Commons Attribution-ShareAlike 4.0 International
+*   **Data (ClinVar):** Public Domain
+
+See the [LICENSE](LICENSE) file for the full license text.
+
+### ⚠️ IMPORTANT MEDICAL DISCLAIMER
+**NOT FOR MEDICAL USE.**
+
+This software is provided for **research, educational, and informational purposes only**.
+*   It is **NOT** a clinical diagnostic tool.
+*   The reports generated satisfy **NO** regulatory standards (FDA, EMA, etc.).
+*   **DO NOT** change your health behavior, diet, or medication based on these results.
+*   **ALWAYS** consult a qualified healthcare provider or genetic counselor for interpretation of genetic data.
+
+**NO WARRANTY**
+THE PROGRAM IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.
