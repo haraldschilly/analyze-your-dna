@@ -354,28 +354,28 @@ The "output" is optional, and can be omitted to print to stdout instead.
 ## Implementation Order
 
 ### Phase 1: Foundation
-1. [ ] Create `scripts/traits_snp_database.py` with all trait SNPs
-2. [ ] Add strand complement utility (A↔T, C↔G) — currently only reversal exists, not complement
+1. [x] Create `scripts/traits_snp_database.py` with all trait SNPs
+2. [x] Add strand complement utility (A↔T, C↔G) — currently only reversal exists, not complement
    ```python
    COMPLEMENT = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
    def complement_genotype(geno):
        return ''.join(COMPLEMENT.get(b, b) for b in geno)
    # "AA" → "TT", "CG" → "GC"
    ```
-3. [ ] Add no-call handling: "--" → None, with "Inconclusive" reporting for critical SNPs
+3. [x] Add no-call handling: "--" → None, with "Inconclusive" reporting for critical SNPs
 
 ### Phase 2: Traits Report
-3. [ ] Create `scripts/generate_traits_report.py`
-4. [ ] Implement category-by-category analysis
-5. [ ] Add probability calculations for pigmentation (need formula coefficients)
-6. [ ] Generate markdown report with interpretations
+4. [x] Create `scripts/generate_traits_report.py`
+5. [x] Implement category-by-category analysis
+6. [x] Add probability calculations for pigmentation (need formula coefficients)
+7. [x] Generate markdown report with interpretations
 
 ### Phase 3: Portrait Prompt Generator
-7. [ ] Create `scripts/generate_portrait_prompt.py`
-8. [ ] Implement trait → token mapping
-9. [ ] Add age-dependent modifiers
-10. [ ] Build prompt assembly with weights
-11. [ ] Add user input handling (CLI args or interactive)
+7. [x] Create `scripts/generate_portrait_prompt.py`
+8. [x] Implement trait → token mapping
+9. [x] Add age-dependent modifiers
+10. [x] Build prompt assembly with weights
+11. [x] Add user input handling (CLI args or interactive)
 
 ### Phase 4: Integration
 12. [ ] Add to `run_full_analysis.py` as optional output
