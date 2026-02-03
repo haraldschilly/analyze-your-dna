@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = "GPL-3.0-or-later"
 authors = [{ name = "Genetic Health Analysis" }]
-keywords = ["genetics", "23andme", "health", "genomics", "clinvar", "pharmgkb"]
+keywords = ["genetics", "23andme", "health", "genomics", "clinvar", "pharmgkb", "dna", "snp"]
 
 dependencies = [
     "polars>=1.0.0",
