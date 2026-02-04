@@ -3,6 +3,10 @@
 # file too large for github. it will be created automatically by ungzipping the *.gz file
 data/clinvar_alleles.tsv
 
+# all genome data
+data/genome.txt
+data/*.txt
+
 # Python
 __pycache__/
 *.pyc

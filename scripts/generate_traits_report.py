@@ -39,6 +39,18 @@ def complement_genotype(geno: str) -> str:
     return "".join(COMPLEMENT.get(b, b) for b in geno)
 
 
+def get_genotype(genome_by_rsid: dict, rsid: str) -> str | None:
+    """Extract genotype string from genome dict, handling both old and new formats."""
+    entry = genome_by_rsid.get(rsid)
+    if entry is None:
+        return None
+    # New format: dict with 'genotype' key
+    if isinstance(entry, dict):
+        return entry.get("genotype")
+    # Old format: direct string
+    return entry
+
+
 def check_genotype_match(user_geno: str, expected_variants: dict) -> tuple:
     """Check user genotype against expected, handling strand flip and reversal."""
     if not user_geno or user_geno == "--":
@@ -76,7 +88,7 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
     missing_critical = []
 
     for snp_rsid in ["rs12913832", "rs1800407", "rs16891982", "rs1393350", "rs12896399", "rs12203592"]:
-        genotype = genome_by_rsid.get(snp_rsid)
+        genotype = get_genotype(genome_by_rsid, snp_rsid)
 
         if not genotype or genotype == "--":
             if snp_rsid == "rs12913832":  # Critical SNP
@@ -141,8 +153,8 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
 def derive_blood_type(genome_by_rsid: dict) -> dict:
     """Derive blood type from rs8176719 (O deletion) and rs8176746 (A/B)."""
 
-    o_deletion_geno = genome_by_rsid.get("rs8176719")
-    ab_geno = genome_by_rsid.get("rs8176746")
+    o_deletion_geno = get_genotype(genome_by_rsid, "rs8176719")
+    ab_geno = get_genotype(genome_by_rsid, "rs8176746")
 
     if not o_deletion_geno or not ab_geno:
         return {
@@ -214,7 +226,7 @@ def analyze_traits_genome(genome_by_rsid: dict) -> dict:
 
     # Analyze each trait SNP
     for rsid, info in TRAITS_SNPS.items():
-        user_geno = genome_by_rsid.get(rsid)
+        user_geno = get_genotype(genome_by_rsid, rsid)
 
         if not user_geno or user_geno == "--":
             continue

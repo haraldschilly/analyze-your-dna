@@ -27,7 +27,7 @@ from datetime import datetime
 from pathlib import Path
 
 from fast_loader import load_genome_fast
-from generate_traits_report import analyze_traits_genome, check_genotype_match
+from generate_traits_report import analyze_traits_genome, check_genotype_match, get_genotype
 from traits_snp_database import TRAITS_SNPS
 
 
@@ -36,7 +36,7 @@ def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
     if rsid not in TRAITS_SNPS:
         return None
 
-    user_geno = genome_by_rsid.get(rsid)
+    user_geno = get_genotype(genome_by_rsid, rsid)
     if not user_geno or user_geno == "--":
         return None
 
@@ -53,7 +53,12 @@ def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
 
 
 def generate_portrait_prompt(
-    genome_by_rsid: dict, birth_year: int, sex: str, hair_style: str = "natural", target_age: int = None
+    genome_by_rsid: dict,
+    birth_year: int,
+    sex: str,
+    hair_style: str = "natural",
+    target_age: int = None,
+    glasses: str = None,
 ) -> dict:
     """Generate portrait prompts from genetic data."""
 
@@ -223,7 +228,9 @@ def generate_portrait_prompt(
             nose_descriptors.append("narrow nasal bridge")
 
     if nose_descriptors:
-        facial_features.append("a " + ", ".join(nose_descriptors[:2]))
+        nose_desc = ", ".join(nose_descriptors[:2])
+        article = "an" if nose_desc[0].lower() in "aeiou" else "a"
+        facial_features.append(f"{article} {nose_desc}")
 
     # Chin/Jaw
     ghr = get_trait_value(genome_by_rsid, "rs6184")
@@ -285,19 +292,24 @@ def generate_portrait_prompt(
     # =======================
     accessories = []
 
-    # Myopia
-    gjd2 = get_trait_value(genome_by_rsid, "rs524952")
-    rasgrf1 = get_trait_value(genome_by_rsid, "rs8027411")
-
-    wears_glasses = False
-    if (gjd2 and "myopia" in gjd2["status"]) or (rasgrf1 and "myopia" in rasgrf1["status"]):
+    # User-specified glasses override genetic prediction
+    if glasses:
+        accessories.append(f"wearing {glasses} glasses")
         wears_glasses = True
-        accessories.append("wearing modern prescription glasses")
+    else:
+        # Fall back to genetic prediction
+        gjd2 = get_trait_value(genome_by_rsid, "rs524952")
+        rasgrf1 = get_trait_value(genome_by_rsid, "rs8027411")
 
-    # Hyperopia (reading glasses if older)
-    if not wears_glasses and age > 40:
-        if gjd2 and "hyperopia" in gjd2["status"]:
-            accessories.append("wearing reading glasses")
+        wears_glasses = False
+        if (gjd2 and "myopia" in gjd2["status"]) or (rasgrf1 and "myopia" in rasgrf1["status"]):
+            wears_glasses = True
+            accessories.append("wearing modern prescription glasses")
+
+        # Hyperopia (reading glasses if older)
+        if not wears_glasses and age > 40:
+            if gjd2 and "hyperopia" in gjd2["status"]:
+                accessories.append("wearing reading glasses")
 
     # =======================
     # ASSEMBLE PROMPTS
@@ -307,10 +319,10 @@ def generate_portrait_prompt(
     age_sex = f"{age}-year-old {sex.lower()}"
 
     # Front view
-    front_parts = [f"A photorealistic portrait of a {age_sex} with {eye_color_desc},", hair_full]
+    front_parts = [f"A photorealistic portrait of a {age_sex} with {eye_color_desc},", f"{hair_full},"]
 
     if hair_modifiers:
-        front_parts.append(" ".join(hair_modifiers))
+        front_parts.append(" ".join(hair_modifiers) + ",")
 
     front_parts.append(f"{skin_tone}{freckle_desc},")
 
@@ -380,34 +392,118 @@ def generate_portrait_prompt(
 
 
 def format_prompt_output(prompt_data: dict) -> str:
-    """Format prompt data as readable text."""
+    """Format prompt data as readable text for image generation."""
 
     output = []
-    output.append("=" * 60)
-    output.append("PORTRAIT GENERATION PROMPT")
-    output.append("=" * 60)
+    output.append("=" * 70)
+    output.append("GENETIC PORTRAIT GENERATION PROMPT")
+    output.append("=" * 70)
     output.append("")
-    output.append(f"Subject: {prompt_data['subject']}")
+
+    # === LAYOUT INSTRUCTIONS ===
+    output.append("LAYOUT:")
+    output.append("-" * 70)
+    output.append(
+        "Create a single image containing 3 portrait views arranged as follows:"
+    )
     output.append("")
-    output.append("FACE (Front View):")
-    output.append(prompt_data["front_view"])
+    output.append("  ┌─────────────────┬─────────────────────────┐")
+    output.append("  │                 │                         │")
+    output.append("  │   FRONT VIEW    │                         │")
+    output.append("  │   (Face)        │      FULL BODY          │")
+    output.append("  │                 │      (Front view)       │")
+    output.append("  ├─────────────────┤                         │")
+    output.append("  │                 │                         │")
+    output.append("  │   SIDE PROFILE  │                         │")
+    output.append("  │   (Left side)   │                         │")
+    output.append("  │                 │                         │")
+    output.append("  └─────────────────┴─────────────────────────┘")
     output.append("")
-    output.append("FACE (Side Profile):")
-    output.append(prompt_data["side_profile"])
+    output.append("- Left column: Split horizontally 50/50")
+    output.append("  - Top left: Face portrait from the front")
+    output.append("  - Bottom left: Face portrait from the left side (profile)")
+    output.append("- Right column: Full height, full body view from the front")
     output.append("")
-    output.append("BODY TYPE:")
-    output.append(prompt_data["body_type"])
+
+    # === STYLE INSTRUCTIONS ===
+    output.append("STYLE:")
+    output.append("-" * 70)
+    output.append(
+        "Pencil drawing with detailed shading, resembling a professional "
+        "forensic sketch or computer-generated police composite. Fine pencil "
+        "strokes with careful crosshatching for shadows and depth. Highly "
+        "detailed facial features with realistic proportions. Clean, "
+        "professional quality suitable for identification purposes."
+    )
     output.append("")
-    output.append("=" * 60)
-    output.append("GENERATION NOTES")
-    output.append("=" * 60)
+    output.append("Background: Pure white (#FFFFFF), clean and uncluttered.")
+    output.append("")
+
+    # === SUBJECT DESCRIPTION ===
+    output.append("SUBJECT:")
+    output.append("-" * 70)
+    output.append(f"A {prompt_data['subject']}")
+    output.append("")
+
+    # === PANEL 1: FRONT VIEW ===
+    output.append("PANEL 1 - FACE (Front View, Top Left):")
+    output.append("-" * 70)
+    # Replace "photorealistic portrait" with sketch-appropriate description
+    front_view = prompt_data["front_view"].replace(
+        "A photorealistic portrait of",
+        "A detailed pencil sketch of"
+    ).replace(
+        "Natural lighting, sharp focus on facial features,",
+        "Fine pencil shading emphasizing facial structure,"
+    )
+    output.append(front_view)
+    output.append("")
+
+    # === PANEL 2: SIDE PROFILE ===
+    output.append("PANEL 2 - FACE (Side Profile, Bottom Left):")
+    output.append("-" * 70)
+    side_view = prompt_data["side_profile"].replace(
+        "Side profile view of the same",
+        "Pencil sketch side profile of the same"
+    )
+    output.append(side_view)
+    output.append("")
+
+    # === PANEL 3: FULL BODY ===
+    output.append("PANEL 3 - FULL BODY (Front View, Right Side):")
+    output.append("-" * 70)
+    output.append(
+        f"Full body pencil sketch of the same {prompt_data['subject']}, "
+        f"standing in a neutral pose facing forward. "
+        f"{prompt_data['body_type']} "
+        "Proportional figure drawing with attention to body structure "
+        "and posture. Clothing: simple casual attire (t-shirt and pants) "
+        "to show body proportions without distraction."
+    )
+    output.append("")
+
+    # === GENERATION NOTES ===
+    output.append("=" * 70)
+    output.append("GENERATION NOTES (Genetic Basis)")
+    output.append("=" * 70)
 
     for note in prompt_data["notes"]:
-        output.append(f"- {note}")
+        output.append(f"• {note}")
 
     output.append("")
     output.append(f"Traits analyzed: {prompt_data['traits_used']} genetic markers")
     output.append(f"Eye color confidence: {prompt_data['eye_color_confidence'] * 100:.0f}%")
+    output.append("")
+
+    # === NEGATIVE PROMPT ===
+    output.append("NEGATIVE PROMPT (Avoid):")
+    output.append("-" * 70)
+    output.append(
+        "Color, photography, photorealistic, blurry, low quality, "
+        "cartoonish, anime, distorted features, extra limbs, "
+        "deformed, disfigured, bad anatomy, watermark, signature, "
+        "text, colored background, busy background."
+    )
     output.append("")
 
     return "\n".join(output)
@@ -437,6 +533,10 @@ Examples:
         "--hair-style", default="natural", help="Hair style preference (e.g., 'short', 'long and wavy')"
     )
     parser.add_argument("--target-age", type=int, help="Optional: target age for rendering (default: current age)")
+    parser.add_argument(
+        "--glasses",
+        help="Optional: glasses description (e.g., 'black thick frame', 'round wireframe', 'reading glasses')"
+    )
     parser.add_argument("--output", "-o", help="Output file (default: print to stdout)")
 
     args = parser.parse_args()
@@ -448,7 +548,9 @@ Examples:
 
     # Generate prompt
     print("Generating portrait prompt...", file=sys.stderr)
-    prompt_data = generate_portrait_prompt(genome_by_rsid, args.birth_year, args.sex, args.hair_style, args.target_age)
+    prompt_data = generate_portrait_prompt(
+        genome_by_rsid, args.birth_year, args.sex, args.hair_style, args.target_age, args.glasses
+    )
 
     # Format output
     output_text = format_prompt_output(prompt_data)
