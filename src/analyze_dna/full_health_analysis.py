@@ -23,6 +23,7 @@ import json
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from .comprehensive_snp_database import COMPREHENSIVE_SNPS
 from .utils import load_genome, load_pharmgkb
@@ -31,9 +32,9 @@ DATA_DIR = Path(__file__).parent.parent.parent / "data"
 REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 
-def analyze_genome(genome: dict, pharmgkb: dict) -> dict:
+def analyze_genome(genome: dict[str, Any], pharmgkb: dict[str, Any]) -> dict[str, Any]:
     """Analyze genome against comprehensive database."""
-    results = {
+    results: dict[str, Any] = {
         "findings": [],
         "pharmgkb_findings": [],
         "by_category": defaultdict(list),
@@ -492,7 +493,7 @@ def write_action_plan(f, results: dict):
     findings_dict = {finding["gene"]: finding for finding in results["findings"]}
 
     # Organize recommendations by priority
-    immediate_actions = []
+    immediate_actions: list[str] = []
     dietary_recs = []
     supplement_recs = []
     lifestyle_recs = []

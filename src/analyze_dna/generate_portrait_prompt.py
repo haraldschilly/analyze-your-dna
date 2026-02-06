@@ -31,7 +31,7 @@ from .generate_traits_report import analyze_traits_genome, check_genotype_match,
 from .traits_snp_database import TRAITS_SNPS
 
 
-def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
+def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict | None:
     """Get trait info for a specific SNP."""
     if rsid not in TRAITS_SNPS:
         return None
@@ -57,8 +57,8 @@ def generate_portrait_prompt(  # pylint: disable=too-many-positional-arguments
     birth_year: int,
     sex: str,
     hair_style: str = "natural",
-    target_age: int = None,
-    glasses: str = None,
+    target_age: int | None = None,
+    glasses: str | None = None,
 ) -> dict:
     """Generate portrait prompts from genetic data."""
 

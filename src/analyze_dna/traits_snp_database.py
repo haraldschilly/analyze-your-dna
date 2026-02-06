@@ -19,6 +19,8 @@ Observable characteristics: pigmentation, taste, morphology, vision, etc.
 Excludes disease/health traits (those are in comprehensive_snp_database.py)
 """
 
+from typing import Any
+
 from .types import SnpDatabase
 
 TRAITS_SNPS: SnpDatabase = {
@@ -1056,7 +1058,7 @@ TRAITS_SNPS: SnpDatabase = {
 
 
 # Eye color MLR coefficients for probability prediction
-EYE_COLOR_MLR = {
+EYE_COLOR_MLR: dict[str, dict[str, Any]] = {
     "intercept": {"blue": 0.50, "inter": -1.20},
     "rs12913832": {"allele": "G", "blue": 4.52, "inter": 0.45},
     "rs1800407": {"allele": "A", "blue": 1.20, "inter": 1.50},

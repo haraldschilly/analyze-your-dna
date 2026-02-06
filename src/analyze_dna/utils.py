@@ -20,7 +20,25 @@ import gzip
 import os
 import shutil
 from collections import defaultdict
+from datetime import datetime
 from pathlib import Path
+
+
+def get_report_dir(genome_path: Path, output_dir: Path | None = None) -> Path:
+    """Get the directory where reports should be saved.
+
+    If output_dir is provided, it is used as the base.
+    Otherwise, reports are saved in a timestamped subdirectory next to the genome file.
+
+    Format: [timestamp]-[genome_filename]-report/
+    Example: 2026-02-06-143005-genome-report/
+    """
+    timestamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
+    genome_stem = genome_path.stem
+    report_dir_name = f"{timestamp}-{genome_stem}-report"
+
+    base_dir = output_dir if output_dir else genome_path.parent
+    return base_dir / report_dir_name
 
 
 def load_genome(genome_path: Path) -> dict:
@@ -40,7 +58,7 @@ def load_genome(genome_path: Path) -> dict:
 
 def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
     """Load PharmGKB drug-gene annotations."""
-    pharmgkb = {}
+    pharmgkb: dict[str, dict] = {}
     annotations = {}
 
     with open(annotations_path) as f:

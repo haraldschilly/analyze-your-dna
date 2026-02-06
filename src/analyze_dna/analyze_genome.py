@@ -23,7 +23,9 @@ import csv
 import json
 from collections import defaultdict
 from pathlib import Path
+from typing import Any
 
+from .types import SnpDatabase
 from .utils import ensure_clinvar, load_genome, load_pharmgkb
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
@@ -33,7 +35,7 @@ REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 # CURATED SNP DATABASE (Most Important/Actionable Variants)
 # =============================================================================
 
-CURATED_SNPS = {
+CURATED_SNPS: SnpDatabase = {
     # =========================================================================
     # PHARMACOGENOMICS - Drug Response (Critical for medication safety)
     # =========================================================================
@@ -640,9 +642,9 @@ CURATED_SNPS = {
 }
 
 
-def load_clinvar(clinvar_path: Path) -> dict:
+def load_clinvar(clinvar_path: Path) -> dict[str, Any]:
     """Load ClinVar pathogenic variants."""
-    clinvar = {}
+    clinvar: dict[str, Any] = {}
     with open(clinvar_path) as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
@@ -661,9 +663,11 @@ def load_clinvar(clinvar_path: Path) -> dict:
     return clinvar
 
 
-def analyze_genome(genome: dict, clinvar: dict, pharmgkb: dict) -> dict:
+def analyze_genome(
+    genome: dict[str, dict[str, Any]], clinvar: dict[str, dict[str, Any]], pharmgkb: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
     """Analyze genome against all databases."""
-    results = {
+    results: dict[str, Any] = {
         "curated_findings": [],
         "pharmgkb_findings": [],
         "clinvar_findings": [],
@@ -677,19 +681,19 @@ def analyze_genome(genome: dict, clinvar: dict, pharmgkb: dict) -> dict:
     }
 
     # Check curated SNPs
-    for rsid, info in CURATED_SNPS.items():
+    for rsid, curated_info in CURATED_SNPS.items():
         if rsid in genome:
             genotype = genome[rsid]["genotype"]
             # Try both orientations
             genotype_rev = genotype[::-1] if len(genotype) == 2 else genotype
 
-            variant_info = info["variants"].get(genotype) or info["variants"].get(genotype_rev)
+            variant_info = curated_info["variants"].get(genotype) or curated_info["variants"].get(genotype_rev)
 
             if variant_info:
                 finding = {
                     "rsid": rsid,
-                    "gene": info["gene"],
-                    "category": info["category"],
+                    "gene": curated_info["gene"],
+                    "category": curated_info["category"],
                     "genotype": genotype,
                     "status": variant_info["status"],
                     "description": variant_info["desc"],
@@ -701,22 +705,22 @@ def analyze_genome(genome: dict, clinvar: dict, pharmgkb: dict) -> dict:
                     results["summary"]["high_impact"] += 1
 
     # Check PharmGKB
-    for rsid, info in pharmgkb.items():
+    for rsid, pharm_info in pharmgkb.items():
         if rsid in genome:
             genotype = genome[rsid]["genotype"]
             genotype_rev = genotype[::-1] if len(genotype) == 2 else genotype
 
-            annotation = info["genotypes"].get(genotype) or info["genotypes"].get(genotype_rev)
+            annotation = pharm_info["genotypes"].get(genotype) or pharm_info["genotypes"].get(genotype_rev)
 
             if annotation:
                 finding = {
                     "rsid": rsid,
-                    "gene": info["gene"],
-                    "drugs": info["drugs"],
+                    "gene": pharm_info["gene"],
+                    "drugs": pharm_info["drugs"],
                     "genotype": genotype,
                     "annotation": annotation,
-                    "level": info["level"],
-                    "category": info["category"],
+                    "level": pharm_info["level"],
+                    "category": pharm_info["category"],
                 }
                 results["pharmgkb_findings"].append(finding)
                 results["summary"]["pharmgkb_matches"] += 1
@@ -749,7 +753,7 @@ def analyze_genome(genome: dict, clinvar: dict, pharmgkb: dict) -> dict:
     return results
 
 
-def generate_report(results: dict, output_path: Path):
+def generate_report(results: dict[str, Any], output_path: Path):
     """Generate comprehensive markdown report."""
 
     with open(output_path, "w") as f:
@@ -784,7 +788,7 @@ def generate_report(results: dict, output_path: Path):
         f.write("---\n\n")
         f.write("## All Findings by Category\n\n")
 
-        categories = defaultdict(list)
+        categories: dict[str, list[Any]] = defaultdict(list)
         for finding in results["curated_findings"]:
             categories[finding["category"]].append(finding)
 
@@ -841,9 +845,9 @@ def generate_report(results: dict, output_path: Path):
     print(f"Report generated: {output_path}")
 
 
-def generate_recommendations(results: dict) -> list:
+def generate_recommendations(results: dict[str, Any]) -> list[dict[str, Any]]:
     """Generate actionable recommendations based on findings."""
-    recommendations = []
+    recommendations: list[dict[str, Any]] = []
 
     findings_by_gene = {f["gene"]: f for f in results["curated_findings"]}
 

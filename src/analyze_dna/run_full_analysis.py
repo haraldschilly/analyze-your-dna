@@ -33,19 +33,19 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 # Add scripts directory to path for imports
 SCRIPT_DIR = Path(__file__).parent
 
 from .comprehensive_snp_database import COMPREHENSIVE_SNPS  # noqa: E402
 from .fast_loader import get_loader_info, load_clinvar_fast, load_genome_fast  # noqa: E402
-from .utils import ensure_clinvar  # noqa: E402
+from .utils import ensure_clinvar, get_report_dir  # noqa: E402
 from .utils import load_pharmgkb as load_pharmgkb_utils  # noqa: E402
 
 # Directory configuration
 BASE_DIR = SCRIPT_DIR.parent.parent
 DATA_DIR = BASE_DIR / "data"
-REPORTS_DIR = BASE_DIR / "reports"
 
 
 def print_header(text):
@@ -107,11 +107,11 @@ def load_pharmgkb() -> dict:
 # =============================================================================
 
 
-def analyze_lifestyle_health(genome_by_rsid: dict, pharmgkb: dict) -> dict:
+def analyze_lifestyle_health(genome_by_rsid: dict[str, Any], pharmgkb: dict[str, Any]) -> dict[str, Any]:
     """Analyze genome against lifestyle/health SNP database."""
     print_step("Running lifestyle/health analysis")
 
-    results = {
+    results: dict[str, Any] = {
         "findings": [],
         "pharmgkb_findings": [],
         "by_category": defaultdict(list),
@@ -1057,7 +1057,8 @@ def run_full_analysis(genome_path: Path, subject_name: str | None = None):
         sys.exit(1)
 
     # Create reports directory
-    REPORTS_DIR.mkdir(exist_ok=True)
+    reports_dir = get_report_dir(genome_path)
+    reports_dir.mkdir(exist_ok=True, parents=True)
 
     # Load genome
     genome_by_rsid, genome_by_position = load_genome(genome_path)
@@ -1074,12 +1075,12 @@ def run_full_analysis(genome_path: Path, subject_name: str | None = None):
         "pharmgkb_findings": health_results["pharmgkb_findings"],
         "summary": health_results["summary"],
     }
-    intermediate_path = REPORTS_DIR / "comprehensive_results.json"
+    intermediate_path = reports_dir / "comprehensive_results.json"
     with open(intermediate_path, "w") as f:
         json.dump(results_json, f, indent=2)
 
     # Generate exhaustive genetic report
-    genetic_report_path = REPORTS_DIR / "EXHAUSTIVE_GENETIC_REPORT.md"
+    genetic_report_path = reports_dir / "EXHAUSTIVE_GENETIC_REPORT.md"
     generate_exhaustive_genetic_report(health_results, genetic_report_path, subject_name)
 
     # Run disease risk analysis
@@ -1087,18 +1088,18 @@ def run_full_analysis(genome_path: Path, subject_name: str | None = None):
 
     # Generate disease risk report
     if disease_findings:
-        disease_report_path = REPORTS_DIR / "EXHAUSTIVE_DISEASE_RISK_REPORT.md"
+        disease_report_path = reports_dir / "EXHAUSTIVE_DISEASE_RISK_REPORT.md"
         generate_disease_risk_report(
             disease_findings, disease_stats, len(genome_by_rsid), disease_report_path, subject_name
         )
 
     # Generate actionable protocol - use versioned filename
-    protocol_path = REPORTS_DIR / "ACTIONABLE_HEALTH_PROTOCOL_V3.md"
+    protocol_path = reports_dir / "ACTIONABLE_HEALTH_PROTOCOL_V3.md"
     generate_actionable_protocol(health_results, disease_findings, protocol_path, subject_name)
 
     # Summary
     print_header("ANALYSIS COMPLETE")
-    print(f"\nReports generated in: {REPORTS_DIR}")
+    print(f"\nReports generated in: {reports_dir}")
     print("\n  1. EXHAUSTIVE_GENETIC_REPORT.md")
     print(f"     - {len(health_results['findings'])} lifestyle/health findings")
     print(f"     - {len(health_results['pharmgkb_findings'])} drug-gene interactions")
@@ -1136,9 +1137,7 @@ Examples:
   python run_full_analysis.py --name "John Doe" /path/to/genome.txt
         """,
     )
-    parser.add_argument(
-        "genome", type=Path, help="Path to 23andMe genome file"
-    )
+    parser.add_argument("genome", type=Path, help="Path to 23andMe genome file")
     parser.add_argument("--name", "-n", type=str, default=None, help="Subject name to include in reports")
 
     args = parser.parse_args()

@@ -26,6 +26,7 @@ import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from .fast_loader import load_genome_fast
 from .traits_snp_database import EYE_COLOR_MLR, TRAITS_SNPS
@@ -46,9 +47,10 @@ def get_genotype(genome_by_rsid: dict, rsid: str) -> str | None:
         return None
     # New format: dict with 'genotype' key
     if isinstance(entry, dict):
-        return entry.get("genotype")
+        val = entry.get("genotype")
+        return str(val) if val is not None else None
     # Old format: direct string
-    return entry
+    return str(entry)
 
 
 def check_genotype_match(user_geno: str, expected_variants: dict) -> tuple:
@@ -212,7 +214,7 @@ def derive_blood_type(genome_by_rsid: dict) -> dict:
 def analyze_traits_genome(genome_by_rsid: dict) -> dict:
     """Analyze genome against traits database."""
 
-    results = {
+    results: dict[str, Any] = {
         "findings": [],
         "by_category": defaultdict(list),
         "eye_color_mlr": None,

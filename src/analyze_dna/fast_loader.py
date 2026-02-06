@@ -186,7 +186,7 @@ def _load_clinvar_polars(
     # Filter to only positions in genome (huge speedup)
     df_filtered = df.filter(pl.col("pos_key").is_in(genome_positions))
 
-    findings = {
+    findings: dict[str, list] = {
         "pathogenic": [],
         "likely_pathogenic": [],
         "risk_factor": [],
@@ -205,7 +205,7 @@ def _load_clinvar_polars(
     # Process filtered rows
     for i, row in enumerate(df_filtered.iter_rows(named=True)):
         if progress_callback and i % 1000 == 0:
-            progress_callback(i, len(df_filtered))  # type: ignore
+            progress_callback(i, len(df_filtered))
 
         pos_key = row["pos_key"]
         user_data = genome_by_position[pos_key]
@@ -273,7 +273,7 @@ def _load_clinvar_stdlib(
     clinvar_path: Path, genome_by_position: dict[str, dict]
 ) -> tuple[dict[str, list], dict[str, int]]:
     """Load and scan ClinVar using standard library csv (slow path)."""
-    findings = {
+    findings: dict[str, list] = {
         "pathogenic": [],
         "likely_pathogenic": [],
         "risk_factor": [],
