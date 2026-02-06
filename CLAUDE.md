@@ -10,23 +10,24 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 
 | File | Purpose |
 |------|---------|
-| `scripts/run_full_analysis.py` | Main entry point - orchestrates entire pipeline |
-| `scripts/fast_loader.py` | Optimized data loading with polars fallback |
-| `scripts/comprehensive_snp_database.py` | ~200 curated SNPs with interpretations |
-| `scripts/traits_snp_database.py` | ~100 curated trait SNPs (pigmentation, morphology, taste, vision) |
-| `scripts/generate_exhaustive_report.py` | Report generation with clinical context |
-| `scripts/generate_traits_report.py` | Traits report (observable characteristics) |
-| `scripts/generate_portrait_prompt.py` | AI portrait prompt generator from genetic traits |
-| `scripts/disease_risk_analyzer.py` | ClinVar variant analysis |
+| `src/analyze_dna/cli.py` | Main CLI entry point |
+| `src/analyze_dna/run_full_analysis.py` | Orchestrates entire pipeline |
+| `src/analyze_dna/fast_loader.py` | Optimized data loading with polars fallback |
+| `src/analyze_dna/comprehensive_snp_database.py` | ~200 curated SNPs with interpretations |
+| `src/analyze_dna/traits_snp_database.py` | ~100 curated trait SNPs (pigmentation, morphology, taste, vision) |
+| `src/analyze_dna/generate_exhaustive_report.py` | Report generation with clinical context |
+| `src/analyze_dna/generate_traits_report.py` | Traits report (observable characteristics) |
+| `src/analyze_dna/generate_portrait_prompt.py` | AI portrait prompt generator from genetic traits |
+| `src/analyze_dna/disease_risk_analyzer.py` | ClinVar variant analysis |
 | `planning/TODO.md` | **Active task tracking** - check here for open work items |
 
 ## Running the Pipeline
 
-Always use `uv run python3` to run scripts — never use the system-wide `python3` directly.
+Always use `uv run analyze-dna` to run the tool.
 
 ```
 uv sync
-uv run python3 scripts/run_full_analysis.py data/genome.txt --name "Subject"
+uv run analyze-dna full-analysis data/genome.txt --name "Subject"
 ```
 
 ## Testing
@@ -85,7 +86,7 @@ if pos_key in genome_by_position: ...
 
 ## Adding New SNPs
 
-Edit `scripts/comprehensive_snp_database.py`:
+Edit `src/analyze_dna/comprehensive_snp_database.py`:
 
 ```python
 "rs12345": {
