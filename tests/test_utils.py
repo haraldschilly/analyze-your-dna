@@ -2,7 +2,7 @@ import gzip
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
-from scripts.utils import ensure_clinvar, load_genome, load_pharmgkb, snp_database_stats
+from analyze_dna.utils import ensure_clinvar, load_genome, load_pharmgkb, snp_database_stats
 
 
 def test_load_genome():
@@ -54,9 +54,9 @@ def test_ensure_clinvar(tmp_path):
 def test_snp_database_stats(capsys):
     # Mock the databases to keep output small
     mock_db = {"rs123": {"category": "Cat1", "gene": "Gene1"}}
-    with patch("comprehensive_snp_database.COMPREHENSIVE_SNPS", mock_db):
-        with patch("analyze_genome.CURATED_SNPS", mock_db):
-            with patch("traits_snp_database.TRAITS_SNPS", mock_db):
+    with patch("analyze_dna.comprehensive_snp_database.COMPREHENSIVE_SNPS", mock_db):
+        with patch("analyze_dna.analyze_genome.CURATED_SNPS", mock_db):
+            with patch("analyze_dna.traits_snp_database.TRAITS_SNPS", mock_db):
                 snp_database_stats()
                 captured = capsys.readouterr()
                 assert "=== COMPREHENSIVE_SNPS" in captured.out

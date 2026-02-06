@@ -1,6 +1,6 @@
 from unittest.mock import mock_open, patch
 
-from scripts.disease_risk_analyzer import (
+from analyze_dna.disease_risk_analyzer import (
     classify_zygosity_impact,
     generate_report,
     get_carrier_phenotype_notes,
@@ -32,7 +32,7 @@ def test_load_clinvar_matching(mock_genome_by_position):
     # User has rs123 at 1:100 with genotype "AA".
     # ClinVar has 1:100 Ref: A, Alt: G.
     # User is AA (Ref/Ref). Should NOT match.
-    with patch("scripts.disease_risk_analyzer.ensure_clinvar"):
+    with patch("analyze_dna.disease_risk_analyzer.ensure_clinvar"):
         with patch("builtins.open", mock_open(read_data=CLINVAR_CONTENT)):
             findings, stats = load_clinvar(mock_genome_by_position)
             assert stats["matched"] == 1
@@ -40,7 +40,7 @@ def test_load_clinvar_matching(mock_genome_by_position):
 
     # User is AG.
     mock_genome_het = {"1:100": {"rsid": "rs123", "genotype": "AG"}}
-    with patch("scripts.disease_risk_analyzer.ensure_clinvar"):
+    with patch("analyze_dna.disease_risk_analyzer.ensure_clinvar"):
         with patch("builtins.open", mock_open(read_data=CLINVAR_CONTENT)):
             findings, stats = load_clinvar(mock_genome_het)
             assert stats["pathogenic_matched"] == 1

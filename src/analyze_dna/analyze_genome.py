@@ -24,10 +24,10 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
-from utils import ensure_clinvar, load_genome, load_pharmgkb
+from .utils import ensure_clinvar, load_genome, load_pharmgkb
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-REPORTS_DIR = Path(__file__).parent.parent / "reports"
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
+REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 # =============================================================================
 # CURATED SNP DATABASE (Most Important/Actionable Variants)

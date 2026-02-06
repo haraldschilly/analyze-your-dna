@@ -143,11 +143,11 @@ def snp_database_stats():
     """Print SNP coverage stats for all curated databases.
 
     Used to regenerate the README.md 'What It Analyzes' tables.
-    Run: uv run python3 -c "from scripts.utils import snp_database_stats; snp_database_stats()"
+    Run: uv run python3 -c "from analyze_dna.utils import snp_database_stats; snp_database_stats()"
     """
-    from analyze_genome import CURATED_SNPS
-    from comprehensive_snp_database import COMPREHENSIVE_SNPS
-    from traits_snp_database import TRAITS_SNPS
+    from .analyze_genome import CURATED_SNPS
+    from .comprehensive_snp_database import COMPREHENSIVE_SNPS
+    from .traits_snp_database import TRAITS_SNPS
 
     for name, db in [
         ("COMPREHENSIVE_SNPS", COMPREHENSIVE_SNPS),

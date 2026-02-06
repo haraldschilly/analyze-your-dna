@@ -41,7 +41,7 @@ from pathlib import Path
 # URLs and paths
 CLINVAR_URL = "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz"
 SCRIPT_DIR = Path(__file__).parent
-DATA_DIR = SCRIPT_DIR.parent / "data"
+DATA_DIR = SCRIPT_DIR.parent.parent / "data"
 DOWNLOAD_FILE = DATA_DIR / "variant_summary.txt.gz"
 OUTPUT_FILE = DATA_DIR / "clinvar_alleles.tsv"
 OUTPUT_GZ = DATA_DIR / "clinvar_alleles.tsv.gz"
@@ -290,18 +290,8 @@ def compress_output(tsv_path: Path, gz_path: Path) -> None:
     print(f"  Compressed: {compressed_size:.1f} MB ({ratio:.1f}%)")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Download and convert NCBI ClinVar to clinvar_alleles.tsv format")
-    parser.add_argument("--keep-download", action="store_true", help="Keep the downloaded variant_summary.txt.gz file")
-    parser.add_argument("--no-gzip", action="store_true", help="Don't compress the output TSV file")
-    parser.add_argument(
-        "--skip-download", action="store_true", help="Skip download if variant_summary.txt.gz already exists"
-    )
-    parser.add_argument(
-        "--include-all", action="store_true", help="Include all variants (default: only clinically actionable)"
-    )
-    args = parser.parse_args()
-
+def run_update_clinvar(keep_download=False, no_gzip=False, skip_download=False, include_all=False):
+    """Run the ClinVar update process."""
     print("=" * 60)
     print("ClinVar Database Updater")
     print(f"Date: {datetime.now().strftime('%Y-%m-%d %H:%M')}")
@@ -312,20 +302,20 @@ def main():
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
     # Step 1: Download
-    if args.skip_download and DOWNLOAD_FILE.exists():
+    if skip_download and DOWNLOAD_FILE.exists():
         print(f"Using existing download: {DOWNLOAD_FILE}")
     else:
         download_clinvar(CLINVAR_URL, DOWNLOAD_FILE)
     print()
 
     # Step 2: Convert
-    if args.include_all:
+    if include_all:
         print("Including ALL variants (benign, VUS, etc.)")
     else:
         print("Filtering to clinically actionable variants only")
         print("  (pathogenic, likely pathogenic, risk factor, drug response)")
         print("  Use --include-all to include benign/VUS variants")
-    stats = convert_clinvar(DOWNLOAD_FILE, OUTPUT_FILE, include_all=args.include_all)
+    stats = convert_clinvar(DOWNLOAD_FILE, OUTPUT_FILE, include_all=include_all)
     print()
 
     # Step 3: Report statistics
@@ -342,12 +332,12 @@ def main():
     print()
 
     # Step 4: Compress if requested
-    if not args.no_gzip:
+    if not no_gzip:
         compress_output(OUTPUT_FILE, OUTPUT_GZ)
         print()
 
     # Step 5: Cleanup download
-    if not args.keep_download and DOWNLOAD_FILE.exists():
+    if not keep_download and DOWNLOAD_FILE.exists():
         print(f"Removing downloaded file: {DOWNLOAD_FILE.name}")
         DOWNLOAD_FILE.unlink()
 
@@ -355,12 +345,24 @@ def main():
     print("=" * 60)
     print("Update complete!")
     print(f"Output: {OUTPUT_FILE}")
-    if not args.no_gzip:
+    if not no_gzip:
         print(f"Compressed: {OUTPUT_GZ}")
     print()
-    print("To verify, run the analysis:")
-    print("  uv run python scripts/run_full_analysis.py data/genome.txt --name 'Test'")
-    print("=" * 60)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Download and convert NCBI ClinVar to clinvar_alleles.tsv format")
+    parser.add_argument("--keep-download", action="store_true", help="Keep the downloaded variant_summary.txt.gz file")
+    parser.add_argument("--no-gzip", action="store_true", help="Don't compress the output TSV file")
+    parser.add_argument(
+        "--skip-download", action="store_true", help="Skip download if variant_summary.txt.gz already exists"
+    )
+    parser.add_argument(
+        "--include-all", action="store_true", help="Include all variants (default: only clinically actionable)"
+    )
+    args = parser.parse_args()
+
+    run_update_clinvar(args.keep_download, args.no_gzip, args.skip_download, args.include_all)
 
 
 if __name__ == "__main__":

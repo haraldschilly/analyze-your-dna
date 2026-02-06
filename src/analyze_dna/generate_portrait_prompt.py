@@ -26,9 +26,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from fast_loader import load_genome_fast
-from generate_traits_report import analyze_traits_genome, check_genotype_match, get_genotype
-from traits_snp_database import TRAITS_SNPS
+from .fast_loader import load_genome_fast
+from .generate_traits_report import analyze_traits_genome, check_genotype_match, get_genotype
+from .traits_snp_database import TRAITS_SNPS
 
 
 def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:

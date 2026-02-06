@@ -1,6 +1,6 @@
 import gzip
 
-from scripts.update_clinvar import compute_gold_stars, compute_significance_flags, convert_clinvar
+from analyze_dna.update_clinvar import compute_gold_stars, compute_significance_flags, convert_clinvar
 
 
 def test_compute_gold_stars():

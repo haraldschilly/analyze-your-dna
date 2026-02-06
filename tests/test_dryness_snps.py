@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
-from scripts.fast_loader import load_genome_fast
-from scripts.run_full_analysis import analyze_lifestyle_health
+from analyze_dna.fast_loader import load_genome_fast
+from analyze_dna.run_full_analysis import analyze_lifestyle_health
 
 
 def test_dryness_snps_analysis():

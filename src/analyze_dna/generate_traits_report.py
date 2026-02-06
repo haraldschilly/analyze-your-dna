@@ -27,10 +27,10 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from fast_loader import load_genome_fast
-from traits_snp_database import EYE_COLOR_MLR, TRAITS_SNPS
+from .fast_loader import load_genome_fast
+from .traits_snp_database import EYE_COLOR_MLR, TRAITS_SNPS
 
-REPORTS_DIR = Path(__file__).parent.parent / "reports"
+REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 
 def complement_genotype(geno: str) -> str:
@@ -532,22 +532,8 @@ def generate_traits_report(results: dict, subject_name: str, output_path: Path):
         f.write("GWAS-validated SNPs for morphology, and population genetics data.*\n")
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 generate_traits_report.py <genome.txt> [--name Subject]")
-        print("\nExample:")
-        print("  python3 generate_traits_report.py data/genome.txt --name John")
-        sys.exit(1)
-
-    genome_path = sys.argv[1]
-
-    # Parse name argument
-    subject_name = "Subject"
-    if "--name" in sys.argv:
-        idx = sys.argv.index("--name")
-        if idx + 1 < len(sys.argv):
-            subject_name = sys.argv[idx + 1]
-
+def run_traits_report(genome_path: Path, subject_name: str = "Subject"):
+    """Run the traits report generation."""
     print(f"Loading genome from {genome_path}...")
     genome_by_rsid, _ = load_genome_fast(genome_path)
     print(f"✓ Loaded {len(genome_by_rsid):,} SNPs")
@@ -569,6 +555,25 @@ def main():
     print(f"   Eye color: {results['eye_color_mlr']['prediction']}")
     print(f"   Blood type: {results['blood_type']['blood_type']}")
     print(f"   Traits analyzed: {results['summary']['analyzed_traits']}")
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: python3 generate_traits_report.py <genome.txt> [--name Subject]")
+        print("\nExample:")
+        print("  python3 generate_traits_report.py data/genome.txt --name John")
+        sys.exit(1)
+
+    genome_path = sys.argv[1]
+
+    # Parse name argument
+    subject_name = "Subject"
+    if "--name" in sys.argv:
+        idx = sys.argv.index("--name")
+        if idx + 1 < len(sys.argv):
+            subject_name = sys.argv[idx + 1]
+
+    run_traits_report(genome_path, subject_name)
 
 
 if __name__ == "__main__":

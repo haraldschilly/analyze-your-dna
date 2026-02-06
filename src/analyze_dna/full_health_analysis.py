@@ -24,11 +24,11 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from comprehensive_snp_database import COMPREHENSIVE_SNPS
-from utils import load_genome, load_pharmgkb
+from .comprehensive_snp_database import COMPREHENSIVE_SNPS
+from .utils import load_genome, load_pharmgkb
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-REPORTS_DIR = Path(__file__).parent.parent / "reports"
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
+REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 
 def analyze_genome(genome: dict, pharmgkb: dict) -> dict:

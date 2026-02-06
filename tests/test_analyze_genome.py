@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from scripts.analyze_genome import analyze_genome
+from analyze_dna.analyze_genome import analyze_genome
 
 MOCK_CURATED_SNPS = {
     "rs123": {
@@ -15,7 +15,7 @@ MOCK_CURATED_SNPS = {
 
 
 def test_analyze_genome_logic(mock_genome_data, mock_clinvar_data, mock_pharmgkb_data):
-    with patch("scripts.analyze_genome.CURATED_SNPS", MOCK_CURATED_SNPS):
+    with patch("analyze_dna.analyze_genome.CURATED_SNPS", MOCK_CURATED_SNPS):
         results = analyze_genome(mock_genome_data, mock_clinvar_data, mock_pharmgkb_data)
 
         # Check curated findings
@@ -60,7 +60,7 @@ def test_analyze_genome_reverse_complement(mock_clinvar_data, mock_pharmgkb_data
         }
     }
 
-    with patch("scripts.analyze_genome.CURATED_SNPS", mock_curated_flip):
+    with patch("analyze_dna.analyze_genome.CURATED_SNPS", mock_curated_flip):
         results = analyze_genome(mock_genome_flip, {}, {})
         assert len(results["curated_findings"]) == 1
         assert results["curated_findings"][0]["status"] == "flip_match"

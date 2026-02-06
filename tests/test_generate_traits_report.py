@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
-from scripts.generate_traits_report import (
+from analyze_dna.generate_traits_report import (
     analyze_traits_genome,
     check_genotype_match,
     complement_genotype,
@@ -56,7 +56,7 @@ def test_analyze_traits_genome():
             "variants": {"AA": {"status": "blue", "desc": "Blue", "magnitude": 1}},
         }
     }
-    with patch("scripts.generate_traits_report.TRAITS_SNPS", mock_traits):
+    with patch("analyze_dna.generate_traits_report.TRAITS_SNPS", mock_traits):
         results = analyze_traits_genome({"rs123": "AA"})
         assert results["summary"]["analyzed_traits"] == 1
         assert len(results["findings"]) == 1

@@ -1,4 +1,4 @@
-from scripts.generate_exhaustive_report import (
+from analyze_dna.generate_exhaustive_report import (
     format_evidence_level,
     format_magnitude,
     generate_executive_summary,

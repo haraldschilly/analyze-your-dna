@@ -30,11 +30,11 @@ import csv
 import os
 from datetime import datetime
 
-from utils import ensure_clinvar
+from .utils import ensure_clinvar
 
 # Paths
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-BASE_DIR = os.path.dirname(SCRIPT_DIR)
+BASE_DIR = os.path.dirname(os.path.dirname(SCRIPT_DIR))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 REPORTS_DIR = os.path.join(BASE_DIR, "reports")
 

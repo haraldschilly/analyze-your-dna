@@ -921,8 +921,8 @@ This report is for **informational and educational purposes only**. It is NOT me
 
 def main():
     # Load data
-    data_path = Path(__file__).parent.parent / "reports" / "comprehensive_results.json"
-    output_path = Path(__file__).parent.parent / "reports" / "EXHAUSTIVE_GENETIC_REPORT.md"
+    data_path = Path(__file__).parent.parent.parent / "reports" / "comprehensive_results.json"
+    output_path = Path(__file__).parent.parent.parent / "reports" / "EXHAUSTIVE_GENETIC_REPORT.md"
 
     print(f"Loading genetic data from {data_path}...")
     data = load_genetic_data(data_path)
