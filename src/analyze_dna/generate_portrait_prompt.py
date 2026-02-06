@@ -517,9 +517,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python3 generate_portrait_prompt.py data/genome.txt --birth-year 1980 --sex male
-  python3 generate_portrait_prompt.py data/genome.txt --birth-year 1990 --sex female --hair-style "long, wavy" --output prompt.txt
-  python3 generate_portrait_prompt.py data/genome.txt --birth-year 1975 --sex male --target-age 30
+  python3 generate_portrait_prompt.py ~/Downloads/genome.txt --birth-year 1980 --sex male
+  python3 generate_portrait_prompt.py ~/Downloads/genome.txt --birth-year 1990 --sex female --hair-style "long, wavy" --output prompt.txt
+  python3 generate_portrait_prompt.py ~/Downloads/genome.txt --birth-year 1975 --sex male --target-age 30
         """,
     )
 

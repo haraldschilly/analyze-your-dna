@@ -29,7 +29,7 @@ The project is structured as a Python package with a Click CLI. Always use `uv r
 
 ```
 uv sync
-uv run analyze-dna full-analysis data/genome.txt --name "Subject"
+uv run analyze-dna full-analysis path/to/genome.txt --name "Subject"
 ```
 
 ### Available CLI Commands
@@ -43,7 +43,7 @@ uv run analyze-dna full-analysis data/genome.txt --name "Subject"
 | `portrait GENOME` | AI portrait prompt generator from genetic traits | stdout or `--output` file |
 | `update-clinvar` | Download and convert latest ClinVar database | `data/clinvar_alleles.tsv*` |
 
-All analysis commands require the genome file path as the first argument (e.g., `data/genome.txt`).
+All analysis commands require the genome file path as the first argument (e.g., `~/Downloads/genome.txt`).
 
 ## Testing
 
@@ -118,10 +118,10 @@ Edit `src/analyze_dna/comprehensive_snp_database.py`:
 
 ## Required Data Files
 
-- `data/genome.txt` - 23andMe raw data (user provides)
 - `data/clinvar_alleles.tsv` - ClinVar database (~289MB, auto-decompressed from .tsv.gz)
 - `data/clinical_annotations.tsv` - PharmGKB (included)
 - `data/clinical_ann_alleles.tsv` - PharmGKB (included)
+- **User Genome** - 23andMe raw data (user provides path)
 
 ## Skills
 

@@ -39,13 +39,13 @@ Here is how you can use this tool with an AI agent in your terminal:
 
 I will run the full genetic analysis pipeline on your 'genome.txt' file.
 
-$ uv run analyze-dna full-analysis data/genome.txt
+$ uv run analyze-dna full-analysis ~/Downloads/genome.txt
 
 ======================================================================
 FULL GENETIC HEALTH ANALYSIS
 ======================================================================
 
->>> Loading genome from data/genome.txt
+>>> Loading genome from /home/user/Downloads/genome.txt
     Using optimized Polars loader (v1.2.0)
     Loaded 638,124 SNPs
 
@@ -99,22 +99,22 @@ If you prefer to run the scripts yourself without an AI agent:
 
 2. **Get your 23andMe raw data:**
    - Log into 23andMe → Settings → Download Raw Data
-   - Save as `data/genome.txt`
+   - Note the path to the downloaded file (e.g., `~/Downloads/genome.txt`)
 
 ### Running with UV (Recommended)
 
 The ClinVar database (`data/clinvar_alleles.tsv.gz`) will be automatically decompressed on first run.
-The genome file is a **required** argument for all analysis commands.
+The genome file is a **required** argument for all analysis commands. Pass the path to your file directly.
 
 ```bash
 # Full analysis (health + ClinVar disease risk + actionable protocol)
-uv run analyze-dna full-analysis data/genome.txt --name "Your Name"
+uv run analyze-dna full-analysis path/to/your/genome.txt --name "Your Name"
 
 # Quick analysis (34 curated high-impact SNPs + ClinVar + PharmGKB)
-uv run analyze-dna quick-analysis data/genome.txt
+uv run analyze-dna quick-analysis path/to/your/genome.txt
 
 # Comprehensive health optimization report (88 SNPs + PharmGKB)
-uv run analyze-dna health-report data/genome.txt
+uv run analyze-dna health-report path/to/your/genome.txt
 
 # See all available commands
 uv run analyze-dna --help
@@ -233,19 +233,19 @@ Beyond the full pipeline, several focused analysis commands are available:
 
 **Quick Analysis** (focused, high-impact)
 ```bash
-uv run analyze-dna quick-analysis data/genome.txt
+uv run analyze-dna quick-analysis path/to/genome.txt
 ```
 Focused analysis using ~34 curated high-impact SNPs (drug metabolism, APOE, clotting factors, etc.) plus ClinVar and PharmGKB. Generates `reports/genetic_report.md`.
 
 **Health Report** (comprehensive optimization)
 ```bash
-uv run analyze-dna health-report data/genome.txt
+uv run analyze-dna health-report path/to/genome.txt
 ```
 Comprehensive health optimization report using ~88 curated SNPs plus PharmGKB drug interactions. Generates `reports/COMPLETE_HEALTH_REPORT.md` with categorized findings and a personalized action plan.
 
 **Traits Report**
 ```bash
-uv run analyze-dna traits data/genome.txt --name "Subject"
+uv run analyze-dna traits path/to/genome.txt --name "Subject"
 ```
 Generates a comprehensive traits report covering:
 - **Pigmentation**: Eye color (with MLR probability model), hair color/texture, skin tone, freckles
@@ -257,7 +257,7 @@ Generates a comprehensive traits report covering:
 
 **AI Portrait Prompt Generator (Experimental)**
 ```bash
-uv run analyze-dna portrait data/genome.txt \
+uv run analyze-dna portrait path/to/genome.txt \
     --birth-year 1980 --sex male --hair-style "short" \
     --output prompts/portrait.txt
 ```
@@ -302,13 +302,13 @@ analyze-dna/
 
 ## Running for Multiple People
 
-Each analysis command requires the genome file as an argument, making it easy to analyze multiple people:
+Each analysis command requires the genome file path as an argument, making it easy to analyze multiple people without moving files:
 
 ```bash
-cp ~/Downloads/genome_mom.txt data/genome_mom.txt
-uv run analyze-dna full-analysis data/genome_mom.txt --name "Mom"
+uv run analyze-dna full-analysis ~/Downloads/genome_mom.txt --name "Mom"
+uv run analyze-dna full-analysis ~/Downloads/genome_dad.txt --name "Dad"
 
-# Rename outputs to preserve
+# Rename outputs to preserve if needed
 mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
 ```
 

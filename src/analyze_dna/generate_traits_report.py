@@ -559,9 +559,9 @@ def run_traits_report(genome_path: Path, subject_name: str = "Subject"):
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 generate_traits_report.py <genome.txt> [--name Subject]")
+        print("Usage: python3 generate_traits_report.py <path/to/genome.txt> [--name Subject]")
         print("\nExample:")
-        print("  python3 generate_traits_report.py data/genome.txt --name John")
+        print("  python3 generate_traits_report.py ~/Downloads/genome.txt --name John")
         sys.exit(1)
 
     genome_path = sys.argv[1]

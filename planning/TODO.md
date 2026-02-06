@@ -19,7 +19,7 @@ scripts/full_health_analysis.py        # Pattern for analyzing SNPs against data
 
 ### How to Run Existing Pipeline
 ```bash
-uv run python3 scripts/run_full_analysis.py data/genome.txt --name "Subject"
+uv run python3 scripts/run_full_analysis.py path/to/genome.txt --name "Subject"
 ```
 
 ### SNP Database Pattern (from comprehensive_snp_database.py)
@@ -56,7 +56,7 @@ EYE_COLOR_COEFFICIENTS = {
 ### Genome Data Access Pattern
 ```python
 from scripts.fast_loader import load_genome_fast
-genome_by_rsid, genome_by_position = load_genome_fast("data/genome.txt")
+genome_by_rsid, genome_by_position = load_genome_fast("path/to/genome.txt")
 
 # Lookup: genome_by_rsid.get("rs12913832") → "GG" or "AG" or "AA" or None
 # Handle no-calls: "--" appears as None after loading
@@ -340,7 +340,7 @@ Medium-tall stature with an average to slightly robust build.
 
 ### CLI Interface
 ```bash
-uv run python3 scripts/generate_portrait_prompt.py data/genome.txt \
+uv run python3 scripts/generate_portrait_prompt.py path/to/genome.txt \
     --birth-year 1980 \
     --sex male \
     --hair-style "short, neat" \
@@ -472,7 +472,7 @@ README.md                      # Document new features
 2. Read `scripts/full_health_analysis.py` to see how analysis loops work
 3. Create `scripts/traits_snp_database.py` with the SNPs from the tables above
 4. Create `scripts/generate_traits_report.py` modeling after `generate_exhaustive_report.py`
-5. Test with: `uv run python3 scripts/generate_traits_report.py data/genome.txt`
+5. Test with: `uv run python3 scripts/generate_traits_report.py path/to/genome.txt`
 
 **Key principle:** Each trait should have clear genotype→interpretation mappings. For complex traits like eye color, implement the probability model. For simple traits like earwax, just map genotype to outcome.
 

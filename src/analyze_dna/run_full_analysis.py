@@ -1132,13 +1132,12 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  python run_full_analysis.py                        # Use default genome.txt
-  python run_full_analysis.py /path/to/genome.txt   # Custom genome file
-  python run_full_analysis.py --name "John Doe"     # Add name to reports
+  python run_full_analysis.py /path/to/genome.txt   # Run analysis on genome file
+  python run_full_analysis.py --name "John Doe" /path/to/genome.txt
         """,
     )
     parser.add_argument(
-        "genome", nargs="?", type=Path, default=None, help="Path to 23andMe genome file (default: data/genome.txt)"
+        "genome", type=Path, help="Path to 23andMe genome file"
     )
     parser.add_argument("--name", "-n", type=str, default=None, help="Subject name to include in reports")
 
