@@ -104,13 +104,20 @@ If you prefer to run the scripts yourself without an AI agent:
 ### Running with UV (Recommended)
 
 The ClinVar database (`data/clinvar_alleles.tsv.gz`) will be automatically decompressed on first run.
+The genome file is a **required** argument for all analysis commands.
 
 ```bash
-# Basic run
-uv run analyze-dna full-analysis
-
-# With custom genome file and subject name
+# Full analysis (health + ClinVar disease risk + actionable protocol)
 uv run analyze-dna full-analysis data/genome.txt --name "Your Name"
+
+# Quick analysis (34 curated high-impact SNPs + ClinVar + PharmGKB)
+uv run analyze-dna quick-analysis data/genome.txt
+
+# Comprehensive health optimization report (88 SNPs + PharmGKB)
+uv run analyze-dna health-report data/genome.txt
+
+# See all available commands
+uv run analyze-dna --help
 ```
 
 ---
@@ -220,9 +227,21 @@ The pipeline generates three reports in `reports/`:
 | `EXHAUSTIVE_DISEASE_RISK_REPORT.md` | Pathogenic variants, carrier status, risk factors from ClinVar |
 | `ACTIONABLE_HEALTH_PROTOCOL_V3.md` | Personalized supplements, diet, exercise, monitoring recommendations |
 
-### Optional: Trait Analysis
+### Additional Analysis Commands
 
-Two additional commands analyze observable physical and sensory traits (not run by default):
+Beyond the full pipeline, several focused analysis commands are available:
+
+**Quick Analysis** (focused, high-impact)
+```bash
+uv run analyze-dna quick-analysis data/genome.txt
+```
+Focused analysis using ~34 curated high-impact SNPs (drug metabolism, APOE, clotting factors, etc.) plus ClinVar and PharmGKB. Generates `reports/genetic_report.md`.
+
+**Health Report** (comprehensive optimization)
+```bash
+uv run analyze-dna health-report data/genome.txt
+```
+Comprehensive health optimization report using ~88 curated SNPs plus PharmGKB drug interactions. Generates `reports/COMPLETE_HEALTH_REPORT.md` with categorized findings and a personalized action plan.
 
 **Traits Report**
 ```bash
@@ -282,6 +301,8 @@ analyze-dna/
 ---
 
 ## Running for Multiple People
+
+Each analysis command requires the genome file as an argument, making it easy to analyze multiple people:
 
 ```bash
 cp ~/Downloads/genome_mom.txt data/genome_mom.txt

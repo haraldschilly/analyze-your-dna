@@ -951,13 +951,13 @@ def generate_recommendations(results: dict) -> list:
     return recommendations
 
 
-def main():
+def run_analyze_genome(genome_path: Path):
+    """Run the curated SNP genome analysis."""
     print("=" * 60)
     print("COMPREHENSIVE GENOME ANALYZER")
     print("=" * 60)
 
     # Load genome
-    genome_path = DATA_DIR / "genome.txt"
     print(f"\nLoading genome from {genome_path}...")
     genome = load_genome(genome_path)
     print(f"Loaded {len(genome):,} SNPs")
@@ -980,6 +980,7 @@ def main():
     results = analyze_genome(genome, clinvar, pharmgkb)
 
     # Save raw results
+    REPORTS_DIR.mkdir(exist_ok=True)
     results_path = REPORTS_DIR / "analysis_results.json"
     with open(results_path, "w") as f:
         json.dump(results, f, indent=2)
@@ -998,6 +999,10 @@ def main():
         print(f"  - {finding['gene']} ({finding['rsid']}): {finding['status']} - Magnitude {finding['magnitude']}")
 
     print(f"\nFull report: {report_path}")
+
+
+def main():
+    run_analyze_genome(DATA_DIR / "genome.txt")
 
 
 if __name__ == "__main__":

@@ -1045,15 +1045,11 @@ It is NOT a clinical diagnosis or medical advice.
 # =============================================================================
 
 
-def run_full_analysis(genome_path: Path | None = None, subject_name: str | None = None):
+def run_full_analysis(genome_path: Path, subject_name: str | None = None):
     """Run the complete genetic analysis pipeline."""
 
     print_header("FULL GENETIC HEALTH ANALYSIS")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-    # Default genome path
-    if genome_path is None:
-        genome_path = DATA_DIR / "genome.txt"
 
     if not genome_path.exists():
         print(f"\nERROR: Genome file not found: {genome_path}")

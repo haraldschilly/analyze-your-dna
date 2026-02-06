@@ -2,7 +2,9 @@ from pathlib import Path
 
 import click
 
+from .analyze_genome import run_analyze_genome
 from .fast_loader import load_genome_fast
+from .full_health_analysis import run_health_analysis
 from .generate_portrait_prompt import format_prompt_output, generate_portrait_prompt
 from .generate_traits_report import run_traits_report
 from .run_full_analysis import run_full_analysis
@@ -15,12 +17,12 @@ def cli():
 
 
 @cli.command(name="full-analysis")
-@click.argument("genome", type=click.Path(exists=True, path_type=Path), required=False)
+@click.argument("genome", type=click.Path(exists=True, path_type=Path))
 @click.option("--name", "-n", help="Subject name to include in reports")
 def full_analysis(genome, name):
     """Run full genetic health analysis pipeline.
 
-    GENOME is the path to your 23andMe genome file (default: data/genome.txt).
+    GENOME is the path to your 23andMe genome file.
     """
     run_full_analysis(genome, name)
 
@@ -72,6 +74,32 @@ def portrait(genome, birth_year, sex, hair_style, target_age, glasses, output): 
         click.echo(output_text)
 
     click.echo(f"\n✓ Eye color: {prompt_data['subject']}", err=True)
+
+
+@cli.command(name="quick-analysis")
+@click.argument("genome", type=click.Path(exists=True, path_type=Path))
+def quick_analysis(genome):
+    """Run focused analysis with curated high-impact SNPs.
+
+    GENOME is the path to your 23andMe genome file.
+
+    Analyzes against ~34 curated SNPs (drug metabolism, clotting, APOE, etc.)
+    plus ClinVar and PharmGKB. Generates reports/genetic_report.md.
+    """
+    run_analyze_genome(genome)
+
+
+@cli.command(name="health-report")
+@click.argument("genome", type=click.Path(exists=True, path_type=Path))
+def health_report(genome):
+    """Generate comprehensive health optimization report.
+
+    GENOME is the path to your 23andMe genome file.
+
+    Analyzes against ~88 curated health SNPs plus PharmGKB drug interactions.
+    Generates reports/COMPLETE_HEALTH_REPORT.md.
+    """
+    run_health_analysis(genome)
 
 
 @cli.command(name="update-clinvar")

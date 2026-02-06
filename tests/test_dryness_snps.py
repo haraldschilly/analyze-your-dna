@@ -1,5 +1,5 @@
-import pytest
 from pathlib import Path
+
 from analyze_dna.fast_loader import load_genome_fast
 from analyze_dna.run_full_analysis import analyze_lifestyle_health
 
