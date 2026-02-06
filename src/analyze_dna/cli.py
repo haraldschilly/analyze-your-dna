@@ -49,9 +49,7 @@ def traits(genome, name):
 @click.option("--target-age", type=int, help="Optional: target age for rendering")
 @click.option("--glasses", help="Optional: glasses description")
 @click.option("--output", "-o", type=click.Path(path_type=Path), help="Output file")
-def portrait(
-    genome, birth_year, sex, hair_style, target_age, glasses, output
-):  # pylint: disable=too-many-positional-arguments
+def portrait(genome, birth_year, sex, hair_style, target_age, glasses, output):  # pylint: disable=too-many-positional-arguments
     """Generate AI portrait prompts from genetic data.
 
     GENOME is the path to your 23andMe genome file.
