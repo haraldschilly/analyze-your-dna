@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
-from scripts.run_full_analysis import analyze_lifestyle_health, classify_zygosity, generate_actionable_protocol
+from analyze_dna.run_full_analysis import analyze_lifestyle_health, classify_zygosity, generate_actionable_protocol
 
 
 def test_analyze_lifestyle_health(mock_genome_data, mock_pharmgkb_data):
@@ -12,7 +12,7 @@ def test_analyze_lifestyle_health(mock_genome_data, mock_pharmgkb_data):
             "variants": {"AA": {"status": "bad", "desc": "Very bad", "magnitude": 4}},
         }
     }
-    with patch("scripts.run_full_analysis.COMPREHENSIVE_SNPS", mock_comp_snps):
+    with patch("analyze_dna.run_full_analysis.COMPREHENSIVE_SNPS", mock_comp_snps):
         results = analyze_lifestyle_health(mock_genome_data, mock_pharmgkb_data)
         assert results["summary"]["high_impact"] == 1
         assert len(results["findings"]) == 1

@@ -24,11 +24,11 @@ from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
-from comprehensive_snp_database import COMPREHENSIVE_SNPS
-from utils import load_genome, load_pharmgkb
+from .comprehensive_snp_database import COMPREHENSIVE_SNPS
+from .utils import load_genome, load_pharmgkb
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-REPORTS_DIR = Path(__file__).parent.parent / "reports"
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
+REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 
 def analyze_genome(genome: dict, pharmgkb: dict) -> dict:
@@ -612,13 +612,13 @@ def write_action_plan(f, results: dict):
     f.write("\n")
 
 
-def main():
+def run_health_analysis(genome_path: Path):
+    """Run the comprehensive health optimization analysis."""
     print("=" * 70)
     print("COMPREHENSIVE GENETIC HEALTH OPTIMIZATION ANALYSIS")
     print("=" * 70)
 
     # Load genome
-    genome_path = DATA_DIR / "genome.txt"
     print(f"\nLoading genome from {genome_path}...")
     genome = load_genome(genome_path)
     print(f"Loaded {len(genome):,} SNPs")
@@ -635,6 +635,7 @@ def main():
     results = analyze_genome(genome, pharmgkb)
 
     # Save raw results
+    REPORTS_DIR.mkdir(exist_ok=True)
     results_json = {
         "findings": results["findings"],
         "pharmgkb_findings": results["pharmgkb_findings"],
@@ -658,6 +659,10 @@ def main():
     print(f"Moderate-impact findings: {results['summary']['moderate_impact']}")
     print(f"Low-impact findings: {results['summary']['low_impact']}")
     print(f"\nFull report: {report_path}")
+
+
+def main():
+    run_health_analysis(DATA_DIR / "genome.txt")
 
 
 if __name__ == "__main__":

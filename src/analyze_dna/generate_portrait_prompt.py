@@ -26,9 +26,9 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-from fast_loader import load_genome_fast
-from generate_traits_report import analyze_traits_genome, check_genotype_match, get_genotype
-from traits_snp_database import TRAITS_SNPS
+from .fast_loader import load_genome_fast
+from .generate_traits_report import analyze_traits_genome, check_genotype_match, get_genotype
+from .traits_snp_database import TRAITS_SNPS
 
 
 def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
@@ -52,7 +52,7 @@ def get_trait_value(genome_by_rsid: dict, rsid: str) -> dict:
     return None
 
 
-def generate_portrait_prompt(
+def generate_portrait_prompt(  # pylint: disable=too-many-positional-arguments
     genome_by_rsid: dict,
     birth_year: int,
     sex: str,
@@ -77,7 +77,8 @@ def generate_portrait_prompt(
     eye_color_desc = "brown eyes"
     eye_confidence = 0
 
-    if eye_mlr["prediction"] != "Inconclusive":
+    # pylint: disable=unsubscriptable-object
+    if eye_mlr and eye_mlr["prediction"] != "Inconclusive":
         eye_confidence = eye_mlr["confidence"]
         prediction = eye_mlr["prediction"].lower()
 
@@ -87,6 +88,7 @@ def generate_portrait_prompt(
             eye_color_desc = "brown eyes"
         elif "intermediate" in prediction or "green" in prediction or "hazel" in prediction:
             eye_color_desc = "hazel green eyes"
+    # pylint: enable=unsubscriptable-object
 
     # =======================
     # HAIR COLOR & TEXTURE
@@ -360,7 +362,9 @@ def generate_portrait_prompt(
     # GENERATION NOTES
     # =======================
     notes = []
+    # pylint: disable=unsubscriptable-object
     notes.append(f"Eye color: {eye_mlr['prediction']} ({eye_confidence * 100:.0f}% confidence)")
+    # pylint: enable=unsubscriptable-object
 
     if tchh:
         notes.append(f"Hair: {hair_texture} (TCHH {tchh['genotype']})")
@@ -378,6 +382,7 @@ def generate_portrait_prompt(
         notes.append(f"Build: FTO {fto['genotype']} ({fto['status']})")
 
     # Construct output
+    # pylint: disable=unsubscriptable-object
     prompt_output = {
         "subject": age_sex,
         "front_view": front_view,
@@ -403,9 +408,7 @@ def format_prompt_output(prompt_data: dict) -> str:
     # === LAYOUT INSTRUCTIONS ===
     output.append("LAYOUT:")
     output.append("-" * 70)
-    output.append(
-        "Create a single image containing 3 portrait views arranged as follows:"
-    )
+    output.append("Create a single image containing 3 portrait views arranged as follows:")
     output.append("")
     output.append("  ┌─────────────────┬─────────────────────────┐")
     output.append("  │                 │                         │")
@@ -449,12 +452,12 @@ def format_prompt_output(prompt_data: dict) -> str:
     output.append("PANEL 1 - FACE (Front View, Top Left):")
     output.append("-" * 70)
     # Replace "photorealistic portrait" with sketch-appropriate description
-    front_view = prompt_data["front_view"].replace(
-        "A photorealistic portrait of",
-        "A detailed pencil sketch of"
-    ).replace(
-        "Natural lighting, sharp focus on facial features,",
-        "Fine pencil shading emphasizing facial structure,"
+    front_view = (
+        prompt_data["front_view"]
+        .replace("A photorealistic portrait of", "A detailed pencil sketch of")
+        .replace(
+            "Natural lighting, sharp focus on facial features,", "Fine pencil shading emphasizing facial structure,"
+        )
     )
     output.append(front_view)
     output.append("")
@@ -463,8 +466,7 @@ def format_prompt_output(prompt_data: dict) -> str:
     output.append("PANEL 2 - FACE (Side Profile, Bottom Left):")
     output.append("-" * 70)
     side_view = prompt_data["side_profile"].replace(
-        "Side profile view of the same",
-        "Pencil sketch side profile of the same"
+        "Side profile view of the same", "Pencil sketch side profile of the same"
     )
     output.append(side_view)
     output.append("")
@@ -535,7 +537,7 @@ Examples:
     parser.add_argument("--target-age", type=int, help="Optional: target age for rendering (default: current age)")
     parser.add_argument(
         "--glasses",
-        help="Optional: glasses description (e.g., 'black thick frame', 'round wireframe', 'reading glasses')"
+        help="Optional: glasses description (e.g., 'black thick frame', 'round wireframe', 'reading glasses')",
     )
     parser.add_argument("--output", "-o", help="Output file (default: print to stdout)")
 

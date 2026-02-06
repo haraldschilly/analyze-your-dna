@@ -39,7 +39,7 @@ Here is how you can use this tool with an AI agent in your terminal:
 
 I will run the full genetic analysis pipeline on your 'genome.txt' file.
 
-$ uv run python scripts/run_full_analysis.py data/genome.txt
+$ uv run analyze-dna full-analysis data/genome.txt
 
 ======================================================================
 FULL GENETIC HEALTH ANALYSIS
@@ -104,17 +104,20 @@ If you prefer to run the scripts yourself without an AI agent:
 ### Running with UV (Recommended)
 
 The ClinVar database (`data/clinvar_alleles.tsv.gz`) will be automatically decompressed on first run.
+The genome file is a **required** argument for all analysis commands.
 
 ```bash
-# Basic run (pure Python, no extra dependencies)
-uv run python scripts/run_full_analysis.py
+# Full analysis (health + ClinVar disease risk + actionable protocol)
+uv run analyze-dna full-analysis data/genome.txt --name "Your Name"
 
-# With fast mode (5-10x speedup using polars)
-uv sync --extra fast
-uv run python scripts/run_full_analysis.py
+# Quick analysis (34 curated high-impact SNPs + ClinVar + PharmGKB)
+uv run analyze-dna quick-analysis data/genome.txt
 
-# With custom genome file and subject name
-uv run python scripts/run_full_analysis.py data/genome.txt --name "Your Name"
+# Comprehensive health optimization report (88 SNPs + PharmGKB)
+uv run analyze-dna health-report data/genome.txt
+
+# See all available commands
+uv run analyze-dna --help
 ```
 
 ---
@@ -125,7 +128,7 @@ Beyond the full ClinVar database scan (341,000+ clinically annotated variants), 
 
 ### Comprehensive Health SNPs (88 variants)
 
-Used by the main pipeline (`run_full_analysis.py`) for the detailed health report.
+Used by the main pipeline (`full-analysis`) for the detailed health report.
 
 | Category | SNPs | Genes | Genes Covered |
 |----------|------|-------|---------------|
@@ -224,13 +227,25 @@ The pipeline generates three reports in `reports/`:
 | `EXHAUSTIVE_DISEASE_RISK_REPORT.md` | Pathogenic variants, carrier status, risk factors from ClinVar |
 | `ACTIONABLE_HEALTH_PROTOCOL_V3.md` | Personalized supplements, diet, exercise, monitoring recommendations |
 
-### Optional: Trait Analysis Scripts
+### Additional Analysis Commands
 
-Two additional scripts analyze observable physical and sensory traits (not run by default):
+Beyond the full pipeline, several focused analysis commands are available:
+
+**Quick Analysis** (focused, high-impact)
+```bash
+uv run analyze-dna quick-analysis data/genome.txt
+```
+Focused analysis using ~34 curated high-impact SNPs (drug metabolism, APOE, clotting factors, etc.) plus ClinVar and PharmGKB. Generates `reports/genetic_report.md`.
+
+**Health Report** (comprehensive optimization)
+```bash
+uv run analyze-dna health-report data/genome.txt
+```
+Comprehensive health optimization report using ~88 curated SNPs plus PharmGKB drug interactions. Generates `reports/COMPLETE_HEALTH_REPORT.md` with categorized findings and a personalized action plan.
 
 **Traits Report**
 ```bash
-uv run python3 scripts/generate_traits_report.py data/genome.txt --name "Subject"
+uv run analyze-dna traits data/genome.txt --name "Subject"
 ```
 Generates a comprehensive traits report covering:
 - **Pigmentation**: Eye color (with MLR probability model), hair color/texture, skin tone, freckles
@@ -242,7 +257,7 @@ Generates a comprehensive traits report covering:
 
 **AI Portrait Prompt Generator (Experimental)**
 ```bash
-uv run python3 scripts/generate_portrait_prompt.py data/genome.txt \
+uv run analyze-dna portrait data/genome.txt \
     --birth-year 1980 --sex male --hair-style "short" \
     --output prompts/portrait.txt
 ```
@@ -267,10 +282,10 @@ analyze-dna/
 │   ├── genome.txt             # Your 23andMe raw data (add this)
 │   ├── clinvar_alleles.tsv.gz # ClinVar database (auto-extracted on run)
 │   └── clinical_*.tsv         # PharmGKB data (included)
-├── scripts/
-│   ├── run_full_analysis.py   # Main entry point
-│   ├── fast_loader.py         # Optimized loading (polars)
-│   └── *.py                   # Analysis modules
+├── src/analyze_dna/
+│   ├── cli.py                 # CLI entry point
+│   ├── run_full_analysis.py   # Main analysis logic
+│   └── ...                    # Analysis modules
 └── reports/                   # Generated reports
 ```
 
@@ -287,9 +302,11 @@ analyze-dna/
 
 ## Running for Multiple People
 
+Each analysis command requires the genome file as an argument, making it easy to analyze multiple people:
+
 ```bash
 cp ~/Downloads/genome_mom.txt data/genome_mom.txt
-uv run python scripts/run_full_analysis.py data/genome_mom.txt --name "Mom"
+uv run analyze-dna full-analysis data/genome_mom.txt --name "Mom"
 
 # Rename outputs to preserve
 mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
@@ -310,7 +327,7 @@ mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
 
 **ClinVar** (automatic):
 ```bash
-uv run python scripts/update_clinvar.py
+uv run analyze-dna update-clinvar
 ```
 
 This downloads the latest `variant_summary.txt.gz` from NCBI and converts it to the required format. The script:

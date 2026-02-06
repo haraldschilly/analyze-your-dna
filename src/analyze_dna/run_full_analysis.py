@@ -36,15 +36,14 @@ from pathlib import Path
 
 # Add scripts directory to path for imports
 SCRIPT_DIR = Path(__file__).parent
-sys.path.insert(0, str(SCRIPT_DIR))
 
-from comprehensive_snp_database import COMPREHENSIVE_SNPS  # noqa: E402
-from fast_loader import get_loader_info, load_clinvar_fast, load_genome_fast  # noqa: E402
-from utils import ensure_clinvar  # noqa: E402
-from utils import load_pharmgkb as load_pharmgkb_utils  # noqa: E402
+from .comprehensive_snp_database import COMPREHENSIVE_SNPS  # noqa: E402
+from .fast_loader import get_loader_info, load_clinvar_fast, load_genome_fast  # noqa: E402
+from .utils import ensure_clinvar  # noqa: E402
+from .utils import load_pharmgkb as load_pharmgkb_utils  # noqa: E402
 
 # Directory configuration
-BASE_DIR = SCRIPT_DIR.parent
+BASE_DIR = SCRIPT_DIR.parent.parent
 DATA_DIR = BASE_DIR / "data"
 REPORTS_DIR = BASE_DIR / "reports"
 
@@ -238,7 +237,7 @@ def generate_exhaustive_genetic_report(results: dict, output_path: Path, subject
     print_step("Generating exhaustive genetic report")
 
     # Import the generator logic
-    from generate_exhaustive_report import (
+    from .generate_exhaustive_report import (
         generate_action_summary,
         generate_disclaimer,
         generate_executive_summary,
@@ -1046,15 +1045,11 @@ It is NOT a clinical diagnosis or medical advice.
 # =============================================================================
 
 
-def run_full_analysis(genome_path: Path | None = None, subject_name: str | None = None):
+def run_full_analysis(genome_path: Path, subject_name: str | None = None):
     """Run the complete genetic analysis pipeline."""
 
     print_header("FULL GENETIC HEALTH ANALYSIS")
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-
-    # Default genome path
-    if genome_path is None:
-        genome_path = DATA_DIR / "genome.txt"
 
     if not genome_path.exists():
         print(f"\nERROR: Genome file not found: {genome_path}")

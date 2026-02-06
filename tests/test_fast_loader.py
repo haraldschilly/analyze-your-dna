@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
 
-import scripts.fast_loader as fast_loader
+import analyze_dna.fast_loader as fast_loader
 
 # =============================================================================
 # MOCKED DATA
@@ -173,7 +173,7 @@ class MockPolars:
 def test_load_genome_stdlib():
     """Test loading genome with standard library (csv)."""
     with patch("builtins.open", mock_open(read_data=GENOME_CONTENT)):
-        with patch("scripts.fast_loader.USING_POLARS", False):
+        with patch("analyze_dna.fast_loader.USING_POLARS", False):
             genome_by_rsid, genome_by_position = fast_loader._load_genome_stdlib(Path("dummy.txt"))
 
             assert len(genome_by_rsid) == 2
@@ -215,8 +215,8 @@ def test_load_genome_polars():
     mock_pl = MockPolars()
 
     # Patch 'pl' inside fast_loader module
-    with patch("scripts.fast_loader.pl", mock_pl):
-        with patch("scripts.fast_loader.USING_POLARS", True):
+    with patch("analyze_dna.fast_loader.pl", mock_pl):
+        with patch("analyze_dna.fast_loader.USING_POLARS", True):
             genome_by_rsid, genome_by_position = fast_loader._load_genome_polars(Path("dummy.txt"))
 
             assert len(genome_by_rsid) == 2
@@ -260,8 +260,8 @@ def test_load_clinvar_polars():
 
     mock_pl.read_csv = MagicMock(return_value=mock_chain)
 
-    with patch("scripts.fast_loader.pl", mock_pl):
-        with patch("scripts.fast_loader.USING_POLARS", True):
+    with patch("analyze_dna.fast_loader.pl", mock_pl):
+        with patch("analyze_dna.fast_loader.USING_POLARS", True):
             findings, stats = fast_loader._load_clinvar_polars(Path("dummy.txt"), genome_by_position)
 
             assert len(findings["pathogenic"]) == 1
@@ -271,13 +271,13 @@ def test_load_clinvar_polars():
 
 def test_switch_logic():
     """Test that the top-level functions use proper logic to switch."""
-    with patch("scripts.fast_loader.USING_POLARS", False):
-        with patch("scripts.fast_loader._load_genome_stdlib") as mock_std:
+    with patch("analyze_dna.fast_loader.USING_POLARS", False):
+        with patch("analyze_dna.fast_loader._load_genome_stdlib") as mock_std:
             fast_loader.load_genome_fast(Path("x"))
             mock_std.assert_called_once()
 
-    with patch("scripts.fast_loader.USING_POLARS", True):
-        with patch("scripts.fast_loader.pl", MockPolars()):  # satisfy assert pl is not None
-            with patch("scripts.fast_loader._load_genome_polars") as mock_pl:
+    with patch("analyze_dna.fast_loader.USING_POLARS", True):
+        with patch("analyze_dna.fast_loader.pl", MockPolars()):  # satisfy assert pl is not None
+            with patch("analyze_dna.fast_loader._load_genome_polars") as mock_pl:
                 fast_loader.load_genome_fast(Path("x"))
                 mock_pl.assert_called_once()

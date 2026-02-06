@@ -27,13 +27,13 @@ jobs:
         run: uv sync --group dev
 
       - name: ruff-check
-        run: uv run ruff format --check scripts/ tests/
+        run: uv run ruff format --check src/analyze_dna/ tests/
 
       - name: pylint
-        run: uv run pylint scripts/
+        run: uv run pylint src/analyze_dna/
 
       - name: mypy
-        run: uv run mypy scripts/comprehensive_snp_database.py scripts/traits_snp_database.py
+        run: uv run mypy src/analyze_dna/comprehensive_snp_database.py src/analyze_dna/traits_snp_database.py
 
       - name: pytest
         run: uv run pytest tests

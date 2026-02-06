@@ -10,24 +10,40 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 
 | File | Purpose |
 |------|---------|
-| `scripts/run_full_analysis.py` | Main entry point - orchestrates entire pipeline |
-| `scripts/fast_loader.py` | Optimized data loading with polars fallback |
-| `scripts/comprehensive_snp_database.py` | ~200 curated SNPs with interpretations |
-| `scripts/traits_snp_database.py` | ~100 curated trait SNPs (pigmentation, morphology, taste, vision) |
-| `scripts/generate_exhaustive_report.py` | Report generation with clinical context |
-| `scripts/generate_traits_report.py` | Traits report (observable characteristics) |
-| `scripts/generate_portrait_prompt.py` | AI portrait prompt generator from genetic traits |
-| `scripts/disease_risk_analyzer.py` | ClinVar variant analysis |
+| `src/analyze_dna/cli.py` | Main CLI entry point (Click commands) |
+| `src/analyze_dna/run_full_analysis.py` | Full pipeline: health + disease risk + action plan |
+| `src/analyze_dna/analyze_genome.py` | Quick analysis with ~34 curated high-impact SNPs |
+| `src/analyze_dna/full_health_analysis.py` | Comprehensive health optimization report |
+| `src/analyze_dna/fast_loader.py` | Optimized data loading with polars fallback |
+| `src/analyze_dna/comprehensive_snp_database.py` | ~200 curated SNPs with interpretations |
+| `src/analyze_dna/traits_snp_database.py` | ~100 curated trait SNPs (pigmentation, morphology, taste, vision) |
+| `src/analyze_dna/generate_exhaustive_report.py` | Report generation with clinical context |
+| `src/analyze_dna/generate_traits_report.py` | Traits report (observable characteristics) |
+| `src/analyze_dna/generate_portrait_prompt.py` | AI portrait prompt generator from genetic traits |
+| `src/analyze_dna/disease_risk_analyzer.py` | ClinVar variant analysis |
 | `planning/TODO.md` | **Active task tracking** - check here for open work items |
 
 ## Running the Pipeline
 
-Always use `uv run python3` to run scripts — never use the system-wide `python3` directly.
+The project is structured as a Python package with a Click CLI. Always use `uv run analyze-dna` — the genome file is a **required** argument for all analysis commands.
 
 ```
 uv sync
-uv run python3 scripts/run_full_analysis.py data/genome.txt --name "Subject"
+uv run analyze-dna full-analysis data/genome.txt --name "Subject"
 ```
+
+### Available CLI Commands
+
+| Command | Description | Output |
+|---------|-------------|--------|
+| `full-analysis GENOME` | Full pipeline: health + ClinVar disease risk + action plan | 3 reports in `reports/` |
+| `quick-analysis GENOME` | Focused analysis with ~34 curated high-impact SNPs + ClinVar | `reports/genetic_report.md` |
+| `health-report GENOME` | Comprehensive health optimization (~88 SNPs + PharmGKB) | `reports/COMPLETE_HEALTH_REPORT.md` |
+| `traits GENOME` | Observable traits (pigmentation, taste, morphology, vision) | `reports/TRAITS_REPORT.md` |
+| `portrait GENOME` | AI portrait prompt generator from genetic traits | stdout or `--output` file |
+| `update-clinvar` | Download and convert latest ClinVar database | `data/clinvar_alleles.tsv*` |
+
+All analysis commands require the genome file path as the first argument (e.g., `data/genome.txt`).
 
 ## Testing
 
@@ -85,7 +101,7 @@ if pos_key in genome_by_position: ...
 
 ## Adding New SNPs
 
-Edit `scripts/comprehensive_snp_database.py`:
+Edit `src/analyze_dna/comprehensive_snp_database.py`:
 
 ```python
 "rs12345": {

@@ -19,7 +19,7 @@ Covers: Drug metabolism, methylation, fitness, nutrition, sleep, cardiovascular,
 cognition, longevity, inflammation, and lifestyle factors.
 """
 
-from scripts.utils import SnpDatabase
+from .types import SnpDatabase
 
 COMPREHENSIVE_SNPS: SnpDatabase = {
     # =========================================================================

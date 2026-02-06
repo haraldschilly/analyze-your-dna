@@ -21,45 +21,6 @@ import os
 import shutil
 from collections import defaultdict
 from pathlib import Path
-from typing import TypedDict
-
-from typing_extensions import NotRequired
-
-
-class VariantInfo(TypedDict):
-    """
-    Type definition for variant information.
-
-    Attributes:
-        status (str): Short status descriptor (e.g., 'normal', 'carrier', 'affected')
-        desc (str): Detailed user-facing description
-        magnitude (int): Impact score (0-5), where 0 is neutral and 5 is critical
-    """
-
-    status: str
-    desc: str
-    magnitude: int
-
-
-class SnpInfo(TypedDict):
-    """
-    Type definition for SNP entry.
-
-    Attributes:
-        gene (str): Gene symbol
-        category (str): Health category
-        variants (dict[str, VariantInfo]): Map of genotype (e.g., 'AA') to variant info
-        note (NotRequired[str]): Optional scientific context or mechanism details
-    """
-
-    gene: str
-    category: str
-    variants: dict[str, VariantInfo]
-    note: NotRequired[str]
-
-
-# Type alias for the database structure
-SnpDatabase = dict[str, SnpInfo]
 
 
 def load_genome(genome_path: Path) -> dict:
@@ -143,11 +104,11 @@ def snp_database_stats():
     """Print SNP coverage stats for all curated databases.
 
     Used to regenerate the README.md 'What It Analyzes' tables.
-    Run: uv run python3 -c "from scripts.utils import snp_database_stats; snp_database_stats()"
+    Run: uv run python3 -c "from analyze_dna.utils import snp_database_stats; snp_database_stats()"
     """
-    from analyze_genome import CURATED_SNPS
-    from comprehensive_snp_database import COMPREHENSIVE_SNPS
-    from traits_snp_database import TRAITS_SNPS
+    from .analyze_genome import CURATED_SNPS
+    from .comprehensive_snp_database import COMPREHENSIVE_SNPS
+    from .traits_snp_database import TRAITS_SNPS
 
     for name, db in [
         ("COMPREHENSIVE_SNPS", COMPREHENSIVE_SNPS),

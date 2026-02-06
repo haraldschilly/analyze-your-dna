@@ -1,7 +1,7 @@
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
-from scripts.full_health_analysis import analyze_genome, generate_comprehensive_report
+from analyze_dna.full_health_analysis import analyze_genome, generate_comprehensive_report
 
 
 def test_analyze_genome(mock_genome_data, mock_pharmgkb_data):
@@ -16,7 +16,7 @@ def test_analyze_genome(mock_genome_data, mock_pharmgkb_data):
         }
     }
 
-    with patch("scripts.full_health_analysis.COMPREHENSIVE_SNPS", mock_comp_snps):
+    with patch("analyze_dna.full_health_analysis.COMPREHENSIVE_SNPS", mock_comp_snps):
         results = analyze_genome(mock_genome_data, mock_pharmgkb_data)
 
         assert len(results["findings"]) == 1

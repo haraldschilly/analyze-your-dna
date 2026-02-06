@@ -1,4 +1,4 @@
-from scripts.generate_portrait_prompt import format_prompt_output, generate_portrait_prompt, get_trait_value
+from analyze_dna.generate_portrait_prompt import format_prompt_output, generate_portrait_prompt, get_trait_value
 
 
 def test_get_trait_value():
