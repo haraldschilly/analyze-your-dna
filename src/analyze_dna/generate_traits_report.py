@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# pylint: disable=R0401
 # Copyright (C) 2026 Analyze Your DNA Project
 #
 # This program is free software: you can redistribute it and/or modify

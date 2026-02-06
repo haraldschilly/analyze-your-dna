@@ -88,4 +88,5 @@ disable = [
     "cell-var-from-loop",
     "no-else-return",
     "f-string-without-interpolation",
+    "cyclic-import",
 ]
