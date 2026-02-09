@@ -49,7 +49,7 @@ def load_genome():
     genome_by_rsid = {}
     genome_by_position = {}
 
-    with open(GENOME_PATH) as f:
+    with open(GENOME_PATH, encoding="utf-8") as f:
         for line in f:
             if line.startswith("#"):
                 continue

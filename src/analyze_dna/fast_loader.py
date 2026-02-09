@@ -68,10 +68,24 @@ def load_genome_fast(genome_path: Path) -> tuple[dict[str, dict], dict[str, dict
 
     Returns:
         Tuple of (genome_by_rsid, genome_by_position) dictionaries
+
+    Raises:
+        ValueError: If the file contains no valid SNP data (wrong format, empty, etc.)
     """
     if USING_POLARS:
-        return _load_genome_polars(genome_path)
-    return _load_genome_stdlib(genome_path)
+        result = _load_genome_polars(genome_path)
+    else:
+        result = _load_genome_stdlib(genome_path)
+
+    genome_by_rsid, _genome_by_position = result
+    if len(genome_by_rsid) == 0:
+        raise ValueError(
+            f"No valid SNP data found in '{genome_path}'. "
+            "Expected a 23andMe raw data file (tab-separated with columns: rsid, chromosome, position, genotype). "
+            "Check that the file is not empty and is in the correct format."
+        )
+
+    return result
 
 
 def _load_genome_polars(genome_path: Path) -> tuple[dict[str, dict], dict[str, dict]]:

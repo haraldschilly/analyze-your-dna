@@ -1,6 +1,6 @@
 [project]
 name = "analyze-dna"
-version = "0.5.0"
+version = "1.0.0"
 description = "Genetic health analysis pipeline for 23andMe data"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -27,7 +27,7 @@ all = [
 ]
 
 [project.scripts]
-analyze-dna = "analyze_dna.cli:cli"
+analyze-dna = "analyze_dna.cli:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -128,11 +128,11 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
     prob_inter = exp_inter / total
     prob_brown = exp_brown / total
 
-    # Determine prediction (>60% threshold for definitive call)
-    if prob_blue > 0.60:
+    # Determine prediction (IrisPlex standard: >70% threshold for definitive call)
+    if prob_blue > 0.70:
         prediction = "Blue"
         confidence = prob_blue
-    elif prob_brown > 0.60:
+    elif prob_brown > 0.70:
         prediction = "Brown"
         confidence = prob_brown
     elif prob_inter > 0.40:
@@ -274,7 +274,19 @@ def generate_traits_report(results: dict, subject_name: str) -> str:
     f.write("## Executive Summary\n\n")
     f.write(f"- **Total SNPs in genome:** {results['summary']['total_snps']:,}\n")
     f.write(f"- **Trait SNPs analyzed:** {results['summary']['analyzed_traits']}\n")
-    f.write(f"- **Eye color prediction:** {results['eye_color_mlr']['prediction']}\n")
+    eye_summary = results["eye_color_mlr"]
+    if eye_summary["prediction"] == "Inconclusive":
+        f.write("- **Eye color prediction:** Inconclusive\n")
+    else:
+        probs_summary = eye_summary["probabilities"]
+        # Show all colors with >=5% probability
+        relevant = sorted(
+            ((color, p) for color, p in probs_summary.items() if p >= 0.05),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        prob_str = ", ".join(f"{color} {p * 100:.0f}%" for color, p in relevant)
+        f.write(f"- **Eye color prediction:** {prob_str}\n")
     f.write(f"- **Blood type (derived):** {results['blood_type']['blood_type']}\n")
     f.write("\n---\n\n")
 
@@ -294,13 +306,24 @@ def generate_traits_report(results: dict, subject_name: str) -> str:
         f.write(f"**Prediction: {eye_mlr['prediction']}** ")
         f.write(f"({eye_mlr['confidence'] * 100:.0f}% confidence)\n\n")
 
-        # Probability table
+        # Probability table (only show categories with >=5% probability)
         probs = eye_mlr["probabilities"]
-        f.write("| Outcome | Probability |\n")
-        f.write("|---------|-------------|\n")
-        f.write(f"| Blue | {probs['Blue'] * 100:.1f}% |\n")
-        f.write(f"| Intermediate (Green/Hazel) | {probs['Intermediate'] * 100:.1f}% |\n")
-        f.write(f"| Brown | {probs['Brown'] * 100:.1f}% |\n\n")
+        display_names = {
+            "Blue": "Blue",
+            "Intermediate": "Intermediate (Green/Hazel)",
+            "Brown": "Brown",
+        }
+        relevant_probs = sorted(
+            ((k, v) for k, v in probs.items() if v >= 0.05),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        if relevant_probs:
+            f.write("| Outcome | Probability |\n")
+            f.write("|---------|-------------|\n")
+            for color, prob in relevant_probs:
+                f.write(f"| {display_names[color]} | {prob * 100:.1f}% |\n")
+            f.write("\n")
 
         # Key contributors
         if eye_mlr["contributions"]:

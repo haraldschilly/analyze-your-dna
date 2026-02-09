@@ -645,7 +645,7 @@ CURATED_SNPS: SnpDatabase = {
 def load_clinvar(clinvar_path: Path) -> dict[str, Any]:
     """Load ClinVar pathogenic variants."""
     clinvar: dict[str, Any] = {}
-    with open(clinvar_path) as f:
+    with open(clinvar_path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             # Focus on pathogenic/likely pathogenic variants

@@ -271,13 +271,18 @@ def test_load_clinvar_polars():
 
 def test_switch_logic():
     """Test that the top-level functions use proper logic to switch."""
+    dummy_result = (
+        {"rs1": {"chromosome": "1", "position": "100", "genotype": "AA"}},
+        {"1:100": {"rsid": "rs1", "genotype": "AA"}},
+    )
+
     with patch("analyze_dna.fast_loader.USING_POLARS", False):
-        with patch("analyze_dna.fast_loader._load_genome_stdlib") as mock_std:
+        with patch("analyze_dna.fast_loader._load_genome_stdlib", return_value=dummy_result) as mock_std:
             fast_loader.load_genome_fast(Path("x"))
             mock_std.assert_called_once()
 
     with patch("analyze_dna.fast_loader.USING_POLARS", True):
         with patch("analyze_dna.fast_loader.pl", MockPolars()):  # satisfy assert pl is not None
-            with patch("analyze_dna.fast_loader._load_genome_polars") as mock_pl:
+            with patch("analyze_dna.fast_loader._load_genome_polars", return_value=dummy_result) as mock_pl:
                 fast_loader.load_genome_fast(Path("x"))
                 mock_pl.assert_called_once()

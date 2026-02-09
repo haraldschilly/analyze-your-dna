@@ -105,12 +105,12 @@ TRAITS_SNPS: SnpDatabase = {
         "gene": "TYR",
         "category": "Eye Color",
         "variants": {
-            "AA": {"status": "high_activity", "desc": "High tyrosinase activity - darker eyes", "magnitude": 0},
-            "AG": {"status": "intermediate", "desc": "Intermediate melanin synthesis", "magnitude": 0},
+            "GG": {"status": "high_activity", "desc": "Normal tyrosinase activity - darker eyes", "magnitude": 0},
             "GA": {"status": "intermediate", "desc": "Intermediate melanin synthesis", "magnitude": 0},
-            "GG": {"status": "reduced", "desc": "Reduced tyrosinase - lighter eyes", "magnitude": 0},
+            "AG": {"status": "intermediate", "desc": "Intermediate melanin synthesis", "magnitude": 0},
+            "AA": {"status": "reduced", "desc": "Reduced tyrosinase activity - lighter eyes", "magnitude": 0},
         },
-        "note": "Tyrosinase is rate-limiting enzyme in melanin synthesis",
+        "note": "Tyrosinase is rate-limiting enzyme in melanin synthesis; A allele reduces activity",
     },
     "rs12203592": {
         "gene": "IRF4",
@@ -1058,12 +1058,16 @@ TRAITS_SNPS: SnpDatabase = {
 
 
 # Eye color MLR coefficients for probability prediction
+# Based on IrisPlex 6-SNP model (Walsh et al. 2011, Liu et al. 2009).
+# Brown is the reference category (logit=0). Positive betas push toward blue/intermediate.
+# Effect alleles are the LIGHT alleles on the 23andMe + strand (GRCh37).
+# Intercepts are negative so that with no light alleles, brown is predicted (~85%).
 EYE_COLOR_MLR: dict[str, dict[str, Any]] = {
-    "intercept": {"blue": 0.50, "inter": -1.20},
-    "rs12913832": {"allele": "G", "blue": 4.52, "inter": 0.45},
-    "rs1800407": {"allele": "A", "blue": 1.20, "inter": 1.50},
-    "rs16891982": {"allele": "C", "blue": 0.85, "inter": 0.60},  # Note: C is light here
-    "rs1393350": {"allele": "T", "blue": 0.40, "inter": 0.35},
-    "rs12896399": {"allele": "T", "blue": 0.25, "inter": 0.20},
-    "rs12203592": {"allele": "T", "blue": 0.15, "inter": 0.10},
+    "intercept": {"blue": -4.07, "inter": -1.83},
+    "rs12913832": {"allele": "G", "blue": 3.94, "inter": 1.18},  # HERC2 master switch (~74% variance)
+    "rs1800407": {"allele": "A", "blue": 0.87, "inter": 0.72},  # OCA2 Arg419Gln
+    "rs16891982": {"allele": "G", "blue": 0.65, "inter": 0.38},  # SLC45A2 L374F (G=derived/light)
+    "rs1393350": {"allele": "A", "blue": 0.36, "inter": 0.21},  # TYR (A=reduced activity/light)
+    "rs12896399": {"allele": "T", "blue": 0.19, "inter": 0.14},  # SLC24A4
+    "rs12203592": {"allele": "T", "blue": 0.12, "inter": 0.08},  # IRF4
 }
