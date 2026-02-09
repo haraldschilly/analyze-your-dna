@@ -21,8 +21,8 @@ Analyzes observable characteristics: pigmentation, taste, morphology, vision, et
 Excludes disease/health traits (covered in separate health reports).
 """
 
+import io
 import math
-import sys
 from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
@@ -30,8 +30,6 @@ from typing import Any
 
 from .fast_loader import load_genome_fast
 from .traits_snp_database import EYE_COLOR_MLR, TRAITS_SNPS
-
-REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 
 def complement_genotype(geno: str) -> str:
@@ -262,321 +260,308 @@ def analyze_traits_genome(genome_by_rsid: dict) -> dict:
     return results
 
 
-def generate_traits_report(results: dict, subject_name: str, output_path: Path):
-    """Generate markdown traits report."""
+def generate_traits_report(results: dict, subject_name: str) -> str:
+    """Generate markdown traits report and return as string."""
+    f = io.StringIO()
+    # Header
+    f.write(f"# Genetic Traits Report for {subject_name}\n\n")
+    f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
+    f.write("This report analyzes observable characteristics based on genetic variants. ")
+    f.write("It covers pigmentation, taste/smell, physical features, and vision traits.\n\n")
+    f.write("---\n\n")
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        # Header
-        f.write(f"# Genetic Traits Report for {subject_name}\n\n")
-        f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
-        f.write("This report analyzes observable characteristics based on genetic variants. ")
-        f.write("It covers pigmentation, taste/smell, physical features, and vision traits.\n\n")
-        f.write("---\n\n")
+    # Executive Summary
+    f.write("## Executive Summary\n\n")
+    f.write(f"- **Total SNPs in genome:** {results['summary']['total_snps']:,}\n")
+    f.write(f"- **Trait SNPs analyzed:** {results['summary']['analyzed_traits']}\n")
+    f.write(f"- **Eye color prediction:** {results['eye_color_mlr']['prediction']}\n")
+    f.write(f"- **Blood type (derived):** {results['blood_type']['blood_type']}\n")
+    f.write("\n---\n\n")
 
-        # Executive Summary
-        f.write("## Executive Summary\n\n")
-        f.write(f"- **Total SNPs in genome:** {results['summary']['total_snps']:,}\n")
-        f.write(f"- **Trait SNPs analyzed:** {results['summary']['analyzed_traits']}\n")
-        f.write(f"- **Eye color prediction:** {results['eye_color_mlr']['prediction']}\n")
-        f.write(f"- **Blood type (derived):** {results['blood_type']['blood_type']}\n")
-        f.write("\n---\n\n")
+    # =====================================================================
+    # SECTION A: PIGMENTATION
+    # =====================================================================
+    f.write("## Pigmentation\n\n")
 
-        # =====================================================================
-        # SECTION A: PIGMENTATION
-        # =====================================================================
-        f.write("## Pigmentation\n\n")
+    # Eye Color (with MLR)
+    f.write("### Eye Color\n\n")
+    eye_mlr = results["eye_color_mlr"]
 
-        # Eye Color (with MLR)
-        f.write("### Eye Color\n\n")
-        eye_mlr = results["eye_color_mlr"]
+    if eye_mlr["prediction"] == "Inconclusive":
+        f.write("**Prediction: Inconclusive**\n\n")
+        f.write(f"Reason: {eye_mlr['reason']}\n\n")
+    else:
+        f.write(f"**Prediction: {eye_mlr['prediction']}** ")
+        f.write(f"({eye_mlr['confidence'] * 100:.0f}% confidence)\n\n")
 
-        if eye_mlr["prediction"] == "Inconclusive":
-            f.write("**Prediction: Inconclusive**\n\n")
-            f.write(f"Reason: {eye_mlr['reason']}\n\n")
-        else:
-            f.write(f"**Prediction: {eye_mlr['prediction']}** ")
-            f.write(f"({eye_mlr['confidence'] * 100:.0f}% confidence)\n\n")
+        # Probability table
+        probs = eye_mlr["probabilities"]
+        f.write("| Outcome | Probability |\n")
+        f.write("|---------|-------------|\n")
+        f.write(f"| Blue | {probs['Blue'] * 100:.1f}% |\n")
+        f.write(f"| Intermediate (Green/Hazel) | {probs['Intermediate'] * 100:.1f}% |\n")
+        f.write(f"| Brown | {probs['Brown'] * 100:.1f}% |\n\n")
 
-            # Probability table
-            probs = eye_mlr["probabilities"]
-            f.write("| Outcome | Probability |\n")
-            f.write("|---------|-------------|\n")
-            f.write(f"| Blue | {probs['Blue'] * 100:.1f}% |\n")
-            f.write(f"| Intermediate (Green/Hazel) | {probs['Intermediate'] * 100:.1f}% |\n")
-            f.write(f"| Brown | {probs['Brown'] * 100:.1f}% |\n\n")
-
-            # Key contributors
-            if eye_mlr["contributions"]:
-                f.write("**Key genetic contributors:**\n\n")
-                for contrib in eye_mlr["contributions"]:
-                    if contrib["dosage"] > 0:
-                        gene = TRAITS_SNPS[contrib["rsid"]]["gene"]
-                        f.write(f"- `{contrib['rsid']}` ({gene}): {contrib['genotype']} ")
-                        f.write(f"({contrib['dosage']} copies of {contrib['effect_allele']} allele)\n")
-                f.write("\n")
-
-            # Find HERC2 master switch
-            herc2_findings = [f for f in results["by_category"].get("Eye Color", []) if f["rsid"] == "rs12913832"]
-            if herc2_findings:
-                herc2 = herc2_findings[0]
-                f.write(f"Your genotype at the HERC2 master switch (rs12913832) is **{herc2['genotype']}**, ")
-                f.write(f"which {herc2['description'].lower()}.\n\n")
-
-        # Hair Color
-        f.write("### Hair Color\n\n")
-
-        # Check for red hair first (epistatic)
-        red_score = results["mc1r_red_hair_score"]
-        if red_score >= 4:
-            f.write("**Prediction: Red/Ginger Hair**\n\n")
-            f.write("You carry two or more MC1R loss-of-function variants (R-alleles), ")
-            f.write("which causes pheomelanin production instead of eumelanin. ")
-            f.write("This is highly likely to result in red or ginger hair.\n\n")
-        elif red_score >= 2:
-            f.write("**Prediction: Red Hair Carrier**\n\n")
-            f.write("You carry one MC1R R-allele. While you likely don't have fully red hair, ")
-            f.write("you may have auburn highlights, reddish undertones, or a ginger beard (if male).\n\n")
-        else:
-            # Check SLC45A2 and KITLG for blonde/dark spectrum
-            slc45a2 = [f for f in results["findings"] if f["rsid"] == "rs16891982"]
-            kitlg = [f for f in results["findings"] if f["rsid"] == "rs12821256"]
-
-            if slc45a2 and "light" in slc45a2[0]["status"]:
-                if kitlg and "blonde" in kitlg[0]["status"]:
-                    f.write("**Prediction: Blonde / Light Brown**\n\n")
-                    f.write("Combination of SLC45A2 (light) and KITLG (blonde driver) suggests ")
-                    f.write("light hair color - likely blonde to light brown.\n\n")
-                else:
-                    f.write("**Prediction: Light Brown**\n\n")
-                    f.write("SLC45A2 indicates lighter pigmentation.\n\n")
-            elif slc45a2 and "dark" in slc45a2[0]["status"]:
-                f.write("**Prediction: Dark Brown / Black**\n\n")
-                f.write("SLC45A2 indicates darker pigmentation.\n\n")
-            else:
-                f.write("**Prediction: Medium Brown**\n\n")
-                f.write("Intermediate hair color most likely.\n\n")
-
-        # MC1R details
-        mc1r_findings = [f for f in results["findings"] if f["gene"] == "MC1R"]
-        if mc1r_findings:
-            f.write("**MC1R variants detected:**\n\n")
-            for finding in mc1r_findings:
-                f.write(f"- `{finding['rsid']}`: {finding['genotype']} - {finding['description']}\n")
+        # Key contributors
+        if eye_mlr["contributions"]:
+            f.write("**Key genetic contributors:**\n\n")
+            for contrib in eye_mlr["contributions"]:
+                if contrib["dosage"] > 0:
+                    gene = TRAITS_SNPS[contrib["rsid"]]["gene"]
+                    f.write(f"- `{contrib['rsid']}` ({gene}): {contrib['genotype']} ")
+                    f.write(f"({contrib['dosage']} copies of {contrib['effect_allele']} allele)\n")
             f.write("\n")
 
-        # Skin Tone
-        f.write("### Skin Tone\n\n")
-        slc24a5 = [f for f in results["findings"] if f["rsid"] == "rs1426654"]
-        if slc24a5:
-            finding = slc24a5[0]
-            f.write(f"**Primary indicator (SLC24A5):** {finding['genotype']}\n\n")
-            f.write(f"{finding['description']}\n\n")
+        # Find HERC2 master switch
+        herc2_findings = [f for f in results["by_category"].get("Eye Color", []) if f["rsid"] == "rs12913832"]
+        if herc2_findings:
+            herc2 = herc2_findings[0]
+            f.write(f"Your genotype at the HERC2 master switch (rs12913832) is **{herc2['genotype']}**, ")
+            f.write(f"which {herc2['description'].lower()}.\n\n")
 
-            if finding["genotype"] in ["AA", "AG", "GA"]:
-                f.write("The A allele at SLC24A5 is the 'golden mutation' - nearly fixed in Europeans ")
-                f.write("and explains ~25-38% of European-African skin tone difference.\n\n")
+    # Hair Color
+    f.write("### Hair Color\n\n")
 
-        # Freckles
-        irf4 = [f for f in results["findings"] if f["rsid"] == "rs12203592"]
-        if irf4:
-            finding = irf4[0]
-            f.write("**Freckles (IRF4):** ")
-            if "T" in finding["genotype"]:
-                f.write(f"Likely present - {finding['description']}\n\n")
+    # Check for red hair first (epistatic)
+    red_score = results["mc1r_red_hair_score"]
+    if red_score >= 4:
+        f.write("**Prediction: Red/Ginger Hair**\n\n")
+        f.write("You carry two or more MC1R loss-of-function variants (R-alleles), ")
+        f.write("which causes pheomelanin production instead of eumelanin. ")
+        f.write("This is highly likely to result in red or ginger hair.\n\n")
+    elif red_score >= 2:
+        f.write("**Prediction: Red Hair Carrier**\n\n")
+        f.write("You carry one MC1R R-allele. While you likely don't have fully red hair, ")
+        f.write("you may have auburn highlights, reddish undertones, or a ginger beard (if male).\n\n")
+    else:
+        # Check SLC45A2 and KITLG for blonde/dark spectrum
+        slc45a2 = [f for f in results["findings"] if f["rsid"] == "rs16891982"]
+        kitlg = [f for f in results["findings"] if f["rsid"] == "rs12821256"]
+
+        if slc45a2 and "light" in slc45a2[0]["status"]:
+            if kitlg and "blonde" in kitlg[0]["status"]:
+                f.write("**Prediction: Blonde / Light Brown**\n\n")
+                f.write("Combination of SLC45A2 (light) and KITLG (blonde driver) suggests ")
+                f.write("light hair color - likely blonde to light brown.\n\n")
             else:
-                f.write(f"Less likely - {finding['description']}\n\n")
+                f.write("**Prediction: Light Brown**\n\n")
+                f.write("SLC45A2 indicates lighter pigmentation.\n\n")
+        elif slc45a2 and "dark" in slc45a2[0]["status"]:
+            f.write("**Prediction: Dark Brown / Black**\n\n")
+            f.write("SLC45A2 indicates darker pigmentation.\n\n")
+        else:
+            f.write("**Prediction: Medium Brown**\n\n")
+            f.write("Intermediate hair color most likely.\n\n")
 
-        # =====================================================================
-        # SECTION B: TASTE & SMELL
-        # =====================================================================
-        f.write("---\n\n## Taste & Smell\n\n")
+    # MC1R details
+    mc1r_findings = [f for f in results["findings"] if f["gene"] == "MC1R"]
+    if mc1r_findings:
+        f.write("**MC1R variants detected:**\n\n")
+        for finding in mc1r_findings:
+            f.write(f"- `{finding['rsid']}`: {finding['genotype']} - {finding['description']}\n")
+        f.write("\n")
 
-        # Bitter Taste (TAS2R38 haplotype)
-        tas2r38_snps = [f for f in results["findings"] if f["gene"] == "TAS2R38"]
-        if tas2r38_snps and len(tas2r38_snps) == 3:
-            f.write("### Bitter Taste Sensitivity (PTC/PROP)\n\n")
+    # Skin Tone
+    f.write("### Skin Tone\n\n")
+    slc24a5 = [f for f in results["findings"] if f["rsid"] == "rs1426654"]
+    if slc24a5:
+        finding = slc24a5[0]
+        f.write(f"**Primary indicator (SLC24A5):** {finding['genotype']}\n\n")
+        f.write(f"{finding['description']}\n\n")
 
-            # Count PAV and AVI alleles across the 3 SNPs
-            # This is simplified - real haplotype phasing would be better
-            pav_count = sum(1 for snp in tas2r38_snps if "taster" in snp["status"].lower())
+        if finding["genotype"] in ["AA", "AG", "GA"]:
+            f.write("The A allele at SLC24A5 is the 'golden mutation' - nearly fixed in Europeans ")
+            f.write("and explains ~25-38% of European-African skin tone difference.\n\n")
 
-            if pav_count >= 2:
-                f.write("**Result: Taster (likely PAV/PAV or PAV/AVI)**\n\n")
-                f.write("You can taste bitter compounds like PTC and PROP. You likely find ")
-                f.write("cruciferous vegetables (broccoli, Brussels sprouts) more bitter.\n\n")
-            elif pav_count == 1:
-                f.write("**Result: Medium Taster (likely PAV/AVI)**\n\n")
-                f.write("You can detect bitterness but find it tolerable.\n\n")
-            else:
-                f.write("**Result: Non-Taster (likely AVI/AVI)**\n\n")
-                f.write("You have reduced ability to taste certain bitter compounds. ")
-                f.write("Cruciferous vegetables may taste milder or sweeter to you.\n\n")
+    # Freckles
+    irf4 = [f for f in results["findings"] if f["rsid"] == "rs12203592"]
+    if irf4:
+        finding = irf4[0]
+        f.write("**Freckles (IRF4):** ")
+        if "T" in finding["genotype"]:
+            f.write(f"Likely present - {finding['description']}\n\n")
+        else:
+            f.write(f"Less likely - {finding['description']}\n\n")
 
-            f.write("**TAS2R38 genotypes:**\n\n")
-            for snp in tas2r38_snps:
-                f.write(f"- `{snp['rsid']}`: {snp['genotype']}\n")
-            f.write("\n")
+    # =====================================================================
+    # SECTION B: TASTE & SMELL
+    # =====================================================================
+    f.write("---\n\n## Taste & Smell\n\n")
 
-        # Other taste/smell traits
-        for category in ["Cilantro Aversion", "Asparagus Smell", "Sweet Preference"]:
-            findings = results["by_category"].get(category, [])
-            if findings:
-                f.write(f"### {category}\n\n")
-                for finding in findings:
-                    f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
-                    f.write(f"{finding['description']}\n\n")
+    # Bitter Taste (TAS2R38 haplotype)
+    tas2r38_snps = [f for f in results["findings"] if f["gene"] == "TAS2R38"]
+    if tas2r38_snps and len(tas2r38_snps) == 3:
+        f.write("### Bitter Taste Sensitivity (PTC/PROP)\n\n")
 
-        # =====================================================================
-        # SECTION C: PHYSICAL TRAITS
-        # =====================================================================
-        f.write("---\n\n## Physical Traits\n\n")
+        # Count PAV and AVI alleles across the 3 SNPs
+        # This is simplified - real haplotype phasing would be better
+        pav_count = sum(1 for snp in tas2r38_snps if "taster" in snp["status"].lower())
 
-        # Blood Type
-        f.write("### Blood Type (Derived)\n\n")
-        blood_type = results["blood_type"]
-        f.write(f"**Predicted Blood Type: {blood_type['blood_type']}**\n\n")
-        f.write(f"Based on rs8176719 (O deletion): `{blood_type['o_status']}`\n")
-        f.write(f"Based on rs8176746 (A/B determinant): `{blood_type['ab_status']}`\n\n")
-        f.write(f"*Note: {blood_type['reason']}*\n\n")
+        if pav_count >= 2:
+            f.write("**Result: Taster (likely PAV/PAV or PAV/AVI)**\n\n")
+            f.write("You can taste bitter compounds like PTC and PROP. You likely find ")
+            f.write("cruciferous vegetables (broccoli, Brussels sprouts) more bitter.\n\n")
+        elif pav_count == 1:
+            f.write("**Result: Medium Taster (likely PAV/AVI)**\n\n")
+            f.write("You can detect bitterness but find it tolerable.\n\n")
+        else:
+            f.write("**Result: Non-Taster (likely AVI/AVI)**\n\n")
+            f.write("You have reduced ability to taste certain bitter compounds. ")
+            f.write("Cruciferous vegetables may taste milder or sweeter to you.\n\n")
 
-        # Hair Texture
-        hair_texture = results["by_category"].get("Hair Texture", [])
-        if hair_texture:
-            f.write("### Hair Texture\n\n")
-            for finding in hair_texture:
+        f.write("**TAS2R38 genotypes:**\n\n")
+        for snp in tas2r38_snps:
+            f.write(f"- `{snp['rsid']}`: {snp['genotype']}\n")
+        f.write("\n")
+
+    # Other taste/smell traits
+    for category in ["Cilantro Aversion", "Asparagus Smell", "Sweet Preference"]:
+        findings = results["by_category"].get(category, [])
+        if findings:
+            f.write(f"### {category}\n\n")
+            for finding in findings:
                 f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
                 f.write(f"{finding['description']}\n\n")
 
-        # Earwax Type
-        earwax = results["by_category"].get("Earwax Type", [])
-        if earwax:
-            f.write("### Earwax Type & Body Odor\n\n")
-            finding = earwax[0]
-            f.write(f"**ABCC11 ({finding['rsid']}):** {finding['genotype']}\n\n")
+    # =====================================================================
+    # SECTION C: PHYSICAL TRAITS
+    # =====================================================================
+    f.write("---\n\n## Physical Traits\n\n")
+
+    # Blood Type
+    f.write("### Blood Type (Derived)\n\n")
+    blood_type = results["blood_type"]
+    f.write(f"**Predicted Blood Type: {blood_type['blood_type']}**\n\n")
+    f.write(f"Based on rs8176719 (O deletion): `{blood_type['o_status']}`\n")
+    f.write(f"Based on rs8176746 (A/B determinant): `{blood_type['ab_status']}`\n\n")
+    f.write(f"*Note: {blood_type['reason']}*\n\n")
+
+    # Hair Texture
+    hair_texture = results["by_category"].get("Hair Texture", [])
+    if hair_texture:
+        f.write("### Hair Texture\n\n")
+        for finding in hair_texture:
+            f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
             f.write(f"{finding['description']}\n\n")
-            if finding["genotype"] == "AA":
-                f.write("*The AA genotype also results in significantly reduced body odor - ")
-                f.write("a pleiotropic effect of the same gene.*\n\n")
 
-        # Facial Morphology
-        f.write("### Facial Features\n\n")
-        for category in ["Nose Shape", "Chin/Jaw", "Earlobes", "Unibrow", "Cleft Chin"]:
-            findings = results["by_category"].get(category, [])
-            if findings:
-                f.write(f"**{category}:**\n\n")
-                for finding in findings:
-                    f.write(f"- `{finding['rsid']}` ({finding['gene']}): {finding['genotype']} - ")
-                    f.write(f"{finding['description']}\n")
-                f.write("\n")
+    # Earwax Type
+    earwax = results["by_category"].get("Earwax Type", [])
+    if earwax:
+        f.write("### Earwax Type & Body Odor\n\n")
+        finding = earwax[0]
+        f.write(f"**ABCC11 ({finding['rsid']}):** {finding['genotype']}\n\n")
+        f.write(f"{finding['description']}\n\n")
+        if finding["genotype"] == "AA":
+            f.write("*The AA genotype also results in significantly reduced body odor - ")
+            f.write("a pleiotropic effect of the same gene.*\n\n")
 
-        # Anthropometrics
-        f.write("### Body Type Tendencies\n\n")
-
-        height_findings = results["by_category"].get("Height", [])
-        if height_findings:
-            f.write(f"**Height genes:** {len(height_findings)} variants detected\n\n")
-            f.write("*Note: Height is highly polygenic (~700+ variants). ")
-            f.write("These top SNPs show tendency direction only.*\n\n")
-
-        bmi_findings = results["by_category"].get("BMI/Weight", [])
-        if bmi_findings:
-            f.write("**BMI/Weight:**\n\n")
-            for finding in bmi_findings:
+    # Facial Morphology
+    f.write("### Facial Features\n\n")
+    for category in ["Nose Shape", "Chin/Jaw", "Earlobes", "Unibrow", "Cleft Chin"]:
+        findings = results["by_category"].get(category, [])
+        if findings:
+            f.write(f"**{category}:**\n\n")
+            for finding in findings:
                 f.write(f"- `{finding['rsid']}` ({finding['gene']}): {finding['genotype']} - ")
                 f.write(f"{finding['description']}\n")
             f.write("\n")
 
-        # =====================================================================
-        # SECTION D: VISION
-        # =====================================================================
-        f.write("---\n\n## Vision & Refractive Traits\n\n")
+    # Anthropometrics
+    f.write("### Body Type Tendencies\n\n")
 
-        for category in ["Myopia", "Astigmatism", "AMD Risk", "Glaucoma Risk"]:
-            findings = results["by_category"].get(category, [])
-            if findings:
-                f.write(f"### {category}\n\n")
-                for finding in findings:
-                    f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
-                    f.write(f"{finding['description']}\n\n")
-                    if finding["magnitude"] >= 2:
-                        f.write(f"⚠️ *Impact level: {finding['magnitude']}/3*\n\n")
+    height_findings = results["by_category"].get("Height", [])
+    if height_findings:
+        f.write(f"**Height genes:** {len(height_findings)} variants detected\n\n")
+        f.write("*Note: Height is highly polygenic (~700+ variants). ")
+        f.write("These top SNPs show tendency direction only.*\n\n")
 
-        # =====================================================================
-        # SECTION E: BEHAVIORAL/NEUROLOGICAL
-        # =====================================================================
-        f.write("---\n\n## Behavioral & Neurological Traits\n\n")
+    bmi_findings = results["by_category"].get("BMI/Weight", [])
+    if bmi_findings:
+        f.write("**BMI/Weight:**\n\n")
+        for finding in bmi_findings:
+            f.write(f"- `{finding['rsid']}` ({finding['gene']}): {finding['genotype']} - ")
+            f.write(f"{finding['description']}\n")
+        f.write("\n")
 
-        for category in ["Photic Sneeze", "Misophonia", "Motion Sickness", "Perfect Pitch", "Mosquito Attractiveness"]:
-            findings = results["by_category"].get(category, [])
-            if findings:
-                f.write(f"### {category}\n\n")
-                for finding in findings:
-                    f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
-                    f.write(f"{finding['description']}\n\n")
+    # =====================================================================
+    # SECTION D: VISION
+    # =====================================================================
+    f.write("---\n\n## Vision & Refractive Traits\n\n")
 
-        # =====================================================================
-        # DISCLAIMER
-        # =====================================================================
-        f.write("---\n\n## Important Notes\n\n")
-        f.write("### Understanding This Report\n\n")
-        f.write("- **Observable traits are probabilistic:** Genes provide tendencies, not certainties\n")
-        f.write("- **Environment matters:** Hair dye, diet, sun exposure all affect phenotype\n")
-        f.write("- **MLR predictions:** Eye color probabilities are based on the IrisPlex model\n")
-        f.write("- **Blood type derivation:** Inferred from two SNPs, may have ambiguity\n")
-        f.write("- **Polygenic traits:** Height, BMI involve hundreds of genes - these show direction only\n")
-        f.write("- **Population differences:** Some trait associations are population-specific\n\n")
-        f.write("### For Vision Findings\n\n")
-        f.write("- AMD and glaucoma risk variants are **not deterministic**\n")
-        f.write("- Regular eye exams are important regardless of genetic risk\n")
-        f.write("- Myopia risk can be modulated by environmental factors (screen time, outdoor activity)\n\n")
-        f.write("---\n\n")
-        f.write("*Report generated using HIrisPlex-S system for pigmentation, ")
-        f.write("GWAS-validated SNPs for morphology, and population genetics data.*\n")
+    for category in ["Myopia", "Astigmatism", "AMD Risk", "Glaucoma Risk"]:
+        findings = results["by_category"].get(category, [])
+        if findings:
+            f.write(f"### {category}\n\n")
+            for finding in findings:
+                f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
+                f.write(f"{finding['description']}\n\n")
+                if finding["magnitude"] >= 2:
+                    f.write(f"⚠️ *Impact level: {finding['magnitude']}/3*\n\n")
+
+    # =====================================================================
+    # SECTION E: BEHAVIORAL/NEUROLOGICAL
+    # =====================================================================
+    f.write("---\n\n## Behavioral & Neurological Traits\n\n")
+
+    for category in ["Photic Sneeze", "Misophonia", "Motion Sickness", "Perfect Pitch", "Mosquito Attractiveness"]:
+        findings = results["by_category"].get(category, [])
+        if findings:
+            f.write(f"### {category}\n\n")
+            for finding in findings:
+                f.write(f"**{finding['gene']} ({finding['rsid']}):** {finding['genotype']}\n\n")
+                f.write(f"{finding['description']}\n\n")
+
+    # =====================================================================
+    # DISCLAIMER
+    # =====================================================================
+    f.write("---\n\n## Important Notes\n\n")
+    f.write("### Understanding This Report\n\n")
+    f.write("- **Observable traits are probabilistic:** Genes provide tendencies, not certainties\n")
+    f.write("- **Environment matters:** Hair dye, diet, sun exposure all affect phenotype\n")
+    f.write("- **MLR predictions:** Eye color probabilities are based on the IrisPlex model\n")
+    f.write("- **Blood type derivation:** Inferred from two SNPs, may have ambiguity\n")
+    f.write("- **Polygenic traits:** Height, BMI involve hundreds of genes - these show direction only\n")
+    f.write("- **Population differences:** Some trait associations are population-specific\n\n")
+    f.write("### For Vision Findings\n\n")
+    f.write("- AMD and glaucoma risk variants are **not deterministic**\n")
+    f.write("- Regular eye exams are important regardless of genetic risk\n")
+    f.write("- Myopia risk can be modulated by environmental factors (screen time, outdoor activity)\n\n")
+    f.write("---\n\n")
+    f.write("*Report generated using HIrisPlex-S system for pigmentation, ")
+    f.write("GWAS-validated SNPs for morphology, and population genetics data.*\n")
+
+    return f.getvalue()
 
 
-def run_traits_report(genome_path: Path, subject_name: str = "Subject"):
+def run_traits_report(genome_path: Path, subject_name: str, output_dir: Path | None):
     """Run the traits report generation."""
-    print(f"Loading genome from {genome_path}...")
-    genome_by_rsid, _ = load_genome_fast(genome_path)
-    print(f"✓ Loaded {len(genome_by_rsid):,} SNPs")
+    import click
 
-    print("Analyzing traits...")
+    click.echo(f"Loading genome from {genome_path}...", err=True)
+    genome_by_rsid, _ = load_genome_fast(genome_path)
+    click.echo(f"✓ Loaded {len(genome_by_rsid):,} SNPs", err=True)
+
+    click.echo("Analyzing traits...", err=True)
     results = analyze_traits_genome(genome_by_rsid)
-    print(f"✓ Analyzed {results['summary']['analyzed_traits']} trait markers")
+    click.echo(f"✓ Analyzed {results['summary']['analyzed_traits']} trait markers", err=True)
 
     # Generate report
-    REPORTS_DIR.mkdir(exist_ok=True)
-    output_path = REPORTS_DIR / "TRAITS_REPORT.md"
+    click.echo("Generating report...", err=True)
+    report = generate_traits_report(results, subject_name)
 
-    print("Generating report...")
-    generate_traits_report(results, subject_name, output_path)
+    if output_dir is None:
+        click.echo(report)
+    else:
+        output_path = output_dir / "TRAITS_REPORT.md"
+        output_path.write_text(report, encoding="utf-8")
+        click.echo(f"  Written: {output_path}", err=True)
 
-    print("\n✅ Traits report generated successfully!")
-    print(f"   Output: {output_path}")
+    click.echo("\n✅ Traits report generated successfully!", err=True)
     # pylint: disable=unsubscriptable-object  # False positive - results is a dict
-    print(f"   Eye color: {results['eye_color_mlr']['prediction']}")
-    print(f"   Blood type: {results['blood_type']['blood_type']}")
-    print(f"   Traits analyzed: {results['summary']['analyzed_traits']}")
+    click.echo(f"   Eye color: {results['eye_color_mlr']['prediction']}", err=True)
+    click.echo(f"   Blood type: {results['blood_type']['blood_type']}", err=True)
+    click.echo(f"   Traits analyzed: {results['summary']['analyzed_traits']}", err=True)
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 generate_traits_report.py <path/to/genome.txt> [--name Subject]")
-        print("\nExample:")
-        print("  python3 generate_traits_report.py ~/Downloads/genome.txt --name John")
-        sys.exit(1)
-
-    genome_path = sys.argv[1]
-
-    # Parse name argument
-    subject_name = "Subject"
-    if "--name" in sys.argv:
-        idx = sys.argv.index("--name")
-        if idx + 1 < len(sys.argv):
-            subject_name = sys.argv[idx + 1]
-
-    run_traits_report(genome_path, subject_name)
-
-
-if __name__ == "__main__":
-    main()
+# Note: Use the CLI instead of running this module directly:
+# uv run analyze-dna traits <genome> --output <dir> [--name "Name"]

@@ -1,0 +1,77 @@
+# rsid	chromosome	position	genotype
+# Synthetic test genome covering key SNPs from all analysis modules
+# This file is used for integration testing of report generation
+
+# === CURATED HIGH-IMPACT SNPs (analyze_genome.py) ===
+# MTHFR - Methylation
+rs1801133	1	11856378	CT
+rs1801131	1	11854476	AG
+# COMT - Neurotransmitters
+rs4680	22	19963748	AG
+# CYP1A2 - Caffeine metabolism
+rs762551	15	75041917	AC
+# APOE - Alzheimer's risk
+rs429358	19	45411941	TC
+rs7412	19	45412079	CC
+# Factor V Leiden - Clotting
+rs6025	1	169549811	GA
+# Prothrombin - Clotting
+rs1799963	11	46761055	GA
+
+# === COMPREHENSIVE HEALTH SNPs (full_health_analysis.py) ===
+# CBS - Methylation
+rs234706	21	43057869	GT
+# BHMT - Methylation
+rs3733890	5	78416301	CT
+# CYP2C19 - Drug metabolism
+rs4244285	10	94781859	GA
+# NAT2 - Detoxification
+rs1801280	8	18258103	CT
+# VDR - Vitamin D
+rs2228570	12	48272895	AG
+# ACE - Cardiovascular
+rs4340	17	61565883	ID
+# TNF - Inflammation
+rs1800629	6	31574531	GA
+
+# === TRAITS SNPs (generate_traits_report.py) ===
+# Eye color (HIrisPlex)
+rs12913832	15	28365618	AG
+rs1800407	15	28230318	GG
+rs16891982	5	33951693	GC
+rs1393350	11	89011046	GA
+# Hair color
+rs1805007	16	89986117	CT
+rs12821256	4	37801536	CT
+# Skin tone
+rs1426654	15	48426484	AA
+# Bitter taste
+rs713598	7	141972903	CG
+rs1726866	7	141973904	AG
+# Blood type
+rs8176719	9	136132908	ID
+rs8176746	9	136131322	GG
+# Earwax/body odor
+rs17822931	16	48258198	GG
+# Hair texture
+rs11803731	1	152283388	TT
+# Myopia
+rs524952	15	35009294	AA
+
+# === PHARMGKB SNPs ===
+# Warfarin sensitivity
+rs9923231	16	31107689	CT
+# Clopidogrel metabolism
+rs4244285	10	94781859	GA
+# Statins myopathy
+rs4149056	12	21331549	TT
+
+# === ADDITIONAL COVERAGE ===
+# Sleep/Circadian
+rs1801260	4	56349366	TC
+# Fitness
+rs1815739	11	66560624	CT
+# Alcohol metabolism
+rs671	12	112241766	GG
+# Lactose intolerance
+rs4988235	2	136608646	CT

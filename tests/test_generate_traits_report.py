@@ -77,6 +77,6 @@ def test_generate_traits_report():
         "findings": [],
         "mc1r_red_hair_score": 0,
     }
-    with patch("builtins.open", mock_open()) as mocked_file:
-        generate_traits_report(results, "John", Path("dummy.md"))
-        mocked_file.assert_called_once()
+    result = generate_traits_report(results, "John")
+    assert "Genetic Traits Report for John" in result
+    assert "Blue" in result

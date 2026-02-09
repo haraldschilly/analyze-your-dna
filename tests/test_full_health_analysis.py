@@ -74,13 +74,7 @@ def test_generate_comprehensive_report():
         ],
     }
 
-    with patch("builtins.open", mock_open()) as mocked_file:
-        generate_comprehensive_report(results, Path("dummy_report.md"))
-        mocked_file.assert_called_once()
-        # Verify some content was written
-        handle = mocked_file()
-        calls = [call[0][0] for call in handle.write.call_args_list]
-        full_content = "".join(calls)
-        assert "Complete Genetic Health Optimization Report" in full_content
-        assert "Methylation" in full_content
-        assert "DrugA" in full_content
+    result = generate_comprehensive_report(results)
+    assert "Complete Genetic Health Optimization Report" in result
+    assert "Methylation" in result
+    assert "DrugA" in result

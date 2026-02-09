@@ -33,10 +33,6 @@ def test_generate_actionable_protocol():
     }
     disease_findings = {"pathogenic": [], "risk_factor": [], "protective": []}
 
-    with patch("builtins.open", mock_open()) as mocked_file:
-        generate_actionable_protocol(health_results, disease_findings, Path("dummy.md"))
-        mocked_file.assert_called_once()
-        handle = mocked_file()
-        calls = [call[0][0] for call in handle.write.call_args_list]
-        full_content = "".join(calls)
-        assert "Methylfolate" in full_content
+    result = generate_actionable_protocol(health_results, disease_findings)
+    assert "Methylfolate" in result
+    assert "Actionable Health Protocol" in result

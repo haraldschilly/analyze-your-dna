@@ -19,6 +19,7 @@ Comprehensive Genetic Health Optimization Analysis
 Generates a complete lifestyle/health optimization report based on genetic data.
 """
 
+import io
 import json
 from collections import defaultdict
 from datetime import datetime
@@ -29,7 +30,6 @@ from .comprehensive_snp_database import COMPREHENSIVE_SNPS
 from .utils import load_genome, load_pharmgkb
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
-REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 
 def analyze_genome(genome: dict[str, Any], pharmgkb: dict[str, Any]) -> dict[str, Any]:
@@ -102,157 +102,156 @@ def analyze_genome(genome: dict[str, Any], pharmgkb: dict[str, Any]) -> dict[str
     return results
 
 
-def generate_comprehensive_report(results: dict, output_path: Path):
-    """Generate the comprehensive health optimization report."""
+def generate_comprehensive_report(results: dict) -> str:
+    """Generate the comprehensive health optimization report and return as string."""
+    f = io.StringIO()
+    f.write("# Complete Genetic Health Optimization Report\n\n")
+    f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
+    f.write("---\n\n")
 
-    with open(output_path, "w") as f:
-        f.write("# Complete Genetic Health Optimization Report\n\n")
-        f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
-        f.write("---\n\n")
+    # Executive Summary
+    f.write("## Executive Summary\n\n")
+    f.write(f"- **Total SNPs in genome:** {results['summary']['total_snps']:,}\n")
+    f.write(f"- **SNPs analyzed against curated database:** {results['summary']['analyzed_snps']}\n")
+    f.write(f"- **High-impact findings (magnitude ≥3):** {results['summary']['high_impact']}\n")
+    f.write(f"- **Moderate-impact findings (magnitude 2):** {results['summary']['moderate_impact']}\n")
+    f.write(f"- **Notable findings (magnitude 1):** {results['summary']['low_impact']}\n")
+    f.write(f"- **PharmGKB drug interactions (Level 1-2):** {len(results['pharmgkb_findings'])}\n\n")
 
-        # Executive Summary
-        f.write("## Executive Summary\n\n")
-        f.write(f"- **Total SNPs in genome:** {results['summary']['total_snps']:,}\n")
-        f.write(f"- **SNPs analyzed against curated database:** {results['summary']['analyzed_snps']}\n")
-        f.write(f"- **High-impact findings (magnitude ≥3):** {results['summary']['high_impact']}\n")
-        f.write(f"- **Moderate-impact findings (magnitude 2):** {results['summary']['moderate_impact']}\n")
-        f.write(f"- **Notable findings (magnitude 1):** {results['summary']['low_impact']}\n")
-        f.write(f"- **PharmGKB drug interactions (Level 1-2):** {len(results['pharmgkb_findings'])}\n\n")
+    # Top Priority Findings
+    f.write("---\n\n")
+    f.write("## 🔴 Top Priority Findings\n\n")
+    f.write("These findings have the highest impact on your health decisions.\n\n")
 
-        # Top Priority Findings
-        f.write("---\n\n")
-        f.write("## 🔴 Top Priority Findings\n\n")
-        f.write("These findings have the highest impact on your health decisions.\n\n")
+    high_impact = [x for x in results["findings"] if x["magnitude"] >= 3]
+    if high_impact:
+        for finding in high_impact:
+            f.write(f"### {finding['gene']} ({finding['rsid']})\n\n")
+            f.write(f"- **Category:** {finding['category']}\n")
+            f.write(f"- **Your Genotype:** `{finding['genotype']}`\n")
+            f.write(f"- **Status:** {finding['status'].replace('_', ' ').title()}\n")
+            f.write(f"- **Impact:** {finding['magnitude']}/6\n")
+            f.write(f"- **Details:** {finding['description']}\n")
+            if finding["note"]:
+                f.write(f"- **Note:** {finding['note']}\n")
+            f.write("\n")
+    else:
+        f.write("✅ No high-impact (magnitude ≥3) findings detected. This is good news.\n\n")
 
-        high_impact = [x for x in results["findings"] if x["magnitude"] >= 3]
-        if high_impact:
-            for finding in high_impact:
-                f.write(f"### {finding['gene']} ({finding['rsid']})\n\n")
-                f.write(f"- **Category:** {finding['category']}\n")
-                f.write(f"- **Your Genotype:** `{finding['genotype']}`\n")
-                f.write(f"- **Status:** {finding['status'].replace('_', ' ').title()}\n")
-                f.write(f"- **Impact:** {finding['magnitude']}/6\n")
-                f.write(f"- **Details:** {finding['description']}\n")
-                if finding["note"]:
-                    f.write(f"- **Note:** {finding['note']}\n")
-                f.write("\n")
-        else:
-            f.write("✅ No high-impact (magnitude ≥3) findings detected. This is good news.\n\n")
+    # =====================================================================
+    # SECTION BY SECTION ANALYSIS
+    # =====================================================================
 
-        # =====================================================================
-        # SECTION BY SECTION ANALYSIS
-        # =====================================================================
+    category_order = [
+        ("Drug Metabolism", "💊", "How you process medications - critical for dosing"),
+        ("Methylation", "🧬", "B-vitamin processing and detoxification"),
+        ("Detoxification", "🧹", "Phase I/II detox enzyme function"),
+        ("Neurotransmitters", "🧠", "Dopamine, serotonin, and brain chemistry"),
+        ("Caffeine Response", "☕", "How you respond to caffeine"),
+        ("Sleep/Circadian", "😴", "Sleep patterns and circadian rhythm"),
+        ("Fitness", "💪", "Exercise response and athletic potential"),
+        ("Nutrition", "🥗", "Nutrient metabolism and dietary needs"),
+        ("Cardiovascular", "❤️", "Heart health and blood pressure"),
+        ("Inflammation", "🔥", "Inflammatory response"),
+        ("Iron Metabolism", "🩸", "Iron absorption and storage"),
+        ("Autoimmune", "🛡️", "Autoimmune disease susceptibility"),
+        ("Skin", "☀️", "Skin sensitivity and aging"),
+        ("Longevity", "⏳", "Aging and longevity markers"),
+        ("Respiratory", "🫁", "Lung health"),
+        ("Alcohol", "🍷", "Alcohol metabolism"),
+    ]
 
-        category_order = [
-            ("Drug Metabolism", "💊", "How you process medications - critical for dosing"),
-            ("Methylation", "🧬", "B-vitamin processing and detoxification"),
-            ("Detoxification", "🧹", "Phase I/II detox enzyme function"),
-            ("Neurotransmitters", "🧠", "Dopamine, serotonin, and brain chemistry"),
-            ("Caffeine Response", "☕", "How you respond to caffeine"),
-            ("Sleep/Circadian", "😴", "Sleep patterns and circadian rhythm"),
-            ("Fitness", "💪", "Exercise response and athletic potential"),
-            ("Nutrition", "🥗", "Nutrient metabolism and dietary needs"),
-            ("Cardiovascular", "❤️", "Heart health and blood pressure"),
-            ("Inflammation", "🔥", "Inflammatory response"),
-            ("Iron Metabolism", "🩸", "Iron absorption and storage"),
-            ("Autoimmune", "🛡️", "Autoimmune disease susceptibility"),
-            ("Skin", "☀️", "Skin sensitivity and aging"),
-            ("Longevity", "⏳", "Aging and longevity markers"),
-            ("Respiratory", "🫁", "Lung health"),
-            ("Alcohol", "🍷", "Alcohol metabolism"),
-        ]
+    for category, emoji, description in category_order:
+        if category in results["by_category"]:
+            findings = results["by_category"][category]
+            f.write("---\n\n")
+            f.write(f"## {emoji} {category}\n\n")
+            f.write(f"*{description}*\n\n")
 
-        for category, emoji, description in category_order:
-            if category in results["by_category"]:
-                findings = results["by_category"][category]
-                f.write("---\n\n")
-                f.write(f"## {emoji} {category}\n\n")
-                f.write(f"*{description}*\n\n")
+            # Sort by magnitude within category
+            findings_sorted = sorted(findings, key=lambda x: -x["magnitude"])
 
-                # Sort by magnitude within category
-                findings_sorted = sorted(findings, key=lambda x: -x["magnitude"])
+            f.write("| Gene | SNP | Genotype | Status | Impact | Interpretation |\n")
+            f.write("|------|-----|----------|--------|--------|----------------|\n")
 
-                f.write("| Gene | SNP | Genotype | Status | Impact | Interpretation |\n")
-                f.write("|------|-----|----------|--------|--------|----------------|\n")
+            for finding in findings_sorted:
+                status = finding["status"].replace("_", " ").title()
+                desc = finding["description"]
+                if len(desc) > 60:
+                    desc = desc[:57] + "..."
+                impact_indicator = (
+                    "🔴"
+                    if finding["magnitude"] >= 3
+                    else "🟡"
+                    if finding["magnitude"] >= 2
+                    else "🟢"
+                    if finding["magnitude"] >= 1
+                    else "⚪"
+                )
+                f.write(
+                    f"| {finding['gene']} | {finding['rsid']} | `{finding['genotype']}` | {status} | {impact_indicator} {finding['magnitude']} | {desc} |\n"
+                )
 
-                for finding in findings_sorted:
-                    status = finding["status"].replace("_", " ").title()
-                    desc = finding["description"]
-                    if len(desc) > 60:
-                        desc = desc[:57] + "..."
-                    impact_indicator = (
-                        "🔴"
-                        if finding["magnitude"] >= 3
-                        else "🟡"
-                        if finding["magnitude"] >= 2
-                        else "🟢"
-                        if finding["magnitude"] >= 1
-                        else "⚪"
-                    )
-                    f.write(
-                        f"| {finding['gene']} | {finding['rsid']} | `{finding['genotype']}` | {status} | {impact_indicator} {finding['magnitude']} | {desc} |\n"
-                    )
+            f.write("\n")
 
-                f.write("\n")
+            # Add detailed interpretation for each category
+            write_category_interpretation(f, category, findings_sorted)
 
-                # Add detailed interpretation for each category
-                write_category_interpretation(f, category, findings_sorted)
+    # =====================================================================
+    # PHARMGKB DRUG INTERACTIONS
+    # =====================================================================
 
-        # =====================================================================
-        # PHARMGKB DRUG INTERACTIONS
-        # =====================================================================
+    f.write("---\n\n")
+    f.write("## 💊 Drug-Gene Interactions (PharmGKB)\n\n")
+    f.write("Clinical-grade drug-gene interaction data. Level 1A/1B = strongest evidence.\n\n")
 
-        f.write("---\n\n")
-        f.write("## 💊 Drug-Gene Interactions (PharmGKB)\n\n")
-        f.write("Clinical-grade drug-gene interaction data. Level 1A/1B = strongest evidence.\n\n")
+    # Group by evidence level
+    level_1 = [x for x in results["pharmgkb_findings"] if x["level"] in ["1A", "1B"]]
+    level_2 = [x for x in results["pharmgkb_findings"] if x["level"] in ["2A", "2B"]]
 
-        # Group by evidence level
-        level_1 = [x for x in results["pharmgkb_findings"] if x["level"] in ["1A", "1B"]]
-        level_2 = [x for x in results["pharmgkb_findings"] if x["level"] in ["2A", "2B"]]
+    if level_1:
+        f.write("### Level 1 Evidence (Clinical Guidelines Exist)\n\n")
+        for finding in level_1[:20]:
+            f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
+            f.write(f"- Drugs: {finding['drugs']}\n")
+            f.write(f"- Your Genotype: `{finding['genotype']}`\n")
+            annotation = finding["annotation"]
+            if len(annotation) > 300:
+                annotation = annotation[:297] + "..."
+            f.write(f"- {annotation}\n\n")
 
-        if level_1:
-            f.write("### Level 1 Evidence (Clinical Guidelines Exist)\n\n")
-            for finding in level_1[:20]:
-                f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
-                f.write(f"- Drugs: {finding['drugs']}\n")
-                f.write(f"- Your Genotype: `{finding['genotype']}`\n")
-                annotation = finding["annotation"]
-                if len(annotation) > 300:
-                    annotation = annotation[:297] + "..."
-                f.write(f"- {annotation}\n\n")
+    if level_2:
+        f.write("### Level 2 Evidence (Moderate Evidence)\n\n")
+        f.write("<details>\n<summary>Click to expand Level 2 findings</summary>\n\n")
+        for finding in level_2[:30]:
+            f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
+            f.write(f"- Drugs: {finding['drugs']}\n")
+            f.write(f"- Your Genotype: `{finding['genotype']}`\n\n")
+        f.write("</details>\n\n")
 
-        if level_2:
-            f.write("### Level 2 Evidence (Moderate Evidence)\n\n")
-            f.write("<details>\n<summary>Click to expand Level 2 findings</summary>\n\n")
-            for finding in level_2[:30]:
-                f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
-                f.write(f"- Drugs: {finding['drugs']}\n")
-                f.write(f"- Your Genotype: `{finding['genotype']}`\n\n")
-            f.write("</details>\n\n")
+    # =====================================================================
+    # ACTIONABLE RECOMMENDATIONS
+    # =====================================================================
 
-        # =====================================================================
-        # ACTIONABLE RECOMMENDATIONS
-        # =====================================================================
+    f.write("---\n\n")
+    f.write("## 📋 Personalized Action Plan\n\n")
 
-        f.write("---\n\n")
-        f.write("## 📋 Personalized Action Plan\n\n")
+    write_action_plan(f, results)
 
-        write_action_plan(f, results)
+    # =====================================================================
+    # DISCLAIMER
+    # =====================================================================
 
-        # =====================================================================
-        # DISCLAIMER
-        # =====================================================================
+    f.write("---\n\n")
+    f.write("## ⚠️ Disclaimer\n\n")
+    f.write("This report is for **informational and educational purposes only**. It is not medical advice.\n\n")
+    f.write("- Genetic associations are probabilistic, not deterministic\n")
+    f.write("- Environmental factors, lifestyle, and other genes also influence outcomes\n")
+    f.write("- Consult healthcare providers before making medical decisions\n")
+    f.write("- Some variants may have different effects in different populations\n")
+    f.write("- This analysis is based on currently available research, which evolves\n")
 
-        f.write("---\n\n")
-        f.write("## ⚠️ Disclaimer\n\n")
-        f.write("This report is for **informational and educational purposes only**. It is not medical advice.\n\n")
-        f.write("- Genetic associations are probabilistic, not deterministic\n")
-        f.write("- Environmental factors, lifestyle, and other genes also influence outcomes\n")
-        f.write("- Consult healthcare providers before making medical decisions\n")
-        f.write("- Some variants may have different effects in different populations\n")
-        f.write("- This analysis is based on currently available research, which evolves\n")
-
-    print(f"Comprehensive report generated: {output_path}")
+    return f.getvalue()
 
 
 def write_category_interpretation(f, category: str, findings: list):
@@ -613,58 +612,59 @@ def write_action_plan(f, results: dict):
     f.write("\n")
 
 
-def run_health_analysis(genome_path: Path):
+def run_health_analysis(genome_path: Path, output_dir: Path | None):
     """Run the comprehensive health optimization analysis."""
-    print("=" * 70)
-    print("COMPREHENSIVE GENETIC HEALTH OPTIMIZATION ANALYSIS")
-    print("=" * 70)
+    import click
+
+    click.echo("=" * 70, err=True)
+    click.echo("COMPREHENSIVE GENETIC HEALTH OPTIMIZATION ANALYSIS", err=True)
+    click.echo("=" * 70, err=True)
 
     # Load genome
-    print(f"\nLoading genome from {genome_path}...")
+    click.echo(f"\nLoading genome from {genome_path}...", err=True)
     genome = load_genome(genome_path)
-    print(f"Loaded {len(genome):,} SNPs")
+    click.echo(f"Loaded {len(genome):,} SNPs", err=True)
 
     # Load PharmGKB
     pharmgkb_annotations = DATA_DIR / "clinical_annotations.tsv"
     pharmgkb_alleles = DATA_DIR / "clinical_ann_alleles.tsv"
-    print("\nLoading PharmGKB data...")
+    click.echo("\nLoading PharmGKB data...", err=True)
     pharmgkb = load_pharmgkb(pharmgkb_annotations, pharmgkb_alleles)
-    print(f"Loaded {len(pharmgkb):,} drug-gene interactions")
+    click.echo(f"Loaded {len(pharmgkb):,} drug-gene interactions", err=True)
 
     # Analyze
-    print(f"\nAnalyzing against {len(COMPREHENSIVE_SNPS)} curated SNPs...")
+    click.echo(f"\nAnalyzing against {len(COMPREHENSIVE_SNPS)} curated SNPs...", err=True)
     results = analyze_genome(genome, pharmgkb)
 
-    # Save raw results
-    REPORTS_DIR.mkdir(exist_ok=True)
-    results_json = {
-        "findings": results["findings"],
-        "pharmgkb_findings": results["pharmgkb_findings"],
-        "summary": results["summary"],
-    }
-    results_path = REPORTS_DIR / "comprehensive_results.json"
-    with open(results_path, "w") as f:
-        json.dump(results_json, f, indent=2)
-    print(f"Raw results saved to {results_path}")
+    # Save raw results JSON (skip in stdout mode)
+    if output_dir:
+        results_json = {
+            "findings": results["findings"],
+            "pharmgkb_findings": results["pharmgkb_findings"],
+            "summary": results["summary"],
+        }
+        results_path = output_dir / "comprehensive_results.json"
+        results_path.write_text(json.dumps(results_json, indent=2), encoding="utf-8")
+        click.echo(f"Raw results saved to {results_path}", err=True)
 
     # Generate comprehensive report
-    report_path = REPORTS_DIR / "COMPLETE_HEALTH_REPORT.md"
-    generate_comprehensive_report(results, report_path)
+    report = generate_comprehensive_report(results)
+    if output_dir is None:
+        click.echo(report)
+    else:
+        report_path = output_dir / "COMPLETE_HEALTH_REPORT.md"
+        report_path.write_text(report, encoding="utf-8")
+        click.echo(f"  Written: {report_path}", err=True)
 
     # Print summary
-    print("\n" + "=" * 70)
-    print("ANALYSIS COMPLETE")
-    print("=" * 70)
-    print(f"\nSNPs analyzed: {results['summary']['analyzed_snps']}")
-    print(f"High-impact findings: {results['summary']['high_impact']}")
-    print(f"Moderate-impact findings: {results['summary']['moderate_impact']}")
-    print(f"Low-impact findings: {results['summary']['low_impact']}")
-    print(f"\nFull report: {report_path}")
+    click.echo("\n" + "=" * 70, err=True)
+    click.echo("ANALYSIS COMPLETE", err=True)
+    click.echo("=" * 70, err=True)
+    click.echo(f"\nSNPs analyzed: {results['summary']['analyzed_snps']}", err=True)
+    click.echo(f"High-impact findings: {results['summary']['high_impact']}", err=True)
+    click.echo(f"Moderate-impact findings: {results['summary']['moderate_impact']}", err=True)
+    click.echo(f"Low-impact findings: {results['summary']['low_impact']}", err=True)
 
 
-def main():
-    run_health_analysis(DATA_DIR / "genome.txt")
-
-
-if __name__ == "__main__":
-    main()
+# Note: Use the CLI instead of running this module directly:
+# uv run analyze-dna health-report <genome> --output <dir>

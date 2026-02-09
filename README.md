@@ -39,7 +39,7 @@ Here is how you can use this tool with an AI agent in your terminal:
 
 I will run the full genetic analysis pipeline on your 'genome.txt' file.
 
-$ uv run analyze-dna full-analysis ~/Downloads/genome.txt
+$ uv run analyze-dna full-analysis ~/Downloads/genome.txt --output ~/reports
 
 ======================================================================
 FULL GENETIC HEALTH ANALYSIS
@@ -64,15 +64,15 @@ FULL GENETIC HEALTH ANALYSIS
     Risk factors: 28
 
 >>> Generating reports...
-    Written to: reports/EXHAUSTIVE_GENETIC_REPORT.md
-    Written to: reports/EXHAUSTIVE_DISEASE_RISK_REPORT.md
-    Written to: reports/ACTIONABLE_HEALTH_PROTOCOL_V3.md
+  Written: /home/user/reports/EXHAUSTIVE_GENETIC_REPORT.md
+  Written: /home/user/reports/EXHAUSTIVE_DISEASE_RISK_REPORT.md
+  Written: /home/user/reports/ACTIONABLE_HEALTH_PROTOCOL_V3.md
 
 ======================================================================
 ANALYSIS COMPLETE
 ======================================================================
 
-I have generated three comprehensive reports for you.
+I have generated three comprehensive reports in ~/reports/.
 1. Your genetic health overview found 45 notable lifestyle variants.
 2. The disease risk scan identified 2 pathogenic variants (see 'EXHAUSTIVE_DISEASE_RISK_REPORT.md').
 3. I've created a personalized 'ACTIONABLE_HEALTH_PROTOCOL_V3.md' with supplement and diet recommendations.
@@ -108,13 +108,13 @@ The genome file is a **required** argument for all analysis commands. Pass the p
 
 ```bash
 # Full analysis (health + ClinVar disease risk + actionable protocol)
-uv run analyze-dna full-analysis path/to/your/genome.txt --name "Your Name"
+uv run analyze-dna full-analysis path/to/your/genome.txt --output ./reports --name "Your Name"
 
 # Quick analysis (34 curated high-impact SNPs + ClinVar + PharmGKB)
-uv run analyze-dna quick-analysis path/to/your/genome.txt
+uv run analyze-dna quick-analysis path/to/your/genome.txt --output ./reports
 
 # Comprehensive health optimization report (88 SNPs + PharmGKB)
-uv run analyze-dna health-report path/to/your/genome.txt
+uv run analyze-dna health-report path/to/your/genome.txt --output ./reports
 
 # See all available commands
 uv run analyze-dna --help
@@ -219,7 +219,7 @@ In addition to the curated SNPs above, the pipeline scans your entire genome aga
 
 ## Output Reports
 
-The pipeline generates three reports in `reports/`:
+The `full-analysis` command generates three reports in your specified output directory:
 
 | Report | Description |
 |--------|-------------|
@@ -233,19 +233,19 @@ Beyond the full pipeline, several focused analysis commands are available:
 
 **Quick Analysis** (focused, high-impact)
 ```bash
-uv run analyze-dna quick-analysis path/to/genome.txt
+uv run analyze-dna quick-analysis path/to/genome.txt --output ./reports
 ```
-Focused analysis using ~34 curated high-impact SNPs (drug metabolism, APOE, clotting factors, etc.) plus ClinVar and PharmGKB. Generates `reports/genetic_report.md`.
+Focused analysis using ~34 curated high-impact SNPs (drug metabolism, APOE, clotting factors, etc.) plus ClinVar and PharmGKB. Generates `genetic_report.md` in the specified output directory.
 
 **Health Report** (comprehensive optimization)
 ```bash
-uv run analyze-dna health-report path/to/genome.txt
+uv run analyze-dna health-report path/to/genome.txt --output ./reports
 ```
-Comprehensive health optimization report using ~88 curated SNPs plus PharmGKB drug interactions. Generates `reports/COMPLETE_HEALTH_REPORT.md` with categorized findings and a personalized action plan.
+Comprehensive health optimization report using ~88 curated SNPs plus PharmGKB drug interactions. Generates `COMPLETE_HEALTH_REPORT.md` in the specified output directory with categorized findings and a personalized action plan.
 
 **Traits Report**
 ```bash
-uv run analyze-dna traits path/to/genome.txt --name "Subject"
+uv run analyze-dna traits path/to/genome.txt --output ./reports --name "Subject"
 ```
 Generates a comprehensive traits report covering:
 - **Pigmentation**: Eye color (with MLR probability model), hair color/texture, skin tone, freckles
@@ -279,15 +279,15 @@ analyze-dna/
 ├── CLAUDE.md                  # Instructions for Claude Code
 ├── pyproject.toml             # UV/pip package configuration
 ├── data/
-│   ├── genome.txt             # Your 23andMe raw data (add this)
-│   ├── clinvar_alleles.tsv.gz # ClinVar database (auto-extracted on run)
+│   ├── clinvar_alleles.tsv.gz # ClinVar database (included, auto-extracted on run)
 │   └── clinical_*.tsv         # PharmGKB data (included)
-├── src/analyze_dna/
-│   ├── cli.py                 # CLI entry point
-│   ├── run_full_analysis.py   # Main analysis logic
-│   └── ...                    # Analysis modules
-└── reports/                   # Generated reports
+└── src/analyze_dna/
+    ├── cli.py                 # CLI entry point
+    ├── run_full_analysis.py   # Main analysis logic
+    └── ...                    # Analysis modules
 ```
+
+Note: The genome file path and output directory are specified via CLI arguments. No specific file layout is required.
 
 ---
 
@@ -302,14 +302,15 @@ analyze-dna/
 
 ## Running for Multiple People
 
-Each analysis command requires the genome file path as an argument, making it easy to analyze multiple people without moving files:
+Each analysis command requires the genome file path and output directory as arguments, making it easy to analyze multiple people:
 
 ```bash
-uv run analyze-dna full-analysis ~/Downloads/genome_mom.txt --name "Mom"
-uv run analyze-dna full-analysis ~/Downloads/genome_dad.txt --name "Dad"
+# Use separate output directories for each person
+uv run analyze-dna full-analysis ~/Downloads/genome_mom.txt --output ~/reports/mom --name "Mom"
+uv run analyze-dna full-analysis ~/Downloads/genome_dad.txt --output ~/reports/dad --name "Dad"
 
-# Rename outputs to preserve if needed
-mv reports/EXHAUSTIVE_GENETIC_REPORT.md reports/EXHAUSTIVE_GENETIC_REPORT_MOM.md
+# Or use --output-stdout to pipe to files
+uv run analyze-dna full-analysis ~/Downloads/genome_mom.txt --output-stdout --name "Mom" > mom_report.md 2>/dev/null
 ```
 
 ---

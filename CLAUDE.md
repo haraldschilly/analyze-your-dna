@@ -25,25 +25,33 @@ This pipeline analyzes 23andMe raw genetic data against ClinVar and PharmGKB dat
 
 ## Running the Pipeline
 
-The project is structured as a Python package with a Click CLI. Always use `uv run analyze-dna` — the genome file is a **required** argument for all analysis commands.
+The project is structured as a Python package with a Click CLI. Always use `uv run analyze-dna` — the genome file and output specification are **required** arguments for all report commands.
 
-```
+**Important:** All report commands require either `--output <directory>` or `--output-stdout`. The tool will error if neither is provided. Use `--output .` for the current directory.
+
+```bash
 uv sync
-uv run analyze-dna full-analysis path/to/genome.txt --name "Subject"
+uv run analyze-dna full-analysis path/to/genome.txt --output ./reports --name "Subject"
+
+# Or write to stdout for LLM consumption (progress goes to stderr)
+uv run analyze-dna full-analysis path/to/genome.txt --output-stdout --name "Subject"
 ```
 
 ### Available CLI Commands
 
-| Command | Description | Output |
-|---------|-------------|--------|
-| `full-analysis GENOME` | Full pipeline: health + ClinVar disease risk + action plan | 3 reports in `reports/` |
-| `quick-analysis GENOME` | Focused analysis with ~34 curated high-impact SNPs + ClinVar | `reports/genetic_report.md` |
-| `health-report GENOME` | Comprehensive health optimization (~88 SNPs + PharmGKB) | `reports/COMPLETE_HEALTH_REPORT.md` |
-| `traits GENOME` | Observable traits (pigmentation, taste, morphology, vision) | `reports/TRAITS_REPORT.md` |
-| `portrait GENOME` | AI portrait prompt generator from genetic traits | stdout or `--output` file |
+| Command | Description | Output Files |
+|---------|-------------|--------------|
+| `full-analysis GENOME --output DIR` | Full pipeline: health + ClinVar disease risk + action plan | `EXHAUSTIVE_GENETIC_REPORT.md`<br>`EXHAUSTIVE_DISEASE_RISK_REPORT.md`<br>`ACTIONABLE_HEALTH_PROTOCOL_V3.md` |
+| `quick-analysis GENOME --output DIR` | Focused analysis with ~34 curated high-impact SNPs + ClinVar | `genetic_report.md` |
+| `health-report GENOME --output DIR` | Comprehensive health optimization (~88 SNPs + PharmGKB) | `COMPLETE_HEALTH_REPORT.md` |
+| `traits GENOME --output DIR` | Observable traits (pigmentation, taste, morphology, vision) | `TRAITS_REPORT.md` |
+| `portrait GENOME --output FILE` | AI portrait prompt generator from genetic traits | User-specified file or stdout |
 | `update-clinvar` | Download and convert latest ClinVar database | `data/clinvar_alleles.tsv*` |
 
-All analysis commands require the genome file path as the first argument (e.g., `~/Downloads/genome.txt`).
+**Mandatory Arguments:**
+- All report commands require the genome file path as the first argument (e.g., `~/Downloads/genome.txt`)
+- All report commands require either `--output <directory>` or `--output-stdout` (error if neither provided)
+- Use `--output .` to save reports in the current working directory
 
 ## Testing
 
@@ -59,7 +67,7 @@ uv run pytest
 2. Load PharmGKB → drug-gene interaction lookup
 3. Analyze lifestyle/health → match against `COMPREHENSIVE_SNPS`
 4. Analyze disease risk → match against ClinVar (289MB TSV)
-5. Generate reports → 3 markdown files in `reports/`
+5. Generate reports → markdown files written to user-specified output directory or stdout
 
 ## Critical Implementation Details
 

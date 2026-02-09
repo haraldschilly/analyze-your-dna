@@ -20,6 +20,7 @@ Cross-references personal genome against ClinVar, PharmGKB, and curated high-imp
 """
 
 import csv
+import io
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -29,7 +30,6 @@ from .types import SnpDatabase
 from .utils import ensure_clinvar, load_genome, load_pharmgkb
 
 DATA_DIR = Path(__file__).parent.parent.parent / "data"
-REPORTS_DIR = Path(__file__).parent.parent.parent / "reports"
 
 # =============================================================================
 # CURATED SNP DATABASE (Most Important/Actionable Variants)
@@ -753,96 +753,93 @@ def analyze_genome(
     return results
 
 
-def generate_report(results: dict[str, Any], output_path: Path):
-    """Generate comprehensive markdown report."""
+def generate_report(results: dict[str, Any]) -> str:
+    """Generate comprehensive markdown report and return as string."""
+    f = io.StringIO()
+    f.write("# Comprehensive Genetic Analysis Report\n\n")
+    f.write(f"Generated: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
 
-    with open(output_path, "w") as f:
-        f.write("# Comprehensive Genetic Analysis Report\n\n")
-        f.write(f"Generated: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
+    # Summary
+    f.write("## Summary\n\n")
+    f.write(f"- **Total SNPs in genome**: {results['summary']['total_snps']:,}\n")
+    f.write(f"- **Curated high-impact SNPs found**: {results['summary']['curated_matches']}\n")
+    f.write(f"- **PharmGKB drug interactions found**: {results['summary']['pharmgkb_matches']}\n")
+    f.write(f"- **High-impact findings (magnitude ≥3)**: {results['summary']['high_impact']}\n\n")
 
-        # Summary
-        f.write("## Summary\n\n")
-        f.write(f"- **Total SNPs in genome**: {results['summary']['total_snps']:,}\n")
-        f.write(f"- **Curated high-impact SNPs found**: {results['summary']['curated_matches']}\n")
-        f.write(f"- **PharmGKB drug interactions found**: {results['summary']['pharmgkb_matches']}\n")
-        f.write(f"- **High-impact findings (magnitude ≥3)**: {results['summary']['high_impact']}\n\n")
+    # High Impact Findings
+    f.write("---\n\n")
+    f.write("## High-Impact Findings (Magnitude ≥ 3)\n\n")
+    f.write("These findings have significant clinical or lifestyle implications.\n\n")
 
-        # High Impact Findings
-        f.write("---\n\n")
-        f.write("## High-Impact Findings (Magnitude ≥ 3)\n\n")
-        f.write("These findings have significant clinical or lifestyle implications.\n\n")
+    high_impact = [x for x in results["curated_findings"] if x["magnitude"] >= 3]
+    if high_impact:
+        for finding in high_impact:
+            f.write(f"### {finding['gene']} - {finding['rsid']}\n\n")
+            f.write(f"- **Category**: {finding['category']}\n")
+            f.write(f"- **Your Genotype**: {finding['genotype']}\n")
+            f.write(f"- **Status**: {finding['status']}\n")
+            f.write(f"- **Magnitude**: {finding['magnitude']}/6\n")
+            f.write(f"- **Interpretation**: {finding['description']}\n\n")
+    else:
+        f.write("No high-impact findings detected.\n\n")
 
-        high_impact = [x for x in results["curated_findings"] if x["magnitude"] >= 3]
-        if high_impact:
-            for finding in high_impact:
-                f.write(f"### {finding['gene']} - {finding['rsid']}\n\n")
-                f.write(f"- **Category**: {finding['category']}\n")
-                f.write(f"- **Your Genotype**: {finding['genotype']}\n")
-                f.write(f"- **Status**: {finding['status']}\n")
-                f.write(f"- **Magnitude**: {finding['magnitude']}/6\n")
-                f.write(f"- **Interpretation**: {finding['description']}\n\n")
-        else:
-            f.write("No high-impact findings detected.\n\n")
+    # All Curated Findings by Category
+    f.write("---\n\n")
+    f.write("## All Findings by Category\n\n")
 
-        # All Curated Findings by Category
-        f.write("---\n\n")
-        f.write("## All Findings by Category\n\n")
+    categories: dict[str, list[Any]] = defaultdict(list)
+    for finding in results["curated_findings"]:
+        categories[finding["category"]].append(finding)
 
-        categories: dict[str, list[Any]] = defaultdict(list)
-        for finding in results["curated_findings"]:
-            categories[finding["category"]].append(finding)
+    for category, findings in sorted(categories.items()):
+        f.write(f"### {category}\n\n")
+        f.write("| Gene | SNP | Genotype | Status | Magnitude | Interpretation |\n")
+        f.write("|------|-----|----------|--------|-----------|----------------|\n")
+        for finding in findings:
+            desc = finding["description"][:80] + "..." if len(finding["description"]) > 80 else finding["description"]
+            f.write(
+                f"| {finding['gene']} | {finding['rsid']} | {finding['genotype']} | {finding['status']} | {finding['magnitude']} | {desc} |\n"
+            )
+        f.write("\n")
 
-        for category, findings in sorted(categories.items()):
-            f.write(f"### {category}\n\n")
-            f.write("| Gene | SNP | Genotype | Status | Magnitude | Interpretation |\n")
-            f.write("|------|-----|----------|--------|-----------|----------------|\n")
-            for finding in findings:
-                desc = (
-                    finding["description"][:80] + "..." if len(finding["description"]) > 80 else finding["description"]
-                )
-                f.write(
-                    f"| {finding['gene']} | {finding['rsid']} | {finding['genotype']} | {finding['status']} | {finding['magnitude']} | {desc} |\n"
-                )
+    # PharmGKB Drug Interactions
+    f.write("---\n\n")
+    f.write("## Drug-Gene Interactions (PharmGKB)\n\n")
+    f.write("These are clinically annotated drug-gene interactions.\n\n")
+
+    if results["pharmgkb_findings"]:
+        for finding in results["pharmgkb_findings"][:30]:  # Top 30
+            f.write(f"### {finding['gene']} - {finding['rsid']}\n\n")
+            f.write(f"- **Drugs**: {finding['drugs']}\n")
+            f.write(f"- **Your Genotype**: {finding['genotype']}\n")
+            f.write(f"- **Evidence Level**: {finding['level']}\n")
+            f.write(f"- **Category**: {finding['category']}\n")
+            f.write(f"- **Clinical Annotation**: {finding['annotation']}\n\n")
+    else:
+        f.write("No PharmGKB drug interactions found for your genotypes.\n\n")
+
+    # Recommendations
+    f.write("---\n\n")
+    f.write("## Actionable Recommendations\n\n")
+
+    recommendations = generate_recommendations(results)
+    for rec in recommendations:
+        f.write(f"### {rec['title']}\n\n")
+        f.write(f"{rec['description']}\n\n")
+        if rec.get("actions"):
+            f.write("**Actions:**\n")
+            for action in rec["actions"]:
+                f.write(f"- {action}\n")
             f.write("\n")
 
-        # PharmGKB Drug Interactions
-        f.write("---\n\n")
-        f.write("## Drug-Gene Interactions (PharmGKB)\n\n")
-        f.write("These are clinically annotated drug-gene interactions.\n\n")
+    f.write("---\n\n")
+    f.write("## Disclaimer\n\n")
+    f.write("This report is for informational purposes only and should not be used for medical ")
+    f.write("diagnosis or treatment. Consult a healthcare provider or genetic counselor before ")
+    f.write("making any medical decisions based on this information. Genetic associations are ")
+    f.write("probabilistic, not deterministic.\n")
 
-        if results["pharmgkb_findings"]:
-            for finding in results["pharmgkb_findings"][:30]:  # Top 30
-                f.write(f"### {finding['gene']} - {finding['rsid']}\n\n")
-                f.write(f"- **Drugs**: {finding['drugs']}\n")
-                f.write(f"- **Your Genotype**: {finding['genotype']}\n")
-                f.write(f"- **Evidence Level**: {finding['level']}\n")
-                f.write(f"- **Category**: {finding['category']}\n")
-                f.write(f"- **Clinical Annotation**: {finding['annotation']}\n\n")
-        else:
-            f.write("No PharmGKB drug interactions found for your genotypes.\n\n")
-
-        # Recommendations
-        f.write("---\n\n")
-        f.write("## Actionable Recommendations\n\n")
-
-        recommendations = generate_recommendations(results)
-        for rec in recommendations:
-            f.write(f"### {rec['title']}\n\n")
-            f.write(f"{rec['description']}\n\n")
-            if rec.get("actions"):
-                f.write("**Actions:**\n")
-                for action in rec["actions"]:
-                    f.write(f"- {action}\n")
-                f.write("\n")
-
-        f.write("---\n\n")
-        f.write("## Disclaimer\n\n")
-        f.write("This report is for informational purposes only and should not be used for medical ")
-        f.write("diagnosis or treatment. Consult a healthcare provider or genetic counselor before ")
-        f.write("making any medical decisions based on this information. Genetic associations are ")
-        f.write("probabilistic, not deterministic.\n")
-
-    print(f"Report generated: {output_path}")
+    return f.getvalue()
 
 
 def generate_recommendations(results: dict[str, Any]) -> list[dict[str, Any]]:
@@ -955,59 +952,62 @@ def generate_recommendations(results: dict[str, Any]) -> list[dict[str, Any]]:
     return recommendations
 
 
-def run_analyze_genome(genome_path: Path):
+def run_analyze_genome(genome_path: Path, output_dir: Path | None):
     """Run the curated SNP genome analysis."""
-    print("=" * 60)
-    print("COMPREHENSIVE GENOME ANALYZER")
-    print("=" * 60)
+    import click
+
+    click.echo("=" * 60, err=True)
+    click.echo("COMPREHENSIVE GENOME ANALYZER", err=True)
+    click.echo("=" * 60, err=True)
 
     # Load genome
-    print(f"\nLoading genome from {genome_path}...")
+    click.echo(f"\nLoading genome from {genome_path}...", err=True)
     genome = load_genome(genome_path)
-    print(f"Loaded {len(genome):,} SNPs")
+    click.echo(f"Loaded {len(genome):,} SNPs", err=True)
 
     # Load ClinVar
     clinvar_path = Path(ensure_clinvar(DATA_DIR))
-    print(f"\nLoading ClinVar data from {clinvar_path}...")
+    click.echo(f"\nLoading ClinVar data from {clinvar_path}...", err=True)
     clinvar = load_clinvar(clinvar_path)
-    print(f"Loaded {len(clinvar):,} pathogenic variants")
+    click.echo(f"Loaded {len(clinvar):,} pathogenic variants", err=True)
 
     # Load PharmGKB
     pharmgkb_annotations = DATA_DIR / "clinical_annotations.tsv"
     pharmgkb_alleles = DATA_DIR / "clinical_ann_alleles.tsv"
-    print("\nLoading PharmGKB data...")
+    click.echo("\nLoading PharmGKB data...", err=True)
     pharmgkb = load_pharmgkb(pharmgkb_annotations, pharmgkb_alleles)
-    print(f"Loaded {len(pharmgkb):,} drug-gene interactions")
+    click.echo(f"Loaded {len(pharmgkb):,} drug-gene interactions", err=True)
 
     # Analyze
-    print("\nAnalyzing genome...")
+    click.echo("\nAnalyzing genome...", err=True)
     results = analyze_genome(genome, clinvar, pharmgkb)
 
-    # Save raw results
-    REPORTS_DIR.mkdir(exist_ok=True)
-    results_path = REPORTS_DIR / "analysis_results.json"
-    with open(results_path, "w") as f:
-        json.dump(results, f, indent=2)
-    print(f"Raw results saved to {results_path}")
+    # Save raw results JSON (skip in stdout mode)
+    if output_dir:
+        results_path = output_dir / "analysis_results.json"
+        results_path.write_text(json.dumps(results, indent=2), encoding="utf-8")
+        click.echo(f"Raw results saved to {results_path}", err=True)
 
     # Generate report
-    report_path = REPORTS_DIR / "genetic_report.md"
-    generate_report(results, report_path)
+    report = generate_report(results)
+    if output_dir is None:
+        click.echo(report)
+    else:
+        report_path = output_dir / "genetic_report.md"
+        report_path.write_text(report, encoding="utf-8")
+        click.echo(f"  Written: {report_path}", err=True)
 
     # Print summary
-    print("\n" + "=" * 60)
-    print("ANALYSIS COMPLETE")
-    print("=" * 60)
-    print(f"\nHigh-Impact Findings ({results['summary']['high_impact']}):")
+    click.echo("\n" + "=" * 60, err=True)
+    click.echo("ANALYSIS COMPLETE", err=True)
+    click.echo("=" * 60, err=True)
+    click.echo(f"\nHigh-Impact Findings ({results['summary']['high_impact']}):", err=True)
     for finding in [f for f in results["curated_findings"] if f["magnitude"] >= 3]:
-        print(f"  - {finding['gene']} ({finding['rsid']}): {finding['status']} - Magnitude {finding['magnitude']}")
-
-    print(f"\nFull report: {report_path}")
-
-
-def main():
-    run_analyze_genome(DATA_DIR / "genome.txt")
+        click.echo(
+            f"  - {finding['gene']} ({finding['rsid']}): {finding['status']} - Magnitude {finding['magnitude']}",
+            err=True,
+        )
 
 
-if __name__ == "__main__":
-    main()
+# Note: Use the CLI instead of running this module directly:
+# uv run analyze-dna quick-analysis <genome> --output <dir>
