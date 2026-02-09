@@ -1,8 +1,10 @@
 import functools
+import sys
 from pathlib import Path
 
 import click
 
+from . import __version__
 from .analyze_genome import run_analyze_genome
 from .fast_loader import load_genome_fast
 from .full_health_analysis import run_health_analysis
@@ -67,6 +69,7 @@ def output_options(func):
 
 
 @click.group()
+@click.version_option(version=__version__, prog_name="analyze-dna")
 def cli():
     """Genetic Health Analysis Pipeline CLI."""
 
@@ -168,5 +171,17 @@ def update_clinvar_cmd(keep_download, no_gzip, skip_download, include_all):
     run_update_clinvar(keep_download, no_gzip, skip_download, include_all)
 
 
+def main():
+    """Entry point with graceful error handling."""
+    try:
+        cli()
+    except KeyboardInterrupt:
+        click.echo("\nInterrupted.", err=True)
+        sys.exit(130)
+    except ValueError as e:
+        click.echo(f"Error: {e}", err=True)
+        sys.exit(1)
+
+
 if __name__ == "__main__":
-    cli()
+    main()

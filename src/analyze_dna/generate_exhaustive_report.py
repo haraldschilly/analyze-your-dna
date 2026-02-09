@@ -445,7 +445,7 @@ PATHWAYS = {
 
 def load_genetic_data(filepath):
     """Load the comprehensive results JSON."""
-    with open(filepath) as f:
+    with open(filepath, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -966,7 +966,7 @@ def main():
     full_report = "\n".join(report_parts)
 
     print(f"Writing report to {output_path}...")
-    with open(output_path, "w") as f:
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(full_report)
 
     print("\n✅ Report generated successfully!")

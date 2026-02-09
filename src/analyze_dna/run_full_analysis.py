@@ -1100,7 +1100,7 @@ def run_full_analysis(genome_path: Path, subject_name: str | None, output_dir: P
 
     # Summary
     print_header("ANALYSIS COMPLETE")
-    click.echo(f"\n  1. EXHAUSTIVE_GENETIC_REPORT.md", err=True)
+    click.echo("\n  1. EXHAUSTIVE_GENETIC_REPORT.md", err=True)
     click.echo(f"     - {len(health_results['findings'])} lifestyle/health findings", err=True)
     click.echo(f"     - {len(health_results['pharmgkb_findings'])} drug-gene interactions", err=True)
 

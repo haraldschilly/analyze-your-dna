@@ -26,7 +26,7 @@ from pathlib import Path
 def load_genome(genome_path: Path) -> dict:
     """Load 23andMe genome file into a dictionary."""
     genome = {}
-    with open(genome_path) as f:
+    with open(genome_path, encoding="utf-8") as f:
         for line in f:
             if line.startswith("#"):
                 continue
@@ -43,7 +43,7 @@ def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
     pharmgkb: dict[str, dict] = {}
     annotations = {}
 
-    with open(annotations_path) as f:
+    with open(annotations_path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             ann_id = row.get("Clinical Annotation ID", "")
@@ -58,7 +58,7 @@ def load_pharmgkb(annotations_path: Path, alleles_path: Path) -> dict:
                     "category": row.get("Phenotype Category", ""),
                 }
 
-    with open(alleles_path) as f:
+    with open(alleles_path, encoding="utf-8") as f:
         reader = csv.DictReader(f, delimiter="\t")
         for row in reader:
             ann_id = row.get("Clinical Annotation ID", "")
@@ -88,14 +88,23 @@ def ensure_clinvar(data_dir):
     Returns:
         Path to clinvar_alleles.tsv (str).
     """
+    import sys
+
     tsv = os.path.join(str(data_dir), "clinvar_alleles.tsv")
     gz = os.path.join(str(data_dir), "clinvar_alleles.tsv.gz")
 
     if not os.path.exists(tsv) and os.path.exists(gz):
-        print("  Decompressing clinvar_alleles.tsv.gz ...")
+        print("  Decompressing clinvar_alleles.tsv.gz ...", file=sys.stderr)
         with gzip.open(gz, "rb") as f_in, open(tsv, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
-        print("  Done.")
+        print("  Done.", file=sys.stderr)
+    elif not os.path.exists(tsv) and not os.path.exists(gz):
+        print(
+            f"  Warning: ClinVar database not found in {data_dir}/\n"
+            "  Disease risk analysis will be skipped.\n"
+            "  To download it, run: analyze-dna update-clinvar",
+            file=sys.stderr,
+        )
 
     return tsv
 

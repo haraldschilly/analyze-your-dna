@@ -11,18 +11,18 @@
 
 ### Key Files to Reference
 ```
-scripts/comprehensive_snp_database.py  # Pattern for SNP database structure
-scripts/generate_exhaustive_report.py  # Pattern for report generation
-scripts/fast_loader.py                 # How genome data is loaded (returns genome_by_rsid dict)
-scripts/full_health_analysis.py        # Pattern for analyzing SNPs against database
+src/analyze_dna/comprehensive_snp_database.py  # Pattern for SNP database structure
+src/analyze_dna/generate_exhaustive_report.py  # Pattern for report generation
+src/analyze_dna/fast_loader.py                 # How genome data is loaded (returns genome_by_rsid dict)
+src/analyze_dna/full_health_analysis.py        # Pattern for analyzing SNPs against database
 ```
 
 ### How to Run Existing Pipeline
 ```bash
-uv run python3 scripts/run_full_analysis.py path/to/genome.txt --name "Subject"
+uv run analyze-dna full-analysis path/to/genome.txt --output ./reports --name "Subject"
 ```
 
-### SNP Database Pattern (from comprehensive_snp_database.py)
+### SNP Database Pattern (from src/analyze_dna/comprehensive_snp_database.py)
 ```python
 "rs12913832": {
     "gene": "HERC2",
@@ -55,7 +55,7 @@ EYE_COLOR_COEFFICIENTS = {
 
 ### Genome Data Access Pattern
 ```python
-from scripts.fast_loader import load_genome_fast
+from analyze_dna.fast_loader import load_genome_fast
 genome_by_rsid, genome_by_position = load_genome_fast("path/to/genome.txt")
 
 # Lookup: genome_by_rsid.get("rs12913832") → "GG" or "AG" or "AA" or None
@@ -106,7 +106,7 @@ def check_genotype_match(user_geno: str, expected_variants: dict) -> tuple:
 
 ---
 
-## Part 1: Traits Report (`scripts/generate_traits_report.py`)
+## Part 1: Traits Report (`src/analyze_dna/generate_traits_report.py`)
 
 ### Architecture
 Model after existing `generate_exhaustive_report.py`:
@@ -163,7 +163,7 @@ Based on rs8176719 (ID) and rs8176746 (GG)...
 ...
 ```
 
-### New SNP Database: `scripts/traits_snp_database.py`
+### New SNP Database: `src/analyze_dna/traits_snp_database.py`
 
 Categories to implement:
 
@@ -270,7 +270,7 @@ Sources for astigmatism:
 
 ---
 
-## Part 2: AI Image Prompt Generator (`scripts/generate_portrait_prompt.py`)
+## Part 2: AI Image Prompt Generator (`src/analyze_dna/generate_portrait_prompt.py`)
 
 ### User Inputs Required
 - Year of birth (to calculate current age)
@@ -340,11 +340,11 @@ Medium-tall stature with an average to slightly robust build.
 
 ### CLI Interface
 ```bash
-uv run python3 scripts/generate_portrait_prompt.py path/to/genome.txt \
+uv run analyze-dna portrait path/to/genome.txt \
     --birth-year 1980 \
     --sex male \
     --hair-style "short, neat" \
-    --output prompts/portrait.txt
+    --output prompts/
 ```
 
 The "output" is optional, and can be omitted to print to stdout instead.
@@ -354,7 +354,7 @@ The "output" is optional, and can be omitted to print to stdout instead.
 ## Implementation Order
 
 ### Phase 1: Foundation
-1. [x] Create `scripts/traits_snp_database.py` with all trait SNPs
+1. [x] Create `src/analyze_dna/traits_snp_database.py` with all trait SNPs
 2. [x] Add strand complement utility (A↔T, C↔G) — currently only reversal exists, not complement
    ```python
    COMPLEMENT = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
@@ -365,22 +365,22 @@ The "output" is optional, and can be omitted to print to stdout instead.
 3. [x] Add no-call handling: "--" → None, with "Inconclusive" reporting for critical SNPs
 
 ### Phase 2: Traits Report
-4. [x] Create `scripts/generate_traits_report.py`
+4. [x] Create `src/analyze_dna/generate_traits_report.py`
 5. [x] Implement category-by-category analysis
 6. [x] Add probability calculations for pigmentation (need formula coefficients)
 7. [x] Generate markdown report with interpretations
 
 ### Phase 3: Portrait Prompt Generator
-7. [x] Create `scripts/generate_portrait_prompt.py`
+7. [x] Create `src/analyze_dna/generate_portrait_prompt.py`
 8. [x] Implement trait → token mapping
 9. [x] Add age-dependent modifiers
 10. [x] Build prompt assembly with weights
 11. [x] Add user input handling (CLI args or interactive)
 
 ### Phase 4: Integration
-12. [ ] Add to `run_full_analysis.py` as optional output
-13. [ ] Update README with new features
-14. [ ] Add tests
+12. [x] Add to `run_full_analysis.py` as optional output
+13. [x] Update README with new features
+14. [x] Add tests
 
 ---
 
@@ -447,40 +447,41 @@ The "output" is optional, and can be omitted to print to stdout instead.
 
 ---
 
-## Files to Create
+## Files Created
 
 ```
-scripts/
-  traits_snp_database.py      # New trait SNPs
-  generate_traits_report.py   # Traits markdown report
-  generate_portrait_prompt.py # AI image prompt generator
+src/analyze_dna/
+  traits_snp_database.py      # Trait SNPs (done)
+  generate_traits_report.py   # Traits markdown report (done)
+  generate_portrait_prompt.py # AI image prompt generator (done)
 ```
 
-## Files to Modify
+## Files Modified
 
 ```
-scripts/run_full_analysis.py  # Add traits report generation
-README.md                      # Document new features
+src/analyze_dna/run_full_analysis.py  # Traits report integration (done)
+src/analyze_dna/cli.py                # CLI commands for traits + portrait (done)
+README.md                              # Documented new features (done)
 ```
 
 ---
 
-## Quick Start Checklist
+## Quick Start Checklist (completed)
 
-**Start here:**
-1. Read `scripts/comprehensive_snp_database.py` to understand the SNP entry format
-2. Read `scripts/full_health_analysis.py` to see how analysis loops work
-3. Create `scripts/traits_snp_database.py` with the SNPs from the tables above
-4. Create `scripts/generate_traits_report.py` modeling after `generate_exhaustive_report.py`
-5. Test with: `uv run python3 scripts/generate_traits_report.py path/to/genome.txt`
+All items below have been implemented:
+1. [x] Read `src/analyze_dna/comprehensive_snp_database.py` to understand the SNP entry format
+2. [x] Read `src/analyze_dna/full_health_analysis.py` to see how analysis loops work
+3. [x] Create `src/analyze_dna/traits_snp_database.py` with the SNPs from the tables above
+4. [x] Create `src/analyze_dna/generate_traits_report.py` modeling after `generate_exhaustive_report.py`
+5. [x] Test with: `uv run analyze-dna traits path/to/genome.txt --output .`
 
-**Key principle:** Each trait should have clear genotype→interpretation mappings. For complex traits like eye color, implement the probability model. For simple traits like earwax, just map genotype to outcome.
+**Key principle:** Each trait has clear genotype->interpretation mappings. Complex traits like eye color use the probability model. Simple traits like earwax map genotype to outcome.
 
 ---
 
 ## Future Improvements
 
 ### Code Quality & Types
-- [ ] Expand static type checking (`mypy`) to cover all scripts (currently only `comprehensive_snp_database.py` is strictly checked).
-- [ ] Refactor type definitions (e.g., `SnpInfo`, `VariantInfo`) into a shared `scripts/types.py` module to prevent circular imports and encourage reuse across `analyze_genome.py`, `run_full_analysis.py`, etc.
+- [ ] Expand static type checking (`mypy`) to cover all modules with strict mode.
+- [x] Refactor type definitions (e.g., `SnpInfo`, `VariantInfo`) into a shared `src/analyze_dna/types.py` module to prevent circular imports and encourage reuse.
 
