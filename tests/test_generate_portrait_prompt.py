@@ -1,5 +1,3 @@
-from unittest.mock import patch
-
 from analyze_dna.generate_portrait_prompt import format_prompt_output, generate_portrait_prompt, get_trait_value
 
 
@@ -87,7 +85,7 @@ def test_portrait_dark_hair_slc45a2():
     """SLC45A2 dark status should produce dark brown/black hair."""
     genome = {
         "rs12913832": "AA",  # Brown eyes
-        "rs16891982": "GG",  # SLC45A2 dark
+        "rs16891982": "CC",  # SLC45A2 dark (ancestral)
         "rs1426654": "GG",  # Dark skin
     }
     prompt = generate_portrait_prompt(genome, birth_year=1990, sex="male")
@@ -98,7 +96,7 @@ def test_portrait_light_brown_hair():
     """SLC45A2 light without KITLG should produce light brown."""
     genome = {
         "rs12913832": "GG",
-        "rs16891982": "CC",  # SLC45A2 light
+        "rs16891982": "GG",  # SLC45A2 light (derived/European)
         "rs1426654": "AA",
     }
     prompt = generate_portrait_prompt(genome, birth_year=1990, sex="female")

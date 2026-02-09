@@ -128,11 +128,11 @@ def predict_eye_color_mlr(genome_by_rsid: dict) -> dict:
     prob_inter = exp_inter / total
     prob_brown = exp_brown / total
 
-    # Determine prediction (>60% threshold for definitive call)
-    if prob_blue > 0.60:
+    # Determine prediction (IrisPlex standard: >70% threshold for definitive call)
+    if prob_blue > 0.70:
         prediction = "Blue"
         confidence = prob_blue
-    elif prob_brown > 0.60:
+    elif prob_brown > 0.70:
         prediction = "Brown"
         confidence = prob_brown
     elif prob_inter > 0.40:

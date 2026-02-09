@@ -1,5 +1,4 @@
-from pathlib import Path
-from unittest.mock import mock_open, patch
+from unittest.mock import patch
 
 from analyze_dna.generate_traits_report import (
     analyze_traits_genome,
@@ -32,16 +31,10 @@ def test_check_genotype_match_reversed():
 
 def test_check_genotype_match_complement_reversed():
     """Test complement + reversed matching."""
-    expected = {"CA": "info"}
-    # GT -> complement -> CA (found directly via complement)
-    # But let's test TC -> complement -> AG -> reverse -> GA (not found),
-    # Then complement_reversed: AG reversed = GA (not in expected).
-    # Actually: TC complement = AG, reverse of TC = CT, complement of CT = GA, reverse = AG
-    # Let's use a clear example:
-    expected2 = {"GT": "info2"}
     # AC -> complement = TG -> not found, reverse of AC = CA -> not found,
     # complement(AC) = TG, reverse of TG = GT -> found!
-    assert check_genotype_match("AC", expected2) == ("GT", "info2")
+    expected = {"GT": "info2"}
+    assert check_genotype_match("AC", expected) == ("GT", "info2")
 
 
 def test_check_genotype_match_no_match():
@@ -64,44 +57,44 @@ def test_predict_eye_color_mlr_blue():
     """Homozygous GG at HERC2 should predict blue with high confidence."""
     genome = {
         "rs12913832": "GG",  # HERC2 master switch -> strong blue
-        "rs1800407": "AA",  # OCA2 lightening
-        "rs16891982": "CC",  # SLC45A2 light
+        "rs1800407": "AA",  # OCA2 lightening (A = light allele)
+        "rs16891982": "GG",  # SLC45A2 light (G = derived/light in Europeans)
     }
     result = predict_eye_color_mlr(genome)
     assert result["prediction"] == "Blue"
-    assert result["confidence"] > 0.6
+    assert result["confidence"] > 0.70
 
 
-def test_predict_eye_color_mlr_no_blue_alleles():
-    """No effect alleles at all — model defaults to Mixed/Indeterminate.
+def test_predict_eye_color_mlr_brown():
+    """No light alleles should predict brown with high confidence.
 
-    The MLR model has all positive coefficients pushing toward blue/intermediate.
-    With zero effect alleles, the intercept alone determines the outcome:
-    blue intercept (0.5) > brown (0), so brown is never dominant.
-    This correctly reflects the model's calibration.
+    With negative intercepts and no light alleles contributing,
+    the model correctly defaults to brown (~85%), matching the
+    known heuristic: AA at HERC2 -> ~85% brown.
     """
     genome = {
-        "rs12913832": "AA",  # HERC2 -> 0 G alleles
-        "rs16891982": "GG",  # SLC45A2 -> 0 C alleles
-        "rs1393350": "GG",  # TYR -> 0 A alleles
+        "rs12913832": "AA",  # HERC2 -> 0 G alleles (dark)
+        "rs16891982": "CC",  # SLC45A2 -> 0 G alleles (dark/ancestral)
+        "rs1393350": "GG",  # TYR -> 0 A alleles (dark/high activity)
     }
     result = predict_eye_color_mlr(genome)
-    # Brown is always lower than blue in this model without effect alleles
-    assert result["prediction"] == "Mixed/Indeterminate"
-    assert result["probabilities"]["Brown"] > 0
+    assert result["prediction"] == "Brown"
+    assert result["confidence"] > 0.70
+    assert result["probabilities"]["Brown"] > result["probabilities"]["Blue"]
     assert result["probabilities"]["Brown"] > result["probabilities"]["Intermediate"]
 
 
 def test_predict_eye_color_mlr_intermediate():
-    """Heterozygous at HERC2 should give intermediate/mixed prediction."""
+    """Heterozygous at HERC2 should give mixed/indeterminate prediction."""
     genome = {
         "rs12913832": "AG",  # HERC2 heterozygous
     }
     result = predict_eye_color_mlr(genome)
-    # Should be something other than Inconclusive
-    assert result["prediction"] != "Inconclusive"
-    assert result["probabilities"]["Blue"] > 0
-    assert result["probabilities"]["Brown"] > 0
+    assert result["prediction"] == "Mixed/Indeterminate"
+    # All three probabilities should be meaningfully non-zero
+    assert result["probabilities"]["Blue"] > 0.10
+    assert result["probabilities"]["Brown"] > 0.10
+    assert result["probabilities"]["Intermediate"] > 0.10
 
 
 def test_predict_eye_color_contributions():
