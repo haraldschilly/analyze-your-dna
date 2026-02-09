@@ -211,7 +211,7 @@ def generate_comprehensive_report(results: dict) -> str:
 
     if level_1:
         f.write("### Level 1 Evidence (Clinical Guidelines Exist)\n\n")
-        for finding in level_1[:20]:
+        for finding in level_1:
             f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
             f.write(f"- Drugs: {finding['drugs']}\n")
             f.write(f"- Your Genotype: `{finding['genotype']}`\n")
@@ -223,7 +223,7 @@ def generate_comprehensive_report(results: dict) -> str:
     if level_2:
         f.write("### Level 2 Evidence (Moderate Evidence)\n\n")
         f.write("<details>\n<summary>Click to expand Level 2 findings</summary>\n\n")
-        for finding in level_2[:30]:
+        for finding in level_2:
             f.write(f"**{finding['gene']} - {finding['rsid']}** ({finding['level']})\n")
             f.write(f"- Drugs: {finding['drugs']}\n")
             f.write(f"- Your Genotype: `{finding['genotype']}`\n\n")

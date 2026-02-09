@@ -860,31 +860,31 @@ def generate_action_summary(findings):
         lines.append("### 💊 Supplement Considerations")
         lines.append("*Discuss with healthcare provider before starting*")
         lines.append("")
-        lines.extend(list(set(supplement_actions))[:15])  # Dedupe and limit
+        lines.extend(list(set(supplement_actions)))  # Dedupe
         lines.append("")
 
     if diet_actions:
         lines.append("### 🥗 Dietary Recommendations")
         lines.append("")
-        lines.extend(list(set(diet_actions))[:10])
+        lines.extend(list(set(diet_actions)))
         lines.append("")
 
     if lifestyle_actions:
         lines.append("### 🏃 Lifestyle Actions")
         lines.append("")
-        lines.extend(list(set(lifestyle_actions))[:10])
+        lines.extend(list(set(lifestyle_actions)))
         lines.append("")
 
     if monitoring_actions:
         lines.append("### 📊 Monitoring Recommendations")
         lines.append("")
-        lines.extend(list(set(monitoring_actions))[:10])
+        lines.extend(list(set(monitoring_actions)))
         lines.append("")
 
     if medical_actions:
         lines.append("### 🏥 Medical Considerations")
         lines.append("")
-        lines.extend(list(set(medical_actions))[:10])
+        lines.extend(list(set(medical_actions)))
         lines.append("")
 
     lines.append("---")

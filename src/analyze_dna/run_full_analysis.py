@@ -884,11 +884,9 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
     if level_2:
         report += "| Gene | Level | Drugs | Your Genotype |\n"
         report += "|------|-------|-------|---------------|\n"
-        for f in level_2[:15]:
+        for f in level_2:
             drugs = f["drugs"][:50] + "..." if len(f["drugs"]) > 50 else f["drugs"]
             report += f"| {f['gene']} | {f['level']} | {drugs} | `{f['genotype']}` |\n"
-        if len(level_2) > 15:
-            report += f"\n*...and {len(level_2) - 15} more Level 2 interactions*\n"
     else:
         report += "None detected.\n"
 
@@ -899,12 +897,10 @@ This protocol synthesizes ALL genetic findings into concrete recommendations:
         drug_resp = disease_findings["drug_response"]
         report += "| Gene | RSID | Genotype | Drug/Response |\n"
         report += "|------|------|----------|---------------|\n"
-        for f in drug_resp[:20]:
+        for f in drug_resp:
             traits = f["traits"][:60] + "..." if len(f["traits"]) > 60 else f["traits"]
             gene = f["gene"] if f["gene"] else "—"
             report += f"| {gene} | {f['rsid']} | `{f['user_genotype']}` | {traits} |\n"
-        if len(drug_resp) > 20:
-            report += f"\n*...and {len(drug_resp) - 20} more drug response variants*\n"
     else:
         report += "None detected.\n"
 
