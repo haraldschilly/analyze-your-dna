@@ -77,7 +77,7 @@ def load_genome_fast(genome_path: Path) -> tuple[dict[str, dict], dict[str, dict
     else:
         result = _load_genome_stdlib(genome_path)
 
-    genome_by_rsid, genome_by_position = result
+    genome_by_rsid, _genome_by_position = result
     if len(genome_by_rsid) == 0:
         raise ValueError(
             f"No valid SNP data found in '{genome_path}'. "
