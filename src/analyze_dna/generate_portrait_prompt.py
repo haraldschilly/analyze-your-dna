@@ -390,7 +390,7 @@ def generate_portrait_prompt(  # pylint: disable=too-many-positional-arguments
         "body_type": body_desc,
         "notes": notes,
         "eye_color_confidence": eye_confidence,
-        "traits_used": len([k for k in genome_by_rsid.keys() if k in TRAITS_SNPS]),
+        "traits_used": len([k for k in TRAITS_SNPS if k in genome_by_rsid]),
     }
 
     return prompt_output
