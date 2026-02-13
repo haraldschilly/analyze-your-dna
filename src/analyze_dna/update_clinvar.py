@@ -33,6 +33,7 @@ Usage:
 import argparse
 import csv
 import gzip
+import hashlib
 import sys
 import urllib.request
 from datetime import datetime
@@ -130,8 +131,23 @@ def compute_significance_flags(clinical_sig: str) -> dict:
     }
 
 
+def calculate_md5(file_path: Path) -> str:
+    """Calculate MD5 checksum of a file."""
+    md5 = hashlib.md5()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            md5.update(chunk)
+    return md5.hexdigest()
+
+
 def download_clinvar(url: str, dest: Path, show_progress: bool = True) -> None:
-    """Download ClinVar variant_summary.txt.gz with progress indicator."""
+    """Download ClinVar variant_summary.txt.gz and verify its MD5 checksum."""
+    md5_url = url + ".md5"
+    md5_dest = dest.with_suffix(dest.suffix + ".md5")
+
+    print(f"Downloading checksum from {md5_url}")
+    urllib.request.urlretrieve(md5_url, md5_dest)
+
     print(f"Downloading from {url}")
     print(f"  Destination: {dest}")
 
@@ -150,6 +166,25 @@ def download_clinvar(url: str, dest: Path, show_progress: bool = True) -> None:
 
     file_size = dest.stat().st_size / (1024 * 1024)
     print(f"  Downloaded: {file_size:.1f} MB")
+
+    # Verify checksum
+    print("  Verifying MD5 checksum...")
+    with open(md5_dest, "r", encoding="utf-8") as f:
+        # NCBI MD5 format is typically: "hash  filename"
+        expected_md5 = f.read().split()[0]
+
+    actual_md5 = calculate_md5(dest)
+    if actual_md5 != expected_md5:
+        if dest.exists():
+            dest.unlink()
+        if md5_dest.exists():
+            md5_dest.unlink()
+        raise ValueError(f"Checksum mismatch! Expected {expected_md5}, got {actual_md5}")
+
+    print("  Checksum verified successfully.")
+    # Clean up md5 file
+    if md5_dest.exists():
+        md5_dest.unlink()
 
 
 def convert_clinvar(input_gz: Path, output_tsv: Path, include_all: bool = False) -> dict:
@@ -305,7 +340,11 @@ def run_update_clinvar(keep_download=False, no_gzip=False, skip_download=False, 
     if skip_download and DOWNLOAD_FILE.exists():
         print(f"Using existing download: {DOWNLOAD_FILE}")
     else:
-        download_clinvar(CLINVAR_URL, DOWNLOAD_FILE)
+        try:
+            download_clinvar(CLINVAR_URL, DOWNLOAD_FILE)
+        except Exception as e:
+            print(f"\nError downloading ClinVar data: {e}", file=sys.stderr)
+            sys.exit(1)
     print()
 
     # Step 2: Convert
