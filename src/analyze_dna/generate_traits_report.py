@@ -30,6 +30,7 @@ from typing import Any
 
 from .fast_loader import load_genome_fast
 from .traits_snp_database import EYE_COLOR_MLR, TRAITS_SNPS
+from .utils import sanitize_markdown
 
 
 def complement_genotype(geno: str) -> str:
@@ -263,8 +264,9 @@ def analyze_traits_genome(genome_by_rsid: dict) -> dict:
 def generate_traits_report(results: dict, subject_name: str) -> str:
     """Generate markdown traits report and return as string."""
     f = io.StringIO()
+    sanitized_name = sanitize_markdown(subject_name)
     # Header
-    f.write(f"# Genetic Traits Report for {subject_name}\n\n")
+    f.write(f"# Genetic Traits Report for {sanitized_name}\n\n")
     f.write(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
     f.write("This report analyzes observable characteristics based on genetic variants. ")
     f.write("It covers pigmentation, taste/smell, physical features, and vision traits.\n\n")

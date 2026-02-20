@@ -40,7 +40,7 @@ SCRIPT_DIR = Path(__file__).parent
 
 from .comprehensive_snp_database import COMPREHENSIVE_SNPS  # noqa: E402
 from .fast_loader import get_loader_info, load_clinvar_fast, load_genome_fast  # noqa: E402
-from .utils import ensure_clinvar  # noqa: E402
+from .utils import ensure_clinvar, sanitize_markdown  # noqa: E402
 from .utils import load_pharmgkb as load_pharmgkb_utils  # noqa: E402
 
 # Directory configuration
@@ -270,8 +270,10 @@ def generate_exhaustive_genetic_report(results: dict, subject_name: str | None =
 
     # Add subject name if provided
     if subject_name:
+        sanitized_name = sanitize_markdown(subject_name)
         full_report = full_report.replace(
-            "# Exhaustive Genetic Health Report", f"# Exhaustive Genetic Health Report\n\n**Subject:** {subject_name}"
+            "# Exhaustive Genetic Health Report",
+            f"# Exhaustive Genetic Health Report\n\n**Subject:** {sanitized_name}",
         )
 
     return full_report
@@ -308,7 +310,8 @@ def generate_disease_risk_report(
     findings["drug_response"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
     findings["protective"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
 
-    subject_line = f"\n**Subject:** {subject_name}" if subject_name else ""
+    sanitized_name = sanitize_markdown(subject_name) if subject_name else None
+    subject_line = f"\n**Subject:** {sanitized_name}" if sanitized_name else ""
 
     report = f"""# Exhaustive Disease Risk Report
 {subject_line}
@@ -429,7 +432,8 @@ def generate_actionable_protocol(health_results: dict, disease_findings: dict, s
     """Generate the actionable health protocol (Action Plan) and return as string."""
 
     now = datetime.now().strftime("%Y-%m-%d %H:%M")
-    subject_line = f"\n**Subject:** {subject_name}" if subject_name else ""
+    sanitized_name = sanitize_markdown(subject_name) if subject_name else None
+    subject_line = f"\n**Subject:** {sanitized_name}" if sanitized_name else ""
 
     # Build lookup dictionaries
     findings_dict = {f["gene"]: f for f in health_results["findings"]}

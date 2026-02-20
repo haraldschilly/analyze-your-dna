@@ -2,7 +2,31 @@ import gzip
 from pathlib import Path
 from unittest.mock import mock_open, patch
 
-from analyze_dna.utils import ensure_clinvar, load_genome, load_pharmgkb, snp_database_stats
+from analyze_dna.utils import (
+    ensure_clinvar,
+    load_genome,
+    load_pharmgkb,
+    sanitize_markdown,
+    snp_database_stats,
+)
+
+
+def test_sanitize_markdown():
+    """Test the Markdown sanitization utility."""
+    assert sanitize_markdown(None) == ""
+    assert sanitize_markdown("") == ""
+
+    # Test HTML escaping
+    assert sanitize_markdown("<script>alert(1)</script>") == r"&lt;script&gt;alert\(1\)&lt;/script&gt;"
+
+    # Test Markdown escaping
+    assert sanitize_markdown("# Header") == r"\# Header"
+    assert sanitize_markdown("**Bold**") == r"\*\*Bold\*\*"
+    assert sanitize_markdown("[Link](url)") == r"\[Link\]\(url\)"
+    assert sanitize_markdown("`Code`") == r"\`Code\`"
+
+    # Test combination
+    assert sanitize_markdown("** <script>") == r"\*\* &lt;script&gt;"
 
 
 def test_load_genome():

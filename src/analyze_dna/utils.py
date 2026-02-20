@@ -17,10 +17,32 @@
 
 import csv
 import gzip
+import html
 import os
 import shutil
 from collections import defaultdict
 from pathlib import Path
+
+
+def sanitize_markdown(text: str | None) -> str:
+    """Sanitize input for Markdown reports to prevent injection and XSS.
+
+    Escapes HTML tags and Markdown special characters.
+    """
+    if not text:
+        return ""
+
+    # First escape HTML characters to prevent XSS
+    text = html.escape(text)
+
+    # Escape Markdown special characters to prevent injection
+    # We escape characters that have special meaning in Markdown
+    # Source: https://daringfireball.net/projects/markdown/syntax#backslash
+    special_chars = r"\`*_{}[]()#+-.!"
+    for char in special_chars:
+        text = text.replace(char, f"\\{char}")
+
+    return text
 
 
 def load_genome(genome_path: Path) -> dict:
