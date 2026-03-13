@@ -245,7 +245,8 @@ def generate_report(findings, stats, genome_by_rsid):
     findings["drug_response"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
     findings["protective"].sort(key=lambda x: (-x["gold_stars"], x["gene"]))
 
-    report = f"""# Exhaustive Disease Risk Report
+    report_parts = []
+    report_parts.append(f"""# Exhaustive Disease Risk Report
 
 **Generated:** {now}
 
@@ -279,19 +280,19 @@ def generate_report(findings, stats, genome_by_rsid):
 
 ---
 
-"""
+""")
 
     # AFFECTED SECTION
     if affected_findings:
-        report += """## 🔴 Pathogenic Variants — Affected Status
+        report_parts.append("""## 🔴 Pathogenic Variants — Affected Status
 
 These variants are classified as pathogenic and your genotype suggests you may be affected.
 **Consult a genetic counselor or physician for clinical interpretation.**
 
-"""
+""")
         for f in affected_findings:
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
-            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Condition not specified"}
+            report_parts.append(f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Condition not specified"}
 
 | Field | Value |
 |-------|-------|
@@ -321,11 +322,11 @@ These variants are classified as pathogenic and your genotype suggests you may b
 
 ---
 
-"""
+""")
 
     # CARRIER SECTION
     if carrier_findings:
-        report += """## 🟠 Carrier Status — Recessive Conditions
+        report_parts.append("""## 🟠 Carrier Status — Recessive Conditions
 
 You are a heterozygous carrier for these autosomal recessive conditions.
 **Carriers typically do not show symptoms but may pass the variant to offspring.**
@@ -335,7 +336,7 @@ You are a heterozygous carrier for these autosomal recessive conditions.
 - If your partner is affected: **50% chance** of affected child
 - Consider genetic counseling if planning pregnancy
 
-"""
+""")
         for f in carrier_findings:
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
             condition = f["traits"].split(";")[0] if f["traits"] else "Condition not specified"
@@ -343,7 +344,7 @@ You are a heterozygous carrier for these autosomal recessive conditions.
             # Add carrier-specific notes for known conditions
             carrier_notes = get_carrier_phenotype_notes(f["gene"], condition)
 
-            report += f"""### {f["gene"]} — {condition}
+            report_parts.append(f"""### {f["gene"]} — {condition}
 
 | Field | Value |
 |-------|-------|
@@ -366,20 +367,20 @@ You are a heterozygous carrier for these autosomal recessive conditions.
 
 ---
 
-"""
+""")
 
     # HETEROZYGOUS UNKNOWN INHERITANCE
     if het_unknown_findings:
-        report += """## 🟡 Pathogenic/Likely Pathogenic — Inheritance Unclear
+        report_parts.append("""## 🟡 Pathogenic/Likely Pathogenic — Inheritance Unclear
 
 You are heterozygous for these variants. The inheritance pattern is not clearly specified,
 so clinical impact is uncertain. Some may be dominant (one copy = affected), others may be
 carrier status only.
 
-"""
+""")
         for f in het_unknown_findings:
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
-            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Condition not specified"}
+            report_parts.append(f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Condition not specified"}
 
 | Field | Value |
 |-------|-------|
@@ -398,19 +399,19 @@ carrier status only.
 
 ---
 
-"""
+""")
 
     # RISK FACTORS
     if findings["risk_factor"]:
-        report += """## 🔵 Risk Factor Variants
+        report_parts.append("""## 🔵 Risk Factor Variants
 
 These variants are associated with increased susceptibility to certain conditions.
 They do not guarantee disease but indicate elevated risk.
 
-"""
+""")
         for f in findings["risk_factor"]:
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
-            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Risk factor"}
+            report_parts.append(f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Risk factor"}
 
 | **RSID** | **Genotype** | **Significance** | **Confidence** |
 |----------|--------------|------------------|----------------|
@@ -420,18 +421,18 @@ They do not guarantee disease but indicate elevated risk.
 
 ---
 
-"""
+""")
 
     # DRUG RESPONSE
     if findings["drug_response"]:
-        report += """## 💊 Drug Response Variants
+        report_parts.append("""## 💊 Drug Response Variants
 
 These variants affect response to medications.
 
-"""
+""")
         for f in findings["drug_response"]:
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
-            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Drug response"}
+            report_parts.append(f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Drug response"}
 
 | **RSID** | **Genotype** | **Significance** | **Confidence** |
 |----------|--------------|------------------|----------------|
@@ -441,18 +442,18 @@ These variants affect response to medications.
 
 ---
 
-"""
+""")
 
     # PROTECTIVE
     if findings["protective"]:
-        report += """## 🟢 Protective Variants
+        report_parts.append("""## 🟢 Protective Variants
 
 These variants are associated with reduced disease risk or protective effects.
 
-"""
+""")
         for f in findings["protective"]:
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
-            report += f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Protective"}
+            report_parts.append(f"""### {f["gene"]} — {f["traits"].split(";")[0] if f["traits"] else "Protective"}
 
 | **RSID** | **Genotype** | **Significance** | **Confidence** |
 |----------|--------------|------------------|----------------|
@@ -462,18 +463,18 @@ These variants are associated with reduced disease risk or protective effects.
 
 ---
 
-"""
+""")
 
     # OTHER SIGNIFICANT
     if findings["other_significant"]:
-        report += """## ⚪ Other Clinically Noted Variants
+        report_parts.append("""## ⚪ Other Clinically Noted Variants
 
 These variants have clinical annotations that don't fit the above categories.
 
-"""
+""")
         for f in findings["other_significant"][:50]:  # Limit to 50
             stars = "⭐" * f["gold_stars"] + "☆" * (4 - f["gold_stars"])
-            report += f"""### {f["gene"]} — {f["rsid"]}
+            report_parts.append(f"""### {f["gene"]} — {f["rsid"]}
 
 | **Genotype** | **Significance** | **Confidence** | **Traits** |
 |--------------|------------------|----------------|------------|
@@ -481,10 +482,10 @@ These variants have clinical annotations that don't fit the above categories.
 
 ---
 
-"""
+""")
 
     # STATISTICS SECTION
-    report += f"""## 📊 Analysis Statistics
+    report_parts.append(f"""## 📊 Analysis Statistics
 
 | Metric | Value |
 |--------|-------|
@@ -520,8 +521,9 @@ This report is for **informational and educational purposes only**. It is NOT a 
 ---
 
 *Report generated using ClinVar database. Classifications reflect ClinVar submissions as of database download date.*
-"""
+""")
 
+    report = "".join(report_parts)
     # Write report
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         f.write(report)
